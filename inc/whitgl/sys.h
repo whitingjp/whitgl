@@ -7,16 +7,16 @@ typedef struct
 	int pixel_size;
 	bool fullscreen;
 	bool disable_mouse_cursor;
-} jpw_sys_setup;
+} whitgl_sys_setup;
 
-extern jpw_sys_setup jpw_default_setup;
+extern whitgl_sys_setup whitgl_default_setup;
 
-void jpw_sys_init(jpw_sys_setup setup);
-bool jpw_sys_should_close();
-void jpw_sys_close();
+void whitgl_sys_init(whitgl_sys_setup setup);
+bool whitgl_sys_should_close();
+void whitgl_sys_close();
 
-void jpw_sys_draw_init();
-void jpw_sys_draw_finish();
+void whitgl_sys_draw_init();
+void whitgl_sys_draw_finish();
 
-double jpw_sys_get_time();
-void jpw_sys_sleep( double time );
+double whitgl_sys_get_time();
+void whitgl_sys_sleep( double time );

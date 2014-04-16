@@ -3,15 +3,15 @@
 
 #include <GL/glfw.h>
 
-#include <jpw/logging.h>
-#include <jpw/sys.h>
+#include <whitgl/logging.h>
+#include <whitgl/sys.h>
 
 bool _shouldClose;
 int _pixel_scale;
 int _window_width;
 int _window_height;
 
-jpw_sys_setup jpw_default_setup =
+whitgl_sys_setup whitgl_default_setup =
 {
 	"default window name",
 	120,
@@ -21,19 +21,19 @@ jpw_sys_setup jpw_default_setup =
 	false,
 };
 
-int GLFWCALL _jpw_sys_close_callback();
+int GLFWCALL _whitgl_sys_close_callback();
 
-void jpw_sys_init(jpw_sys_setup setup)
+void whitgl_sys_init(whitgl_sys_setup setup)
 {
 	bool result;
 	_shouldClose = false;
 	
-	JPW_LOG("Initialize GLFW");
+	WHITGL_LOG("Initialize GLFW");
 
 	result = glfwInit();
 	if(!result)
 	{
-		JPW_LOG("Failed to initialize GLFW");
+		WHITGL_LOG("Failed to initialize GLFW");
 		exit( EXIT_FAILURE );
 	}
 
@@ -55,46 +55,46 @@ void jpw_sys_init(jpw_sys_setup setup)
 	glfwSetWindowTitle(setup.name);
 	if(!result)
 	{
-		JPW_LOG("Failed to open GLFW window");
+		WHITGL_LOG("Failed to open GLFW window");
 		exit( EXIT_FAILURE );
 	}
 	
 	// Enable vertical sync (on cards that support it)
 	glfwSwapInterval( 1 );
 	
-	glfwSetWindowCloseCallback(_jpw_sys_close_callback);
+	glfwSetWindowCloseCallback(_whitgl_sys_close_callback);
 
 	if(setup.disable_mouse_cursor)
 		glfwDisable(GLFW_MOUSE_CURSOR);
 }
 
-int GLFWCALL _jpw_sys_close_callback()
+int GLFWCALL _whitgl_sys_close_callback()
 {
   _shouldClose = true;
   return true;
 }
 
-bool jpw_sys_should_close()
+bool whitgl_sys_should_close()
 {
 	return _shouldClose;
 }
 
-void jpw_sys_close()
+void whitgl_sys_close()
 {
 	glfwTerminate();
 }
 
-double jpw_sys_getTime()
+double whitgl_sys_getTime()
 {
 	return glfwGetTime();
 }
 
-void jpw_sys_sleep(double time)
+void whitgl_sys_sleep(double time)
 {
 	glfwSleep(time);
 }
 
-void jpw_sys_draw_init()
+void whitgl_sys_draw_init()
 {
 	glfwGetWindowSize( &_window_width, &_window_height);  
 	glViewport( 0, 0, _window_width, _window_height ); 
@@ -107,7 +107,7 @@ void jpw_sys_draw_init()
 	gluOrtho2D(0, _window_width, _window_height,0);
 }
 
-void jpw_sys_draw_finish()
+void whitgl_sys_draw_finish()
 {
 	glfwSwapBuffers();
 }

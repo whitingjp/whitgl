@@ -1,43 +1,43 @@
 #include <stdbool.h>
 
-#include <jpw/input.h>
-#include <jpw/logging.h>
-#include <jpw/sound.h>
-#include <jpw/sys.h>
+#include <whitgl/input.h>
+#include <whitgl/logging.h>
+#include <whitgl/sound.h>
+#include <whitgl/sys.h>
 
 int main()
 {
-	JPW_LOG("Starting main.");
+	WHITGL_LOG("Starting main.");
 
-	jpw_sys_setup setup = jpw_default_setup;
+	whitgl_sys_setup setup = whitgl_default_setup;
 	setup.name = "main";
 	
-	jpw_sys_init(setup);
-	jpw_sound_init();
-	jpw_input_init();
+	whitgl_sys_init(setup);
+	whitgl_sound_init();
+	whitgl_input_init();
 
-	jpw_sound_add(0, "data/beam.ogg");
-	jpw_sound_play(0, 1);
+	whitgl_sound_add(0, "data/beam.ogg");
+	whitgl_sound_play(0, 1);
 
 	bool running = true;
 	while(running)
 	{
-		jpw_sound_update();
-		jpw_input_update();
+		whitgl_sound_update();
+		whitgl_input_update();
 
-		jpw_sys_draw_init();
-		jpw_sys_draw_finish();
+		whitgl_sys_draw_init();
+		whitgl_sys_draw_finish();
 
-		if(jpw_input_pressed(JPW_INPUT_ESC))
+		if(whitgl_input_pressed(WHITGL_INPUT_ESC))
 			running = false;
-		if(jpw_sys_should_close())
+		if(whitgl_sys_should_close())
 			running = false;
 	}
 
-	jpw_input_shutdown();
-	jpw_sound_shutdown();
+	whitgl_input_shutdown();
+	whitgl_sound_shutdown();
 
-	jpw_sys_close();
+	whitgl_sys_close();
 
 	return 0;
 }

@@ -1,12 +1,12 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#include <jpw/logging.h>
+#include <whitgl/logging.h>
 
 #define LOG_BUFFER_MAX (256)
 char _buffer[LOG_BUFFER_MAX];
 
-void jpw_logit(const char *file, const int line, const char *str, ...)
+void whitgl_logit(const char *file, const int line, const char *str, ...)
 {
   va_list args;
   va_start(args, str);
