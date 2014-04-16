@@ -28,12 +28,21 @@ data_in = 'data'
 data_out = joinp(outdir, 'data')
 targets = []
 
+cflags = ''
+cflags += '-Iinc'
+cflags += ' -Wall -Wextra -Werror'
+cflags += ' -g'
+
+ldflags = ''
 if(plat == 'Windows'):
-  n.variable('cflags', '-Iinc -Iinput/glfw/include -Iinput/fmod/win/inc -Wall -Wextra -Werror -g')
-  n.variable('ldflags', '-Linput/glfw/lib-mingw -Linput/fmod/win/lib -lglfw -lglu32 -lopengl32 -lfmodex')
+  cflags += ' -Iinput/glfw/include -Iinput/fmod/win/inc'
+  ldflags += ' -Linput/glfw/lib-mingw -Linput/fmod/win/lib -lglfw -lglu32 -lopengl32 -lfmodex'
 else:
-  n.variable('cflags', '-Iinc -Iinput/fmod/linux/inc -Wall -Wextra -Werror -g')
-  n.variable('ldflags', '-Wl,-rpath=.,--enable-new-dtags -Linput/fmod/linux/lib -lglfw -lGLU -lGL -lfmodex-4.44.15')
+  cflags += ' -Iinput/fmod/linux/inc'
+  ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/linux/lib -lglfw -lGLU -lGL -lfmodex-4.44.15'
+
+n.variable('cflags', cflags)
+n.variable('ldflags', ldflags)
 n.newline()
 
 n.rule('cxx',
