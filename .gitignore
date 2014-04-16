@@ -1,0 +1,5 @@
+build
+.ninja*
+build.ninja
+*.pyc
+input
