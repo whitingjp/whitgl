@@ -16,7 +16,7 @@ objext = '.o'
 
 name = 'app'
 if(plat == 'Windows'):
-  target = name+'app.exe'
+  target = name+'.exe'
 else:
   target = name
 srcdir = 'src'
