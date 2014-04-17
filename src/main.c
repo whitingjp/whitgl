@@ -2,6 +2,7 @@
 
 #include <whitgl/input.h>
 #include <whitgl/logging.h>
+#include <whitgl/math.h>
 #include <whitgl/sound.h>
 #include <whitgl/sys.h>
 
