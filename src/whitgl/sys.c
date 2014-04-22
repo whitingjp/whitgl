@@ -4,9 +4,11 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GL/glfw.h>
+#include <SOIL/SOIL.h>
 
 #include <whitgl/logging.h>
 #include <whitgl/sys.h>
+
 
 bool _shouldClose;
 int _pixel_scale;
@@ -66,8 +68,6 @@ GLuint flatShaderProgram;
 GLuint tex1;
 
 int GLFWCALL _whitgl_sys_close_callback();
-
-unsigned char* screen;
 
 whitgl_sys_setup _setup;
 
@@ -170,11 +170,6 @@ bool whitgl_sys_init(whitgl_sys_setup setup)
 	glBindFragDataLocation( flatShaderProgram, 0, "outColor" );
 	glLinkProgram( flatShaderProgram );
 
-	glGenTextures(1, &tex1);
-	glBindTexture(GL_TEXTURE_2D, tex1);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
 	// Enable vertical sync (on cards that support it)
 	glfwSwapInterval( 1 );
 
@@ -183,7 +178,10 @@ bool whitgl_sys_init(whitgl_sys_setup setup)
 	if(setup.disable_mouse_cursor)
 		glfwDisable(GLFW_MOUSE_CURSOR);
 
-	screen = malloc(sizeof(unsigned char)*setup.size.x*setup.size.y*3);
+	tex1 = SOIL_load_OGL_texture("data/whit.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID,0);
+	glBindTexture(GL_TEXTURE_2D, tex1);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 	return true;
 }
@@ -244,13 +242,13 @@ int colors[12] =
 
 void _whitgl_populate_vertices(float* vertices, whitgl_iaabb r)
 {
-	vertices[ 0] = r.a.x; vertices[ 1] = r.b.y; vertices[ 2] = 0; vertices[ 3] = 0;
-	vertices[ 4] = r.b.x; vertices[ 5] = r.a.y; vertices[ 6] = 1; vertices[ 7] = 1;
-	vertices[ 8] = r.a.x; vertices[ 9] = r.a.y; vertices[10] = 0; vertices[11] = 1;
+	vertices[ 0] = r.a.x; vertices[ 1] = r.b.y; vertices[ 2] = 0; vertices[ 3] = 1;
+	vertices[ 4] = r.b.x; vertices[ 5] = r.a.y; vertices[ 6] = 1; vertices[ 7] = 0;
+	vertices[ 8] = r.a.x; vertices[ 9] = r.a.y; vertices[10] = 0; vertices[11] = 0;
 
-	vertices[12] = r.a.x; vertices[13] = r.b.y; vertices[14] = 0; vertices[15] = 0;
-	vertices[16] = r.b.x; vertices[17] = r.b.y; vertices[18] = 1; vertices[19] = 0;
-	vertices[20] = r.b.x; vertices[21] = r.a.y; vertices[22] = 1; vertices[23] = 1;
+	vertices[12] = r.a.x; vertices[13] = r.b.y; vertices[14] = 0; vertices[15] = 1;
+	vertices[16] = r.b.x; vertices[17] = r.b.y; vertices[18] = 1; vertices[19] = 1;
+	vertices[20] = r.b.x; vertices[21] = r.a.y; vertices[22] = 1; vertices[23] = 0;
 }
 
 
@@ -276,22 +274,11 @@ void _whitgl_sys_orthographic(GLuint program, float left, float right, float top
 
 void whitgl_sys_draw_finish()
 {
-	int i;
-	for(i=0; i<_setup.size.x*_setup.size.y; i++)
-	{
-		int x = i%_setup.size.x;
-
-		int ai = x/(_setup.size.x/kNumColors);
-		screen[i*3] = colors[ai*3+0];
-		screen[i*3+1] = colors[ai*3+1];
-		screen[i*3+2] = colors[ai*3+2];
-	}
-
 	whitgl_iaabb rect = whitgl_iaabb_zero;
-	rect.a.x = 40;
-	rect.a.y = 40;
-	rect.b.x = 50;
-	rect.b.y = 50;
+	rect.a.x = _setup.size.x-4-32;
+	rect.a.y = _setup.size.y-4-32;
+	rect.b.x = _setup.size.x-2;
+	rect.b.y = _setup.size.y-4;
 	whitgl_sys_draw_tex_iaabb(rect);
 	rect.a.x = 10;
 	rect.a.y = 10;
@@ -339,10 +326,6 @@ void whitgl_sys_draw_tex_iaabb(whitgl_iaabb rect)
 	_whitgl_populate_vertices(vertices, rect);
 	glBindBuffer( GL_ARRAY_BUFFER, vbo );
 	glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW );
-
-	glActiveTexture( GL_TEXTURE0 );
-	glBindTexture( GL_TEXTURE_2D, tex1 );
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _setup.size.x, _setup.size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, screen);
 
 	glUseProgram( shaderProgram );
 	glUniform1i( glGetUniformLocation( shaderProgram, "tex" ), 0 );
