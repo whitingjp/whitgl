@@ -1,3 +1,6 @@
+#ifndef WHITGL_MATH_H_
+#define WHITGL_MATH_H_
+
 #include <stdbool.h>
 
 typedef long int whitgl_int;
@@ -67,3 +70,5 @@ whitgl_ivec whitgl_fvec_to_ivec(whitgl_fvec in);
 
 whitgl_faabb whitgl_iaabb_to_faabb(whitgl_iaabb in);
 whitgl_iaabb whitgl_faabb_to_iaabb(whitgl_faabb in);
+
+#endif // WHITGL_MATH_H_

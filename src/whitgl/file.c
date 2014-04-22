@@ -14,7 +14,7 @@ bool whitgl_file_save(const char* fileName, int size, const void* data)
     WHITGL_LOG("Failed to open %s for save.", fileName);
     return false;
   }
-    
+
   written = fwrite(&size, 1, sizeof(size), dest);
   if(written != sizeof(size))
   {
@@ -22,7 +22,7 @@ bool whitgl_file_save(const char* fileName, int size, const void* data)
     fclose(dest);
     return false;
   }
-  
+
   written = fwrite(data, 1, size, dest);
   if(written != size)
   {

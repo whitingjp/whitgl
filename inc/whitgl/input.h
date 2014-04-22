@@ -1,3 +1,6 @@
+#ifndef WHITGL_INPUT_H_
+#define WHITGL_INPUT_H_
+
 #include <stdbool.h>
 
 typedef enum
@@ -24,3 +27,5 @@ void whitgl_input_update();
 bool whitgl_input_down(whitgl_input input);
 bool whitgl_input_pressed(whitgl_input input);
 // Point whitgl_input_mousePos();
+
+#endif // WHITGL_INPUT_H_

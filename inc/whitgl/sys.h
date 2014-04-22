@@ -1,3 +1,5 @@
+#ifndef WHITGL_SYS_H_
+#define WHITGL_SYS_H_
 
 #include <whitgl/math.h>
 
@@ -21,3 +23,5 @@ void whitgl_sys_draw_finish();
 
 double whitgl_sys_get_time();
 void whitgl_sys_sleep( double time );
+
+#endif // WHITGL_SYS_H_
