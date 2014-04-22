@@ -192,9 +192,6 @@ bool whitgl_sys_init(whitgl_sys_setup setup)
 		images[i].id = -1;
 	num_images = 0;
 
-	whitgl_sys_add_image(0, "data/whit.png");
-	whitgl_sys_add_image(1, "data/whittwo.png");
-
 	return true;
 }
 
@@ -243,15 +240,6 @@ void whitgl_sys_draw_init()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-static const int kNumColors = 4;
-int colors[12] =
-{
-	0x2b, 0x12, 0x33,
-	0x28, 0x31, 0x74,
-	0xc1, 0x24, 0x8f,
-	0xf8, 0xd5, 0x5a,
-};
-
 void _whitgl_populate_vertices(float* vertices, whitgl_iaabb r)
 {
 	vertices[ 0] = r.a.x; vertices[ 1] = r.b.y; vertices[ 2] = 0; vertices[ 3] = 1;
@@ -286,34 +274,6 @@ void _whitgl_sys_orthographic(GLuint program, float left, float right, float top
 
 void whitgl_sys_draw_finish()
 {
-	whitgl_iaabb rect = whitgl_iaabb_zero;
-	rect.a.x = _setup.size.x-4-32;
-	rect.a.y = _setup.size.y-4-32;
-	rect.b.x = _setup.size.x-2;
-	rect.b.y = _setup.size.y-4;
-	whitgl_sys_draw_tex_iaabb(0, rect);
-	rect.a.x = 50;
-	rect.a.y = 50;
-	rect.b.x = 66;
-	rect.b.y = 66;
-	whitgl_sys_draw_tex_iaabb(1, rect);
-	rect.a.x = 10;
-	rect.a.y = 10;
-	rect.b.x = 25;
-	rect.b.y = 25;
-	whitgl_sys_color col = whitgl_sys_color_zero;
-	col.r = 255;
-	col.g = 10;
-	col.b = 120;
-	col.a = 255;
-	whitgl_sys_draw_iaabb(rect, col);
-	col.g = 255;
-	rect.a.x = 2;
-	rect.a.y = 2;
-	rect.b.x = 20;
-	rect.b.y = 20;
-	whitgl_sys_draw_iaabb(rect, col);
-
 	glfwSwapBuffers();
 	glDisable(GL_BLEND);
 }
