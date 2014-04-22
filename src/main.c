@@ -63,6 +63,8 @@ int main()
 
 		whitgl_sys_draw_init();
 		draw(setup.size);
+		// whitgl_ivec mousepos = whitgl_input_mouse_pos(setup.pixel_size);
+		// WHITGL_LOG("mousex: %d mousey: %d", mousepos.x, mousepos.y);
 		whitgl_sys_draw_finish();
 
 		if(whitgl_input_pressed(WHITGL_INPUT_ESC))
