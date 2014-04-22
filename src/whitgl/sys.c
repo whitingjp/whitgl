@@ -254,7 +254,7 @@ void _whitgl_populate_vertices(float* vertices, whitgl_iaabb r)
 }
 
 
-void _whitgl_sys_orthographic(float left, float right, float top, float bottom)
+void _whitgl_sys_orthographic(GLuint program, float left, float right, float top, float bottom)
 {
 	float sumX = right + left;
 	float invX = 1.0f / (right - left);
@@ -271,8 +271,7 @@ void _whitgl_sys_orthographic(float left, float right, float top, float bottom)
 	matrix[8] = 0; matrix[9] = 0; matrix[10] = 2 * invZ; matrix[11] = 0;
 	matrix[12] = -sumX * invX; matrix[13] = -sumY * invY; matrix[14] = -sumZ * invZ; matrix[15] = 1;
 
-	glUniformMatrix4fv( glGetUniformLocation( flatShaderProgram, "sLocalToProjMatrix"), 1, GL_FALSE, matrix);
-	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "sLocalToProjMatrix"), 1, GL_FALSE, matrix);
+	glUniformMatrix4fv( glGetUniformLocation( program, "sLocalToProjMatrix"), 1, GL_FALSE, matrix);
 }
 
 void whitgl_sys_draw_finish()
@@ -305,7 +304,7 @@ void whitgl_sys_draw_finish()
 
 	glUseProgram( shaderProgram );
 	glUniform1i( glGetUniformLocation( shaderProgram, "tex" ), 0 );
-	_whitgl_sys_orthographic(0, _setup.size.x, 0, _setup.size.y);
+	_whitgl_sys_orthographic(shaderProgram, 0, _setup.size.x, 0, _setup.size.y);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
@@ -349,7 +348,7 @@ void _whitgl_sys_draw_screen_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 
 	glUseProgram( flatShaderProgram );
 	glUniform4f( glGetUniformLocation( flatShaderProgram, "sColor" ), (float)col.r/255.0, (float)col.g/255.0, (float)col.b/255.0, (float)col.a/255.0 );
-	_whitgl_sys_orthographic(0, _setup.size.x, 0, _setup.size.y);
+	_whitgl_sys_orthographic(flatShaderProgram, 0, _setup.size.x, 0, _setup.size.y);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( flatShaderProgram, "position" );
