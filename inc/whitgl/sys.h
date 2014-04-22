@@ -12,6 +12,12 @@ typedef struct
 	bool disable_mouse_cursor;
 } whitgl_sys_setup;
 
+typedef struct
+{
+	unsigned char r,g,b,a;
+} whitgl_sys_color;
+static const whitgl_sys_color whitgl_sys_color_zero = {0,0,0,0};
+
 extern whitgl_sys_setup whitgl_default_setup;
 
 bool whitgl_sys_init(whitgl_sys_setup setup);
@@ -20,6 +26,8 @@ void whitgl_sys_close();
 
 void whitgl_sys_draw_init();
 void whitgl_sys_draw_finish();
+
+void whitgl_sys_draw_iaabb(whitgl_iaabb rectangle, whitgl_sys_color col);
 
 double whitgl_sys_get_time();
 void whitgl_sys_sleep( double time );

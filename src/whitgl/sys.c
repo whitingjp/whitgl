@@ -47,7 +47,18 @@ void main()\
 }\
 ";
 
-float vertices[] = {
+const char* flat_src = "\
+#version 150\
+\n\
+uniform vec4 sColor;\
+out vec4 outColor;\
+void main()\
+{\
+	outColor = sColor;\
+}\
+";
+
+float fullVertices[] = {
 	-1.0f,  1.0f, 0, 0, // Vertex 1 (X, Y)
 	1.0f, -1.0f, 1, 1,// Vertex 2 (X, Y)
 	-1.0f, -1.0f, 0, 1,  // Vertex 3 (X, Y)
@@ -58,6 +69,7 @@ float vertices[] = {
 
 GLuint vbo;
 GLuint shaderProgram;
+GLuint flatShaderProgram;
 GLuint tex1;
 
 int GLFWCALL _whitgl_sys_close_callback();
@@ -140,17 +152,35 @@ bool whitgl_sys_init(whitgl_sys_setup setup)
 		return false;
 	}
 
+	GLuint flatShader = glCreateShader( GL_FRAGMENT_SHADER );
+	glShaderSource( flatShader, 1, &flat_src, NULL );
+	glCompileShader( flatShader );
+
+	glGetShaderiv( flatShader, GL_COMPILE_STATUS, &status );
+	if(status != GL_TRUE)
+	{
+		char buffer[512];
+		glGetShaderInfoLog( flatShader, 512, NULL, buffer );
+		WHITGL_LOG(buffer);
+		return false;
+	}
+
 	shaderProgram = glCreateProgram();
 	glAttachShader( shaderProgram, vertexShader );
 	glAttachShader( shaderProgram, fragmentShader );
+	glBindFragDataLocation( shaderProgram, 0, "outColor" );
+	glLinkProgram( shaderProgram );
+
+	flatShaderProgram = glCreateProgram();
+	glAttachShader( flatShaderProgram, vertexShader );
+	glAttachShader( flatShaderProgram, flatShader );
+	glBindFragDataLocation( flatShaderProgram, 0, "outColor" );
+	glLinkProgram( flatShaderProgram );
 
 	glGenTextures(1, &tex1);
 	glBindTexture(GL_TEXTURE_2D, tex1);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	glBindFragDataLocation( shaderProgram, 0, "outColor" );
-	glLinkProgram( shaderProgram );
 
 	// Enable vertical sync (on cards that support it)
 	glfwSwapInterval( 1 );
@@ -228,26 +258,100 @@ void whitgl_sys_draw_finish()
 		screen[i*3+1] = colors[ai*3+1];
 		screen[i*3+2] = colors[ai*3+2];
 	}
+	// glBindBuffer( GL_ARRAY_BUFFER, vbo );
+	// glBufferData( GL_ARRAY_BUFFER, sizeof( fullVertices ), fullVertices, GL_DYNAMIC_DRAW );
+
+	// glActiveTexture( GL_TEXTURE0 );
+	// glBindTexture( GL_TEXTURE_2D, tex1 );
+	// glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _setup.size.x, _setup.size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, screen);
+
+	// glUniform1i( glGetUniformLocation( shaderProgram, "tex" ), 0 );
+	// glUseProgram( shaderProgram );
+
+	// #define BUFFER_OFFSET(i) ((void*)(i))
+	// GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
+	// glVertexAttribPointer( posAttrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0 );
+	// glEnableVertexAttribArray( posAttrib );
+
+	// GLint texturePosAttrib = glGetAttribLocation( shaderProgram, "texturepos" );
+	// glVertexAttribPointer( texturePosAttrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), BUFFER_OFFSET(sizeof(float)*2) );
+	// glEnableVertexAttribArray( texturePosAttrib );
+
+	// glDrawArrays( GL_TRIANGLES, 0, 6 );
+
+	whitgl_iaabb rect = whitgl_iaabb_zero;
+	rect.a.x = 2;
+	rect.a.y = 2;
+	rect.b.x = _setup.size.x-2;
+	rect.b.y = _setup.size.y-2;
+	whitgl_sys_color red = whitgl_sys_color_zero;
+	red.r = 255;
+	red.g = 10;
+	red.b = 120;
+	red.a = 255;
+	whitgl_sys_draw_iaabb(rect, red);
+
+	glfwSwapBuffers();
+}
+
+
+whitgl_ivec _sys_world_ivec_to_screen_ivec(whitgl_ivec p)
+{
+	p.x *= _pixel_scale;
+	p.y *= _pixel_scale;
+	return p;
+}
+
+whitgl_iaabb _sys_world_iaabb_to_screen_iaabb(whitgl_iaabb r)
+{
+	r.a = _sys_world_ivec_to_screen_ivec(r.a);
+	r.b = _sys_world_ivec_to_screen_ivec(r.b);
+	return r;
+}
+
+float vertices[] = {
+	-1.0f,  1.0f, 0, 0, // Vertex 1 (X, Y)
+	1.0f, -1.0f, 1, 1,// Vertex 2 (X, Y)
+	-1.0f, -1.0f, 0, 1,  // Vertex 3 (X, Y)
+	-1.0f,  1.0f, 0, 0, // Vertex 1 (X, Y)
+	1.0f, 1.0f, 1, 0,// Vertex 2 (X, Y)
+	1.0f, -1.0f, 1, 1,  // Vertex 3 (X, Y)
+};
+
+void _whitgl_sys_draw_screen_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
+{
+	whitgl_faabb r;
+	r.a.x = (whitgl_float)rect.a.x / (_setup.size.x*2) - 1.0f;
+	r.a.y = (whitgl_float)rect.a.y / (_setup.size.y*2) - 1.0f;
+	r.b.x = (whitgl_float)rect.b.x / (_setup.size.x*2) - 1.0f;
+	r.b.y = (whitgl_float)rect.b.y / (_setup.size.y*2) - 1.0f;
+	r.a.y = -r.a.y;
+	r.b.y = -r.b.y;
+
+	float vertices[6*2];
+	vertices[ 0] = r.a.x; vertices[ 1] = r.b.y;
+	vertices[ 2] = r.b.x; vertices[ 3] = r.a.y;
+	vertices[ 4] = r.a.x; vertices[ 5] = r.a.y;
+
+	vertices[ 6] = r.a.x; vertices[ 7] = r.b.y;
+	vertices[ 8] = r.b.x; vertices[ 9] = r.b.y;
+	vertices[10] = r.b.x; vertices[11] = r.a.y;
 	glBindBuffer( GL_ARRAY_BUFFER, vbo );
 	glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW );
 
-	glActiveTexture( GL_TEXTURE0 );
-	glBindTexture( GL_TEXTURE_2D, tex1 );
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _setup.size.x, _setup.size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, screen);
-
-	glUniform1i( glGetUniformLocation( shaderProgram, "tex" ), 0 );
-	glUseProgram( shaderProgram );
+	glUniform4f( glGetUniformLocation( flatShaderProgram, "sColor" ), (float)col.r/255.0, (float)col.g/255.0, (float)col.b/255.0, (float)col.a/255.0 );
+	glUseProgram( flatShaderProgram );
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
-	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
-	glVertexAttribPointer( posAttrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0 );
+	GLint posAttrib = glGetAttribLocation( flatShaderProgram, "position" );
+	glVertexAttribPointer( posAttrib, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), 0 );
 	glEnableVertexAttribArray( posAttrib );
 
-	GLint texturePosAttrib = glGetAttribLocation( shaderProgram, "texturepos" );
-	glVertexAttribPointer( texturePosAttrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), BUFFER_OFFSET(sizeof(float)*2) );
-	glEnableVertexAttribArray( texturePosAttrib );
-
 	glDrawArrays( GL_TRIANGLES, 0, 6 );
+}
 
-	glfwSwapBuffers();
+void whitgl_sys_draw_iaabb(whitgl_iaabb rectangle, whitgl_sys_color col)
+{
+  rectangle = _sys_world_iaabb_to_screen_iaabb(rectangle);
+  _whitgl_sys_draw_screen_iaabb(rectangle, col);
 }
