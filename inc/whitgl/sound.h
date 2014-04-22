@@ -1,8 +1,6 @@
 #ifndef WHITGL_SOUND_H_
 #define WHITGL_SOUND_H_
 
-#define SOUND_MAX (64)
-
 void whitgl_sound_init();
 void whitgl_sound_update();
 void whitgl_sound_shutdown();

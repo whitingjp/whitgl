@@ -7,12 +7,13 @@
 #include <whitgl/sound.h>
 
 FMOD_SYSTEM *fmodSystem;
-typedef struct 
+typedef struct
 {
 	int id;
 	FMOD_SOUND* sound;
 } whitgl_sound;
-whitgl_sound sounds[SOUND_MAX];
+#define WHITGL_SOUND_MAX (64)
+whitgl_sound sounds[WHITGL_SOUND_MAX];
 int num_sounds;
 
 void _whitgl_sound_errcheck(const char* location, FMOD_RESULT result)
@@ -24,7 +25,7 @@ void _whitgl_sound_errcheck(const char* location, FMOD_RESULT result)
 void whitgl_sound_init()
 {
 	int i;
-	for(i=0; i<SOUND_MAX; i++)
+	for(i=0; i<WHITGL_SOUND_MAX; i++)
 		sounds[i].id = -1;
 	num_sounds = 0;
 
@@ -58,7 +59,7 @@ void whitgl_sound_shutdown()
 }
 void whitgl_sound_add(int id, const char* filename)
 {
-	if(num_sounds >= SOUND_MAX)
+	if(num_sounds >= WHITGL_SOUND_MAX)
 	{
 		WHITGL_LOG("ERR Too many sounds");
 		return;
@@ -87,7 +88,7 @@ void whitgl_sound_play(int id, float adjust)
 	}
 
 	FMOD_CHANNEL *channel;
-	FMOD_RESULT result = FMOD_System_PlaySound(fmodSystem, FMOD_CHANNEL_FREE, sounds[index].sound, true, &channel);		
+	FMOD_RESULT result = FMOD_System_PlaySound(fmodSystem, FMOD_CHANNEL_FREE, sounds[index].sound, true, &channel);
 	_whitgl_sound_errcheck("FMOD_System_PlaySound", result);
 
 	float defaultFrequency;

@@ -14,6 +14,16 @@ bool _shouldClose;
 int _pixel_scale;
 whitgl_ivec _window_size;
 
+typedef struct
+{
+	int id;
+	GLuint gluint;
+	whitgl_ivec size;
+} whitgl_image;
+#define WHITGL_IMAGE_MAX (64)
+whitgl_image images[WHITGL_IMAGE_MAX];
+int num_images;
+
 whitgl_sys_setup whitgl_default_setup =
 {
 	"default window name",
@@ -65,7 +75,6 @@ void main()\
 GLuint vbo;
 GLuint shaderProgram;
 GLuint flatShaderProgram;
-GLuint tex1;
 
 int GLFWCALL _whitgl_sys_close_callback();
 
@@ -178,10 +187,13 @@ bool whitgl_sys_init(whitgl_sys_setup setup)
 	if(setup.disable_mouse_cursor)
 		glfwDisable(GLFW_MOUSE_CURSOR);
 
-	tex1 = SOIL_load_OGL_texture("data/whit.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID,0);
-	glBindTexture(GL_TEXTURE_2D, tex1);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	int i;
+	for(i=0; i<WHITGL_IMAGE_MAX; i++)
+		images[i].id = -1;
+	num_images = 0;
+
+	whitgl_sys_add_image(0, "data/whit.png");
+	whitgl_sys_add_image(1, "data/whittwo.png");
 
 	return true;
 }
@@ -279,7 +291,12 @@ void whitgl_sys_draw_finish()
 	rect.a.y = _setup.size.y-4-32;
 	rect.b.x = _setup.size.x-2;
 	rect.b.y = _setup.size.y-4;
-	whitgl_sys_draw_tex_iaabb(rect);
+	whitgl_sys_draw_tex_iaabb(0, rect);
+	rect.a.x = 50;
+	rect.a.y = 50;
+	rect.b.x = 66;
+	rect.b.y = 66;
+	whitgl_sys_draw_tex_iaabb(1, rect);
 	rect.a.x = 10;
 	rect.a.y = 10;
 	rect.b.x = 25;
@@ -320,8 +337,27 @@ void whitgl_sys_draw_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 	glDrawArrays( GL_TRIANGLES, 0, 6 );
 }
 
-void whitgl_sys_draw_tex_iaabb(whitgl_iaabb rect)
+void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb rect)
 {
+	int index = -1;
+	int i;
+	for(i=0; i<num_images; i++)
+	{
+		if(images[i].id == id)
+		{
+			index = i;
+			continue;
+		}
+	}
+	if(index == -1)
+	{
+		WHITGL_LOG("ERR Cannot find image %d", id);
+		return;
+	}
+
+	glActiveTexture( GL_TEXTURE0 );
+	glBindTexture( GL_TEXTURE_2D, images[index].gluint );
+
 	float vertices[6*4];
 	_whitgl_populate_vertices(vertices, rect);
 	glBindBuffer( GL_ARRAY_BUFFER, vbo );
@@ -341,4 +377,31 @@ void whitgl_sys_draw_tex_iaabb(whitgl_iaabb rect)
 	glEnableVertexAttribArray( texturePosAttrib );
 
 	glDrawArrays( GL_TRIANGLES, 0, 6 );
+}
+
+void whitgl_sys_add_image(int id, const char* filename)
+{
+	if(num_images >= WHITGL_IMAGE_MAX)
+	{
+		WHITGL_LOG("ERR Too many images");
+		return;
+	}
+	images[num_images].gluint = SOIL_load_OGL_texture(filename, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID,0);
+	if( images[num_images].gluint == 0 )
+	{
+		WHITGL_LOG( "SOIL loading error: '%s'\n", SOIL_last_result() );
+		return;
+	}
+	images[num_images].id = id;
+	glBindTexture(GL_TEXTURE_2D, images[num_images].gluint);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	int w, h;
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &w);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &h);
+	images[num_images].size.x = w;
+	images[num_images].size.y = h;
+
+	num_images++;
 }
