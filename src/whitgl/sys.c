@@ -28,9 +28,10 @@ const char* vertex_src = "\
 in vec2 position;\
 in vec2 texturepos;\
 out vec2 Texturepos;\
+uniform mat4 sLocalToProjMatrix;\
 void main()\
 {\
-    gl_Position = vec4( position, 0.0, 1.0 );\
+    gl_Position = sLocalToProjMatrix * vec4( position, 0.0, 1.0 );\
     Texturepos = texturepos;\
 }\
 ";
@@ -58,14 +59,6 @@ void main()\
 }\
 ";
 
-float fullVertices[] = {
-	-1.0f,  1.0f, 0, 0, // Vertex 1 (X, Y)
-	1.0f, -1.0f, 1, 1,// Vertex 2 (X, Y)
-	-1.0f, -1.0f, 0, 1,  // Vertex 3 (X, Y)
-	-1.0f,  1.0f, 0, 0, // Vertex 1 (X, Y)
-	1.0f, 1.0f, 1, 0,// Vertex 2 (X, Y)
-	1.0f, -1.0f, 1, 1,  // Vertex 3 (X, Y)
-};
 
 GLuint vbo;
 GLuint shaderProgram;
@@ -249,6 +242,39 @@ int colors[12] =
 	0xf8, 0xd5, 0x5a,
 };
 
+void _whitgl_populate_vertices(float* vertices, whitgl_iaabb r)
+{
+	vertices[ 0] = r.a.x; vertices[ 1] = r.b.y; vertices[ 2] = 0; vertices[ 3] = 0;
+	vertices[ 4] = r.b.x; vertices[ 5] = r.a.y; vertices[ 6] = 1; vertices[ 7] = 1;
+	vertices[ 8] = r.a.x; vertices[ 9] = r.a.y; vertices[10] = 0; vertices[11] = 1;
+
+	vertices[12] = r.a.x; vertices[13] = r.b.y; vertices[14] = 0; vertices[15] = 0;
+	vertices[16] = r.b.x; vertices[17] = r.b.y; vertices[18] = 1; vertices[19] = 0;
+	vertices[20] = r.b.x; vertices[21] = r.a.y; vertices[22] = 1; vertices[23] = 1;
+}
+
+
+void _whitgl_sys_orthographic(float left, float right, float top, float bottom)
+{
+	float sumX = right + left;
+	float invX = 1.0f / (right - left);
+	float sumY = top + bottom;
+	float invY = 1.0f / (top - bottom);
+	float nearDepth = 0;
+	float farDepth = 100;
+	float sumZ = farDepth + nearDepth;
+	float invZ = 1.0f / (farDepth - nearDepth);
+
+	GLfloat matrix[4*4];
+	matrix[0] = 2*invX; matrix[1] = 0; matrix[2] = 0; matrix[3] = 0;
+	matrix[4] = 0; matrix[5] = 2 * invY; matrix[6] = 0; matrix[7] = 0;
+	matrix[8] = 0; matrix[9] = 0; matrix[10] = 2 * invZ; matrix[11] = 0;
+	matrix[12] = -sumX * invX; matrix[13] = -sumY * invY; matrix[14] = -sumZ * invZ; matrix[15] = 1;
+
+	glUniformMatrix4fv( glGetUniformLocation( flatShaderProgram, "sLocalToProjMatrix"), 1, GL_FALSE, matrix);
+	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "sLocalToProjMatrix"), 1, GL_FALSE, matrix);
+}
+
 void whitgl_sys_draw_finish()
 {
 	int i;
@@ -261,8 +287,17 @@ void whitgl_sys_draw_finish()
 		screen[i*3+1] = colors[ai*3+1];
 		screen[i*3+2] = colors[ai*3+2];
 	}
+
+	float vertices[6*4];
+	whitgl_iaabb r = whitgl_iaabb_zero;
+	r.a.x = 40;
+	r.a.y = 40;
+	r.b.x = 50;
+	r.b.y = 50;
+	_whitgl_populate_vertices(vertices, r);
+
 	glBindBuffer( GL_ARRAY_BUFFER, vbo );
-	glBufferData( GL_ARRAY_BUFFER, sizeof( fullVertices ), fullVertices, GL_DYNAMIC_DRAW );
+	glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW );
 
 	glActiveTexture( GL_TEXTURE0 );
 	glBindTexture( GL_TEXTURE_2D, tex1 );
@@ -270,6 +305,7 @@ void whitgl_sys_draw_finish()
 
 	glUseProgram( shaderProgram );
 	glUniform1i( glGetUniformLocation( shaderProgram, "tex" ), 0 );
+	_whitgl_sys_orthographic(0, _setup.size.x, 0, _setup.size.y);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
@@ -285,8 +321,8 @@ void whitgl_sys_draw_finish()
 	whitgl_iaabb rect = whitgl_iaabb_zero;
 	rect.a.x = 10;
 	rect.a.y = 10;
-	rect.b.x = _setup.size.x-2;
-	rect.b.y = _setup.size.y-2;
+	rect.b.x = 25;
+	rect.b.y = 25;
 	whitgl_sys_color col = whitgl_sys_color_zero;
 	col.r = 255;
 	col.g = 10;
@@ -304,48 +340,20 @@ void whitgl_sys_draw_finish()
 	glDisable(GL_BLEND);
 }
 
-
-whitgl_ivec _sys_world_ivec_to_screen_ivec(whitgl_ivec p)
-{
-	p.x *= _pixel_scale;
-	p.y *= _pixel_scale;
-	return p;
-}
-
-whitgl_iaabb _sys_world_iaabb_to_screen_iaabb(whitgl_iaabb r)
-{
-	r.a = _sys_world_ivec_to_screen_ivec(r.a);
-	r.b = _sys_world_ivec_to_screen_ivec(r.b);
-	return r;
-}
-
 void _whitgl_sys_draw_screen_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 {
-	whitgl_faabb r;
-	r.a.x = (whitgl_float)rect.a.x / (_setup.size.x*2) - 1.0f;
-	r.a.y = (whitgl_float)rect.a.y / (_setup.size.y*2) - 1.0f;
-	r.b.x = (whitgl_float)rect.b.x / (_setup.size.x*2) - 1.0f;
-	r.b.y = (whitgl_float)rect.b.y / (_setup.size.y*2) - 1.0f;
-	r.a.y = -r.a.y;
-	r.b.y = -r.b.y;
-
-	float vertices[6*2];
-	vertices[ 0] = r.a.x; vertices[ 1] = r.b.y;
-	vertices[ 2] = r.b.x; vertices[ 3] = r.a.y;
-	vertices[ 4] = r.a.x; vertices[ 5] = r.a.y;
-
-	vertices[ 6] = r.a.x; vertices[ 7] = r.b.y;
-	vertices[ 8] = r.b.x; vertices[ 9] = r.b.y;
-	vertices[10] = r.b.x; vertices[11] = r.a.y;
+	float vertices[6*4];
+	_whitgl_populate_vertices(vertices, rect);
 	glBindBuffer( GL_ARRAY_BUFFER, vbo );
 	glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW );
 
 	glUseProgram( flatShaderProgram );
 	glUniform4f( glGetUniformLocation( flatShaderProgram, "sColor" ), (float)col.r/255.0, (float)col.g/255.0, (float)col.b/255.0, (float)col.a/255.0 );
+	_whitgl_sys_orthographic(0, _setup.size.x, 0, _setup.size.y);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( flatShaderProgram, "position" );
-	glVertexAttribPointer( posAttrib, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), 0 );
+	glVertexAttribPointer( posAttrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0 );
 	glEnableVertexAttribArray( posAttrib );
 
 	glDrawArrays( GL_TRIANGLES, 0, 6 );
@@ -353,6 +361,5 @@ void _whitgl_sys_draw_screen_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 
 void whitgl_sys_draw_iaabb(whitgl_iaabb rectangle, whitgl_sys_color col)
 {
-  rectangle = _sys_world_iaabb_to_screen_iaabb(rectangle);
   _whitgl_sys_draw_screen_iaabb(rectangle, col);
 }
