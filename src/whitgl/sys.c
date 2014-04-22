@@ -339,7 +339,7 @@ void whitgl_sys_draw_finish()
 	glDisable(GL_BLEND);
 }
 
-void _whitgl_sys_draw_screen_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
+void whitgl_sys_draw_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 {
 	float vertices[6*4];
 	_whitgl_populate_vertices(vertices, rect);
@@ -356,9 +356,4 @@ void _whitgl_sys_draw_screen_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 	glEnableVertexAttribArray( posAttrib );
 
 	glDrawArrays( GL_TRIANGLES, 0, 6 );
-}
-
-void whitgl_sys_draw_iaabb(whitgl_iaabb rectangle, whitgl_sys_color col)
-{
-  _whitgl_sys_draw_screen_iaabb(rectangle, col);
 }
