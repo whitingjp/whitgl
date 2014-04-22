@@ -13,7 +13,8 @@ int main()
 	whitgl_sys_setup setup = whitgl_default_setup;
 	setup.name = "main";
 	
-	whitgl_sys_init(setup);
+	if(!whitgl_sys_init(setup))
+		return 1;
 	whitgl_sound_init();
 	whitgl_input_init();
 

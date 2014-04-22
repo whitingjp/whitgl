@@ -39,7 +39,7 @@ if(plat == 'Windows'):
   ldflags += ' -Linput/glfw/lib-mingw -Linput/fmod/win/lib -lglfw -lglu32 -lopengl32 -lfmodex'
 else:
   cflags += ' -Iinput/fmod/linux/inc'
-  ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/linux/lib -lglfw -lGLU -lGL -lfmodex-4.44.15'
+  ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/linux/lib -lglfw -lGLU -lGL -lGLEW -lfmodex-4.44.15'
 
 n.variable('cflags', cflags)
 n.variable('ldflags', ldflags)
