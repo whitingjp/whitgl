@@ -10,14 +10,12 @@
 
 bool _shouldClose;
 int _pixel_scale;
-int _window_width;
-int _window_height;
+whitgl_ivec _window_size;
 
 whitgl_sys_setup whitgl_default_setup =
 {
 	"default window name",
-	120,
-	80,
+	{120, 80},
 	4,
 	false,
 	false,
@@ -74,7 +72,7 @@ bool whitgl_sys_init(whitgl_sys_setup setup)
 
 	bool result;
 	_shouldClose = false;
-	
+
 	WHITGL_LOG("Initialize GLFW");
 
 	result = glfwInit();
@@ -96,14 +94,14 @@ bool whitgl_sys_init(whitgl_sys_setup setup)
 	if(setup.fullscreen)
 	{
 		result = glfwOpenWindow( desktop.Width, desktop.Height, desktop.RedBits,
-		                         desktop.GreenBits, desktop.BlueBits, 8, 32, 0, 
+		                         desktop.GreenBits, desktop.BlueBits, 8, 32, 0,
 		                         GLFW_FULLSCREEN );
-		_pixel_scale = desktop.Width/setup.width;
+		_pixel_scale = desktop.Width/setup.size.x;
 	} else
 	{
-		result = glfwOpenWindow( setup.width*_pixel_scale, setup.height*_pixel_scale,
+		result = glfwOpenWindow( setup.size.x*_pixel_scale, setup.size.y*_pixel_scale,
 		                         0,0,0,0, 0,0, GLFW_WINDOW );
-	}  
+	}
 	glfwSetWindowTitle(setup.name);
 	if(!result)
 	{
@@ -141,7 +139,7 @@ bool whitgl_sys_init(whitgl_sys_setup setup)
 		WHITGL_LOG(buffer);
 		return false;
 	}
-	
+
 	shaderProgram = glCreateProgram();
 	glAttachShader( shaderProgram, vertexShader );
 	glAttachShader( shaderProgram, fragmentShader );
@@ -153,16 +151,16 @@ bool whitgl_sys_init(whitgl_sys_setup setup)
 
 	glBindFragDataLocation( shaderProgram, 0, "outColor" );
 	glLinkProgram( shaderProgram );
-	
+
 	// Enable vertical sync (on cards that support it)
 	glfwSwapInterval( 1 );
-	
+
 	glfwSetWindowCloseCallback(_whitgl_sys_close_callback);
 
 	if(setup.disable_mouse_cursor)
 		glfwDisable(GLFW_MOUSE_CURSOR);
 
-	screen = malloc(sizeof(unsigned char)*setup.width*setup.height*3);
+	screen = malloc(sizeof(unsigned char)*setup.size.x*setup.size.y*3);
 
 	return true;
 }
@@ -195,19 +193,23 @@ void whitgl_sys_sleep(double time)
 
 void whitgl_sys_draw_init()
 {
-	glfwGetWindowSize( &_window_width, &_window_height);  
-	glViewport( 0, 0, _window_width, _window_height ); 
-	
+	int w, h;
+	glfwGetWindowSize( &w, &h);
+	_window_size.x = w;
+	_window_size.y = h;
+	glViewport( 0, 0, _window_size.x, _window_size.y );
+
 	glClearColor(0, 0.0, 0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluOrtho2D(0, _window_width, _window_height,0);
+	gluOrtho2D(0, _window_size.x, _window_size.y,0);
 }
 
 static const int kNumColors = 4;
-int colors[12] = {
+int colors[12] =
+{
 	0x2b, 0x12, 0x33,
 	0x28, 0x31, 0x74,
 	0xc1, 0x24, 0x8f,
@@ -217,11 +219,11 @@ int colors[12] = {
 void whitgl_sys_draw_finish()
 {
 	int i;
-	for(i=0; i<_setup.width*_setup.height; i++)
+	for(i=0; i<_setup.size.x*_setup.size.y; i++)
 	{
-		int x = i%_setup.width;
+		int x = i%_setup.size.x;
 
-		int ai = x/(_setup.width/kNumColors);
+		int ai = x/(_setup.size.x/kNumColors);
 		screen[i*3] = colors[ai*3+0];
 		screen[i*3+1] = colors[ai*3+1];
 		screen[i*3+2] = colors[ai*3+2];
@@ -231,7 +233,7 @@ void whitgl_sys_draw_finish()
 
 	glActiveTexture( GL_TEXTURE0 );
 	glBindTexture( GL_TEXTURE_2D, tex1 );
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _setup.width, _setup.height, 0, GL_RGB, GL_UNSIGNED_BYTE, screen);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _setup.size.x, _setup.size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, screen);
 
 	glUniform1i( glGetUniformLocation( shaderProgram, "tex" ), 0 );
 	glUseProgram( shaderProgram );

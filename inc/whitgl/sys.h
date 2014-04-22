@@ -1,9 +1,10 @@
 
+#include <whitgl/math.h>
+
 typedef struct
 {
 	const char* name;
-	int width;
-	int height;
+	whitgl_ivec size;
 	int pixel_size;
 	bool fullscreen;
 	bool disable_mouse_cursor;
