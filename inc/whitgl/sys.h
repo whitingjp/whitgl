@@ -28,6 +28,7 @@ void whitgl_sys_draw_init();
 void whitgl_sys_draw_finish();
 
 void whitgl_sys_draw_iaabb(whitgl_iaabb rectangle, whitgl_sys_color col);
+void whitgl_sys_draw_tex_iaabb(whitgl_iaabb rect);
 
 double whitgl_sys_get_time();
 void whitgl_sys_sleep( double time );

@@ -287,37 +287,12 @@ void whitgl_sys_draw_finish()
 		screen[i*3+2] = colors[ai*3+2];
 	}
 
-	float vertices[6*4];
-	whitgl_iaabb r = whitgl_iaabb_zero;
-	r.a.x = 40;
-	r.a.y = 40;
-	r.b.x = 50;
-	r.b.y = 50;
-	_whitgl_populate_vertices(vertices, r);
-
-	glBindBuffer( GL_ARRAY_BUFFER, vbo );
-	glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW );
-
-	glActiveTexture( GL_TEXTURE0 );
-	glBindTexture( GL_TEXTURE_2D, tex1 );
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _setup.size.x, _setup.size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, screen);
-
-	glUseProgram( shaderProgram );
-	glUniform1i( glGetUniformLocation( shaderProgram, "tex" ), 0 );
-	_whitgl_sys_orthographic(shaderProgram, 0, _setup.size.x, 0, _setup.size.y);
-
-	#define BUFFER_OFFSET(i) ((void*)(i))
-	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
-	glVertexAttribPointer( posAttrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0 );
-	glEnableVertexAttribArray( posAttrib );
-
-	GLint texturePosAttrib = glGetAttribLocation( shaderProgram, "texturepos" );
-	glVertexAttribPointer( texturePosAttrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), BUFFER_OFFSET(sizeof(float)*2) );
-	glEnableVertexAttribArray( texturePosAttrib );
-
-	glDrawArrays( GL_TRIANGLES, 0, 6 );
-
 	whitgl_iaabb rect = whitgl_iaabb_zero;
+	rect.a.x = 40;
+	rect.a.y = 40;
+	rect.b.x = 50;
+	rect.b.y = 50;
+	whitgl_sys_draw_tex_iaabb(rect);
 	rect.a.x = 10;
 	rect.a.y = 10;
 	rect.b.x = 25;
@@ -354,6 +329,33 @@ void whitgl_sys_draw_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 	GLint posAttrib = glGetAttribLocation( flatShaderProgram, "position" );
 	glVertexAttribPointer( posAttrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0 );
 	glEnableVertexAttribArray( posAttrib );
+
+	glDrawArrays( GL_TRIANGLES, 0, 6 );
+}
+
+void whitgl_sys_draw_tex_iaabb(whitgl_iaabb rect)
+{
+	float vertices[6*4];
+	_whitgl_populate_vertices(vertices, rect);
+	glBindBuffer( GL_ARRAY_BUFFER, vbo );
+	glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW );
+
+	glActiveTexture( GL_TEXTURE0 );
+	glBindTexture( GL_TEXTURE_2D, tex1 );
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _setup.size.x, _setup.size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, screen);
+
+	glUseProgram( shaderProgram );
+	glUniform1i( glGetUniformLocation( shaderProgram, "tex" ), 0 );
+	_whitgl_sys_orthographic(shaderProgram, 0, _setup.size.x, 0, _setup.size.y);
+
+	#define BUFFER_OFFSET(i) ((void*)(i))
+	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
+	glVertexAttribPointer( posAttrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0 );
+	glEnableVertexAttribArray( posAttrib );
+
+	GLint texturePosAttrib = glGetAttribLocation( shaderProgram, "texturepos" );
+	glVertexAttribPointer( texturePosAttrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), BUFFER_OFFSET(sizeof(float)*2) );
+	glEnableVertexAttribArray( texturePosAttrib );
 
 	glDrawArrays( GL_TRIANGLES, 0, 6 );
 }
