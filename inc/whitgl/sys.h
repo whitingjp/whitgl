@@ -11,6 +11,7 @@ typedef struct
 	bool fullscreen;
 	bool disable_mouse_cursor;
 } whitgl_sys_setup;
+extern whitgl_sys_setup whitgl_default_setup;
 
 typedef struct
 {
@@ -26,7 +27,13 @@ typedef struct
 } whitgl_sprite;
 static const whitgl_sprite whitgl_sprite_zero = {0,	{0,0}, {0,0}};
 
-extern whitgl_sys_setup whitgl_default_setup;
+typedef enum
+{
+	WHITGL_SHADER_FLAT,
+	WHITGL_SHADER_TEXTURE,
+	WHITGL_SHADER_POST,
+	WHITGL_SHADER_MAX,
+} whitgl_shader_slot;
 
 bool whitgl_sys_init(whitgl_sys_setup setup);
 bool whitgl_sys_should_close();
