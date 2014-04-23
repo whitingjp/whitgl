@@ -1,10 +1,24 @@
 #include <stdbool.h>
+#include <stddef.h>
 
 #include <whitgl/input.h>
 #include <whitgl/logging.h>
 #include <whitgl/math.h>
 #include <whitgl/sound.h>
 #include <whitgl/sys.h>
+
+const char* post_src = "\
+#version 150\
+\n\
+in vec2 Texturepos;\
+out vec4 outColor;\
+uniform sampler2D tex;\
+void main()\
+{\
+	vec2 offset = {0.01};\
+	outColor = vec4(texture( tex, Texturepos-offset ).r, texture( tex, Texturepos ).g, texture( tex, Texturepos+offset ).ba);\
+}\
+";
 
 void draw(whitgl_ivec size)
 {
@@ -33,6 +47,9 @@ int main()
 
 	if(!whitgl_sys_init(setup))
 		return 1;
+	if(!whitgl_change_shader(WHITGL_SHADER_POST, NULL, post_src))
+		return 1;
+
 	whitgl_sound_init();
 	whitgl_input_init();
 

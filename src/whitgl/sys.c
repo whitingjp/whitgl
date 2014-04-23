@@ -60,19 +60,6 @@ void main()\
 }\
 ";
 
-const char* _post_src = "\
-#version 150\
-\n\
-in vec2 Texturepos;\
-out vec4 outColor;\
-uniform sampler2D tex;\
-void main()\
-{\
-	vec2 offset = {0.01};\
-	outColor = vec4(texture( tex, Texturepos-offset ).r, texture( tex, Texturepos ).g, texture( tex, Texturepos+offset ).ba);\
-}\
-";
-
 const char* _flat_src = "\
 #version 150\
 \n\
@@ -94,13 +81,21 @@ int GLFWCALL _whitgl_sys_close_callback();
 
 whitgl_sys_setup _setup;
 
-bool _whitgl_setup_shader(whitgl_shader_slot type, const char* vertex_src, const char* fragment_src)
+bool whitgl_change_shader(whitgl_shader_slot type, const char* vertex_src, const char* fragment_src)
 {
 	if(type >= WHITGL_SHADER_MAX)
 	{
 		WHITGL_LOG("Invalid shader type %d", type);
 		return false;
 	}
+
+	if(vertex_src == NULL)
+		vertex_src = _vertex_src;
+	if(fragment_src == NULL)
+		fragment_src = _fragment_src;
+
+	if(glIsProgram(shaderPrograms[type]))
+		glDeleteProgram(shaderPrograms[type]);
 
 	GLuint vertexShader = glCreateShader( GL_VERTEX_SHADER );
 	glShaderSource( vertexShader, 1, &vertex_src, NULL );
@@ -185,11 +180,11 @@ bool whitgl_sys_init(whitgl_sys_setup setup)
 
 	glGenBuffers( 1, &vbo ); // Generate 1 buffer
 
-	if(!_whitgl_setup_shader( WHITGL_SHADER_FLAT, _vertex_src, _flat_src))
+	if(!whitgl_change_shader( WHITGL_SHADER_FLAT, NULL, _flat_src))
 		return false;
-	if(!_whitgl_setup_shader( WHITGL_SHADER_TEXTURE, _vertex_src, _fragment_src))
+	if(!whitgl_change_shader( WHITGL_SHADER_TEXTURE, NULL, NULL))
 		return false;
-	if(!_whitgl_setup_shader( WHITGL_SHADER_POST, _vertex_src, _post_src))
+	if(!whitgl_change_shader( WHITGL_SHADER_POST, NULL, NULL))
 		return false;
 
 	// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.

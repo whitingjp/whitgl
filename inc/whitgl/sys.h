@@ -39,6 +39,8 @@ bool whitgl_sys_init(whitgl_sys_setup setup);
 bool whitgl_sys_should_close();
 void whitgl_sys_close();
 
+bool whitgl_change_shader(whitgl_shader_slot type, const char* vertex_src, const char* fragment_src);
+
 void whitgl_sys_draw_init();
 void whitgl_sys_draw_finish();
 
