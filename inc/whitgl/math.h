@@ -41,24 +41,26 @@ whitgl_float whitgl_fminmax(whitgl_float lower, whitgl_float upper, whitgl_float
 whitgl_ivec whitgl_ivec_add(whitgl_ivec a, whitgl_ivec b);
 whitgl_ivec whitgl_ivec_sub(whitgl_ivec a, whitgl_ivec b);
 whitgl_ivec whitgl_ivec_inverse(whitgl_ivec a);
-whitgl_ivec whitgl_ivec_scale(whitgl_ivec a, whitgl_int s);
-whitgl_ivec whitgl_ivec_divide(whitgl_ivec a, whitgl_int s);
+whitgl_ivec whitgl_ivec_scale(whitgl_ivec a, whitgl_ivec s);
+whitgl_ivec whitgl_ivec_divide(whitgl_ivec a, whitgl_ivec s);
 
 whitgl_fvec whitgl_fvec_add(whitgl_fvec a, whitgl_fvec b);
 whitgl_fvec whitgl_fvec_sub(whitgl_fvec a, whitgl_fvec b);
 whitgl_fvec whitgl_fvec_inverse(whitgl_fvec a);
-whitgl_fvec whitgl_fvec_scale(whitgl_fvec a, whitgl_float s);
+whitgl_fvec whitgl_fvec_scale(whitgl_fvec a, whitgl_fvec s);
+whitgl_fvec whitgl_fvec_divide(whitgl_fvec a, whitgl_fvec s);
 
 whitgl_iaabb whitgl_iaabb_add(whitgl_iaabb a, whitgl_ivec b);
 whitgl_iaabb whitgl_iaabb_sub(whitgl_iaabb a, whitgl_ivec b);
-whitgl_iaabb whitgl_iaabb_scale(whitgl_iaabb a, whitgl_int s);
-whitgl_iaabb whitgl_iaabb_divide(whitgl_iaabb a, whitgl_int s);
+whitgl_iaabb whitgl_iaabb_scale(whitgl_iaabb a, whitgl_ivec s);
+whitgl_iaabb whitgl_iaabb_divide(whitgl_iaabb a, whitgl_ivec s);
 whitgl_iaabb whitgl_iaabb_intersection(whitgl_iaabb a, whitgl_iaabb b);
 bool whitgl_iaabb_intersects(whitgl_iaabb a, whitgl_iaabb b);
 
 whitgl_faabb whitgl_faabb_add(whitgl_faabb a, whitgl_fvec b);
 whitgl_faabb whitgl_faabb_sub(whitgl_faabb a, whitgl_fvec b);
-whitgl_faabb whitgl_faabb_scale(whitgl_faabb a, whitgl_float s);
+whitgl_faabb whitgl_faabb_scale(whitgl_faabb a, whitgl_fvec s);
+whitgl_faabb whitgl_faabb_divide(whitgl_faabb a, whitgl_fvec s);
 whitgl_faabb whitgl_faabb_intersection(whitgl_faabb a, whitgl_faabb b);
 bool whitgl_faabb_intersects(whitgl_faabb a, whitgl_faabb b);
 

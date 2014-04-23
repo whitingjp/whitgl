@@ -8,33 +8,15 @@
 
 void draw(whitgl_ivec size)
 {
-	whitgl_iaabb rect = whitgl_iaabb_zero;
-	rect.a.x = size.x-4-32;
-	rect.a.y = size.y-4-32;
-	rect.b.x = size.x-2;
-	rect.b.y = size.y-4;
-	whitgl_sys_draw_tex_iaabb(0, rect);
-	rect.a.x = 50;
-	rect.a.y = 50;
-	rect.b.x = 66;
-	rect.b.y = 66;
-	whitgl_sys_draw_tex_iaabb(1, rect);
-	rect.a.x = 10;
-	rect.a.y = 10;
-	rect.b.x = 25;
-	rect.b.y = 25;
-	whitgl_sys_color col = whitgl_sys_color_zero;
-	col.r = 255;
-	col.g = 10;
-	col.b = 120;
-	col.a = 255;
-	whitgl_sys_draw_iaabb(rect, col);
-	col.g = 255;
-	rect.a.x = 2;
-	rect.a.y = 2;
-	rect.b.x = 20;
-	rect.b.y = 20;
-	whitgl_sys_draw_iaabb(rect, col);
+	whitgl_iaabb full = {{0,0},{16,16}};
+	whitgl_iaabb recta = {{size.x-4-32, size.y-4-32}, {size.x-2, size.y-4}};
+	whitgl_sys_draw_tex_iaabb(0, full, recta);
+	whitgl_iaabb doub = {{-16,-16},{16,16}};
+	whitgl_iaabb rectb = {{50, 50}, {66, 66}};
+	whitgl_sys_draw_tex_iaabb(1, doub, rectb);
+	whitgl_iaabb rectc = {{10, 10}, {25, 25}};
+	whitgl_sys_color col = {255, 10, 120, 255};
+	whitgl_sys_draw_iaabb(rectc, col);
 }
 
 int main()

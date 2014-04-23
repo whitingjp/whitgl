@@ -29,7 +29,7 @@ void whitgl_sys_draw_finish();
 
 void whitgl_sys_add_image(int id, const char* filename);
 void whitgl_sys_draw_iaabb(whitgl_iaabb rectangle, whitgl_sys_color col);
-void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb rect);
+void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb src, whitgl_iaabb dest);
 
 double whitgl_sys_get_time();
 void whitgl_sys_sleep( double time );

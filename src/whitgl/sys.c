@@ -240,15 +240,16 @@ void whitgl_sys_draw_init()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void _whitgl_populate_vertices(float* vertices, whitgl_iaabb r)
+void _whitgl_populate_vertices(float* vertices, whitgl_iaabb s, whitgl_iaabb d, whitgl_ivec image_size)
 {
-	vertices[ 0] = r.a.x; vertices[ 1] = r.b.y; vertices[ 2] = 0; vertices[ 3] = 1;
-	vertices[ 4] = r.b.x; vertices[ 5] = r.a.y; vertices[ 6] = 1; vertices[ 7] = 0;
-	vertices[ 8] = r.a.x; vertices[ 9] = r.a.y; vertices[10] = 0; vertices[11] = 0;
+	whitgl_faabb sf = whitgl_faabb_divide(whitgl_iaabb_to_faabb(s), whitgl_ivec_to_fvec(image_size));
+	vertices[ 0] = d.a.x; vertices[ 1] = d.b.y; vertices[ 2] = sf.a.x; vertices[ 3] = sf.b.y;
+	vertices[ 4] = d.b.x; vertices[ 5] = d.a.y; vertices[ 6] = sf.b.x; vertices[ 7] = sf.a.y;
+	vertices[ 8] = d.a.x; vertices[ 9] = d.a.y; vertices[10] = sf.a.x; vertices[11] = sf.a.y;
 
-	vertices[12] = r.a.x; vertices[13] = r.b.y; vertices[14] = 0; vertices[15] = 1;
-	vertices[16] = r.b.x; vertices[17] = r.b.y; vertices[18] = 1; vertices[19] = 1;
-	vertices[20] = r.b.x; vertices[21] = r.a.y; vertices[22] = 1; vertices[23] = 0;
+	vertices[12] = d.a.x; vertices[13] = d.b.y; vertices[14] = sf.a.x; vertices[15] = sf.b.y;
+	vertices[16] = d.b.x; vertices[17] = d.b.y; vertices[18] = sf.b.x; vertices[19] = sf.b.y;
+	vertices[20] = d.b.x; vertices[21] = d.a.y; vertices[22] = sf.b.x; vertices[23] = sf.a.y;
 }
 
 
@@ -281,7 +282,7 @@ void whitgl_sys_draw_finish()
 void whitgl_sys_draw_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 {
 	float vertices[6*4];
-	_whitgl_populate_vertices(vertices, rect);
+	_whitgl_populate_vertices(vertices, whitgl_iaabb_zero, rect, whitgl_ivec_zero);
 	glBindBuffer( GL_ARRAY_BUFFER, vbo );
 	glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW );
 
@@ -297,7 +298,7 @@ void whitgl_sys_draw_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 	glDrawArrays( GL_TRIANGLES, 0, 6 );
 }
 
-void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb rect)
+void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb src, whitgl_iaabb dest)
 {
 	int index = -1;
 	int i;
@@ -319,7 +320,7 @@ void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb rect)
 	glBindTexture( GL_TEXTURE_2D, images[index].gluint );
 
 	float vertices[6*4];
-	_whitgl_populate_vertices(vertices, rect);
+	_whitgl_populate_vertices(vertices, src, dest, images[index].size);
 	glBindBuffer( GL_ARRAY_BUFFER, vbo );
 	glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW );
 

@@ -58,18 +58,18 @@ whitgl_ivec whitgl_ivec_inverse(whitgl_ivec a)
 	out.y = -a.y;
 	return out;
 }
-whitgl_ivec whitgl_ivec_scale(whitgl_ivec a, whitgl_int s)
+whitgl_ivec whitgl_ivec_scale(whitgl_ivec a, whitgl_ivec s)
 {
 	whitgl_ivec out;
-	out.x = a.x * s;
-	out.y = a.y * s;
+	out.x = a.x * s.x;
+	out.y = a.y * s.y;
 	return out;
 }
-whitgl_ivec whitgl_ivec_divide(whitgl_ivec a, whitgl_int s)
+whitgl_ivec whitgl_ivec_divide(whitgl_ivec a, whitgl_ivec s)
 {
 	whitgl_ivec out;
-	out.x = a.x / s;
-	out.y = a.y / s;
+	out.x = a.x / s.x;
+	out.y = a.y / s.y;
 	return out;
 }
 
@@ -94,11 +94,18 @@ whitgl_fvec whitgl_fvec_inverse(whitgl_fvec a)
 	out.y = -a.y;
 	return out;
 }
-whitgl_fvec whitgl_fvec_scale(whitgl_fvec a, whitgl_float s)
+whitgl_fvec whitgl_fvec_scale(whitgl_fvec a, whitgl_fvec s)
 {
 	whitgl_fvec out;
-	out.x = a.x * s;
-	out.y = a.y * s;
+	out.x = a.x * s.x;
+	out.y = a.y * s.y;
+	return out;
+}
+whitgl_fvec whitgl_fvec_divide(whitgl_fvec a, whitgl_fvec s)
+{
+	whitgl_fvec out;
+	out.x = a.x / s.x;
+	out.y = a.y / s.y;
 	return out;
 }
 
@@ -120,14 +127,14 @@ whitgl_iaabb whitgl_iaabb_sub(whitgl_iaabb a, whitgl_ivec b)
 	out.b.y = a.b.y - b.y;
 	return out;
 }
-whitgl_iaabb whitgl_iaabb_scale(whitgl_iaabb a, whitgl_int s)
+whitgl_iaabb whitgl_iaabb_scale(whitgl_iaabb a, whitgl_ivec s)
 {
 	whitgl_iaabb out;
 	out.a = whitgl_ivec_scale(a.a, s);
 	out.b = whitgl_ivec_scale(a.b, s);
 	return out;
 }
-whitgl_iaabb whitgl_iaabb_divide(whitgl_iaabb a, whitgl_int s)
+whitgl_iaabb whitgl_iaabb_divide(whitgl_iaabb a, whitgl_ivec s)
 {
 	whitgl_iaabb out;
 	out.a = whitgl_ivec_divide(a.a, s);
@@ -161,11 +168,18 @@ whitgl_faabb whitgl_faabb_sub(whitgl_faabb a, whitgl_fvec b)
 	out.b.y = a.b.y - b.y;
 	return out;
 }
-whitgl_faabb whitgl_faabb_scale(whitgl_faabb a, whitgl_float s)
+whitgl_faabb whitgl_faabb_scale(whitgl_faabb a, whitgl_fvec s)
 {
 	whitgl_faabb out;
 	out.a = whitgl_fvec_scale(a.a, s);
 	out.b = whitgl_fvec_scale(a.b, s);
+	return out;
+}
+whitgl_faabb whitgl_faabb_divide(whitgl_faabb a, whitgl_fvec s)
+{
+	whitgl_faabb out;
+	out.a = whitgl_fvec_divide(a.a, s);
+	out.b = whitgl_fvec_divide(a.b, s);
 	return out;
 }
 bool whitgl_faabb_intersects(whitgl_faabb a, whitgl_faabb b)
@@ -197,14 +211,14 @@ bool whitgl_fvec_point_in_rect(whitgl_fvec p, whitgl_faabb r)
 whitgl_fvec whitgl_ivec_to_fvec(whitgl_ivec in)
 {
 	whitgl_fvec out;
-	out.x = (whitgl_float)in.x; 
+	out.x = (whitgl_float)in.x;
 	out.y = (whitgl_float)in.y;
 	return out;
 }
 whitgl_ivec whitgl_fvec_to_ivec(whitgl_fvec in)
 {
 	whitgl_ivec out;
-	out.x = (whitgl_int)in.x; 
+	out.x = (whitgl_int)in.x;
 	out.y = (whitgl_int)in.y;
 	return out;
 }
