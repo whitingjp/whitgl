@@ -1,1 +1,5 @@
+Windows:
 python build.py && input/ninja.exe && ./build/out/app.exe
+
+Linux:
+python build.py && ninja && (cd build/out/; ./app)
