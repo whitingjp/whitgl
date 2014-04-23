@@ -8,15 +8,16 @@
 
 void draw(whitgl_ivec size)
 {
+	(void)size;
 	whitgl_iaabb screen = {{0, 0}, {size.x, size.y}};
 	whitgl_sys_color col = {0x35, 0x52, 0x76, 0xff};
 	whitgl_sys_draw_iaabb(screen, col);
 	whitgl_sprite sprite = {0, {0,0},{16,16}};
 	whitgl_ivec frametr = {1, 0};
-	whitgl_ivec pos = {30,10};
+	whitgl_ivec pos = {16,0};
 	whitgl_sys_draw_sprite(sprite, frametr, pos);
 	whitgl_ivec framebr = {1, 1};
-	pos.x = 50; pos.y = 30;
+	pos.x = 0; pos.y = 16;
 	whitgl_sys_draw_sprite(sprite, framebr, pos);
 }
 
@@ -25,6 +26,9 @@ int main()
 	WHITGL_LOG("Starting main.");
 
 	whitgl_sys_setup setup = whitgl_default_setup;
+	setup.size.x = 32;
+	setup.size.y = 32;
+	setup.pixel_size = 16;
 	setup.name = "main";
 
 	if(!whitgl_sys_init(setup))

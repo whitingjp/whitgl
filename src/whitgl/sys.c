@@ -75,6 +75,8 @@ void main()\
 GLuint vbo;
 GLuint shaderProgram;
 GLuint flatShaderProgram;
+GLuint frameBuffer;
+GLuint intermediateTexture;
 
 int GLFWCALL _whitgl_sys_close_callback();
 
@@ -179,6 +181,21 @@ bool whitgl_sys_init(whitgl_sys_setup setup)
 	glBindFragDataLocation( flatShaderProgram, 0, "outColor" );
 	glLinkProgram( flatShaderProgram );
 
+	// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
+	glGenFramebuffers(1, &frameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+	glGenTextures(1, &intermediateTexture);
+	glBindTexture(GL_TEXTURE_2D, intermediateTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, setup.size.x, setup.size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, intermediateTexture, 0);
+	GLenum drawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+	glDrawBuffers(1, drawBuffers); // "1" is the size of drawBuffers
+	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		WHITGL_LOG("Problem setting up intermediate render target");
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	// Enable vertical sync (on cards that support it)
 	glfwSwapInterval( 1 );
 
@@ -227,17 +244,19 @@ void whitgl_sys_draw_init()
 	glfwGetWindowSize( &w, &h);
 	_window_size.x = w;
 	_window_size.y = h;
-	glViewport( 0, 0, _window_size.x, _window_size.y );
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0, _setup.size.x, _setup.size.y, 0);
+	glViewport( 0, 0, _setup.size.x, _setup.size.y );
 
 	glClearColor(0, 0.0, 0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluOrtho2D(0, _window_size.x, _window_size.y,0);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void _whitgl_populate_vertices(float* vertices, whitgl_iaabb s, whitgl_iaabb d, whitgl_ivec image_size)
@@ -275,6 +294,42 @@ void _whitgl_sys_orthographic(GLuint program, float left, float right, float top
 
 void whitgl_sys_draw_finish()
 {
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0, _window_size.x, _window_size.y, 0);
+	glViewport( 0, 0, _window_size.x, _window_size.y );
+
+	glActiveTexture( GL_TEXTURE0 );
+	glBindTexture( GL_TEXTURE_2D, intermediateTexture );
+
+	float vertices[6*4];
+	whitgl_iaabb src = whitgl_iaabb_zero;
+	whitgl_iaabb dest = whitgl_iaabb_zero;
+	src.b.x = _setup.size.x;
+	src.a.y = _setup.size.y;
+	dest.b = _window_size;
+
+	_whitgl_populate_vertices(vertices, src, dest, _setup.size);
+	glBindBuffer( GL_ARRAY_BUFFER, vbo );
+	glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW );
+
+	glUseProgram( shaderProgram );
+	glUniform1i( glGetUniformLocation( shaderProgram, "tex" ), 0 );
+	_whitgl_sys_orthographic(shaderProgram, 0, _window_size.x, 0, _window_size.y);
+
+	#define BUFFER_OFFSET(i) ((void*)(i))
+	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
+	glVertexAttribPointer( posAttrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0 );
+	glEnableVertexAttribArray( posAttrib );
+
+	GLint texturePosAttrib = glGetAttribLocation( shaderProgram, "texturepos" );
+	glVertexAttribPointer( texturePosAttrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), BUFFER_OFFSET(sizeof(float)*2) );
+	glEnableVertexAttribArray( texturePosAttrib );
+
+	glDrawArrays( GL_TRIANGLES, 0, 6 );
+
 	glfwSwapBuffers();
 	glDisable(GL_BLEND);
 }
