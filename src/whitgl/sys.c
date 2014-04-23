@@ -71,9 +71,16 @@ void main()\
 }\
 ";
 
+typedef struct
+{
+	GLuint program;
+	float uniforms[WHITGL_MAX_SHADER_UNIFORMS];
+	whitgl_shader shader;
+} whitgl_shader_data;
+
 
 GLuint vbo;
-GLuint shaderPrograms[WHITGL_SHADER_MAX];
+whitgl_shader_data shaders[WHITGL_SHADER_MAX];
 GLuint frameBuffer;
 GLuint intermediateTexture;
 
@@ -81,24 +88,25 @@ int GLFWCALL _whitgl_sys_close_callback();
 
 whitgl_sys_setup _setup;
 
-bool whitgl_change_shader(whitgl_shader_slot type, const char* vertex_src, const char* fragment_src)
+bool whitgl_change_shader(whitgl_shader_slot type, whitgl_shader shader)
 {
 	if(type >= WHITGL_SHADER_MAX)
 	{
 		WHITGL_LOG("Invalid shader type %d", type);
 		return false;
 	}
+	shaders[type].shader = shader;
 
-	if(vertex_src == NULL)
-		vertex_src = _vertex_src;
-	if(fragment_src == NULL)
-		fragment_src = _fragment_src;
+	if(shader.vertex_src == NULL)
+		shader.vertex_src = _vertex_src;
+	if(shader.fragment_src == NULL)
+		shader.fragment_src = _fragment_src;
 
-	if(glIsProgram(shaderPrograms[type]))
-		glDeleteProgram(shaderPrograms[type]);
+	if(glIsProgram(shaders[type].program))
+		glDeleteProgram(shaders[type].program);
 
 	GLuint vertexShader = glCreateShader( GL_VERTEX_SHADER );
-	glShaderSource( vertexShader, 1, &vertex_src, NULL );
+	glShaderSource( vertexShader, 1, &shader.vertex_src, NULL );
 	glCompileShader( vertexShader );
 	GLint status;
 	glGetShaderiv( vertexShader, GL_COMPILE_STATUS, &status );
@@ -111,7 +119,7 @@ bool whitgl_change_shader(whitgl_shader_slot type, const char* vertex_src, const
 	}
 
 	GLuint fragmentShader = glCreateShader( GL_FRAGMENT_SHADER );
-	glShaderSource( fragmentShader, 1, &fragment_src, NULL );
+	glShaderSource( fragmentShader, 1, &shader.fragment_src, NULL );
 	glCompileShader( fragmentShader );
 
 	glGetShaderiv( fragmentShader, GL_COMPILE_STATUS, &status );
@@ -123,13 +131,28 @@ bool whitgl_change_shader(whitgl_shader_slot type, const char* vertex_src, const
 		return false;
 	}
 
-	shaderPrograms[type] = glCreateProgram();
-	glAttachShader( shaderPrograms[type], vertexShader );
-	glAttachShader( shaderPrograms[type], fragmentShader );
-	glBindFragDataLocation( shaderPrograms[type], 0, "outColor" );
-	glLinkProgram( shaderPrograms[type] );
+	shaders[type].program = glCreateProgram();
+	glAttachShader( shaders[type].program, vertexShader );
+	glAttachShader( shaders[type].program, fragmentShader );
+	glBindFragDataLocation( shaders[type].program, 0, "outColor" );
+	glLinkProgram( shaders[type].program );
 
 	return true;
+}
+
+void whitgl_set_shader_uniform(whitgl_shader_slot type, int uniform, float value)
+{
+	if(type >= WHITGL_SHADER_MAX)
+	{
+		WHITGL_LOG("Invalid shader type %d", type);
+		return;
+	}
+	if(uniform < 0 || uniform >= WHITGL_MAX_SHADER_UNIFORMS || uniform >= shaders[type].shader.num_uniforms)
+	{
+		WHITGL_LOG("Invalid shader uniform %d", uniform);
+		return;
+	}
+	shaders[type].uniforms[uniform] = value;
 }
 
 bool whitgl_sys_init(whitgl_sys_setup setup)
@@ -180,11 +203,14 @@ bool whitgl_sys_init(whitgl_sys_setup setup)
 
 	glGenBuffers( 1, &vbo ); // Generate 1 buffer
 
-	if(!whitgl_change_shader( WHITGL_SHADER_FLAT, NULL, _flat_src))
+	whitgl_shader flat_shader = whitgl_shader_zero;
+	flat_shader.fragment_src = _flat_src;
+	if(!whitgl_change_shader( WHITGL_SHADER_FLAT, flat_shader))
 		return false;
-	if(!whitgl_change_shader( WHITGL_SHADER_TEXTURE, NULL, NULL))
+	whitgl_shader texture_shader = whitgl_shader_zero;
+	if(!whitgl_change_shader( WHITGL_SHADER_TEXTURE, texture_shader))
 		return false;
-	if(!whitgl_change_shader( WHITGL_SHADER_POST, NULL, NULL))
+	if(!whitgl_change_shader( WHITGL_SHADER_POST, texture_shader))
 		return false;
 
 	// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
@@ -298,6 +324,13 @@ void _whitgl_sys_orthographic(GLuint program, float left, float right, float top
 	glUniformMatrix4fv( glGetUniformLocation( program, "sLocalToProjMatrix"), 1, GL_FALSE, matrix);
 }
 
+void _whitgl_load_uniforms(whitgl_shader_slot slot)
+{
+	int i;
+	for(i=0; i<shaders[slot].shader.num_uniforms; i++)
+		glUniform1f( glGetUniformLocation( shaders[slot].program, shaders[slot].shader.uniforms[i]), shaders[slot].uniforms[i]);
+}
+
 void whitgl_sys_draw_finish()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -321,9 +354,10 @@ void whitgl_sys_draw_finish()
 	glBindBuffer( GL_ARRAY_BUFFER, vbo );
 	glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW );
 
-	GLuint shaderProgram = shaderPrograms[WHITGL_SHADER_POST];
+	GLuint shaderProgram = shaders[WHITGL_SHADER_POST].program;
 	glUseProgram( shaderProgram );
 	glUniform1i( glGetUniformLocation( shaderProgram, "tex" ), 0 );
+	_whitgl_load_uniforms(WHITGL_SHADER_POST);
 	_whitgl_sys_orthographic(shaderProgram, 0, _window_size.x, 0, _window_size.y);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
@@ -348,9 +382,10 @@ void whitgl_sys_draw_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 	glBindBuffer( GL_ARRAY_BUFFER, vbo );
 	glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW );
 
-	GLuint shaderProgram = shaderPrograms[WHITGL_SHADER_FLAT];
+	GLuint shaderProgram = shaders[WHITGL_SHADER_FLAT].program;
 	glUseProgram( shaderProgram );
 	glUniform4f( glGetUniformLocation( shaderProgram, "sColor" ), (float)col.r/255.0, (float)col.g/255.0, (float)col.b/255.0, (float)col.a/255.0 );
+	_whitgl_load_uniforms(WHITGL_SHADER_FLAT);
 	_whitgl_sys_orthographic(shaderProgram, 0, _setup.size.x, 0, _setup.size.y);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
@@ -387,9 +422,10 @@ void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb src, whitgl_iaabb dest)
 	glBindBuffer( GL_ARRAY_BUFFER, vbo );
 	glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW );
 
-	GLuint shaderProgram = shaderPrograms[WHITGL_SHADER_TEXTURE];
+	GLuint shaderProgram = shaders[WHITGL_SHADER_TEXTURE].program;
 	glUseProgram( shaderProgram );
 	glUniform1i( glGetUniformLocation( shaderProgram, "tex" ), 0 );
+	_whitgl_load_uniforms(WHITGL_SHADER_TEXTURE);
 	_whitgl_sys_orthographic(shaderProgram, 0, _setup.size.x, 0, _setup.size.y);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))

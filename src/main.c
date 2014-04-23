@@ -13,9 +13,10 @@ const char* post_src = "\
 in vec2 Texturepos;\
 out vec4 outColor;\
 uniform sampler2D tex;\
+uniform float spread;\
 void main()\
 {\
-	vec2 offset = {0.01};\
+	vec2 offset = {0.1*spread};\
 	outColor = vec4(texture( tex, Texturepos-offset ).r, texture( tex, Texturepos ).g, texture( tex, Texturepos+offset ).ba);\
 }\
 ";
@@ -47,7 +48,11 @@ int main()
 
 	if(!whitgl_sys_init(setup))
 		return 1;
-	if(!whitgl_change_shader(WHITGL_SHADER_POST, NULL, post_src))
+	whitgl_shader post_shader = whitgl_shader_zero;
+	post_shader.fragment_src = post_src;
+	post_shader.num_uniforms = 1;
+	post_shader.uniforms[0] = "spread";
+	if(!whitgl_change_shader(WHITGL_SHADER_POST, post_shader))
 		return 1;
 
 	whitgl_sound_init();
@@ -66,8 +71,8 @@ int main()
 
 		whitgl_sys_draw_init();
 		draw(setup.size);
-		// whitgl_ivec mousepos = whitgl_input_mouse_pos(setup.pixel_size);
-		// WHITGL_LOG("mousex: %d mousey: %d", mousepos.x, mousepos.y);
+		whitgl_ivec mousepos = whitgl_input_mouse_pos(setup.pixel_size);
+		whitgl_set_shader_uniform(WHITGL_SHADER_POST, 0, ((float)mousepos.x-setup.size.x/2)/30);
 		whitgl_sys_draw_finish();
 
 		if(whitgl_input_pressed(WHITGL_INPUT_ESC))
