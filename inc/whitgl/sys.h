@@ -61,6 +61,5 @@ void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb src, whitgl_iaabb dest);
 void whitgl_sys_draw_sprite(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec pos);
 
 double whitgl_sys_get_time();
-void whitgl_sys_sleep( double time );
 
 #endif // WHITGL_SYS_H_

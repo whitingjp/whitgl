@@ -477,3 +477,7 @@ void whitgl_sys_add_image(int id, const char* filename)
 
 	num_images++;
 }
+double whitgl_sys_get_time()
+{
+	return glfwGetTime();
+}
