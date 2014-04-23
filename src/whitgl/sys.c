@@ -60,6 +60,19 @@ void main()\
 }\
 ";
 
+const char* post_src = "\
+#version 150\
+\n\
+in vec2 Texturepos;\
+out vec4 outColor;\
+uniform sampler2D tex;\
+void main()\
+{\
+	vec2 offset = {0.01};\
+	outColor = vec4(texture( tex, Texturepos-offset ).r, texture( tex, Texturepos ).g, texture( tex, Texturepos+offset ).ba);\
+}\
+";
+
 const char* flat_src = "\
 #version 150\
 \n\
@@ -74,6 +87,7 @@ void main()\
 
 GLuint vbo;
 GLuint shaderProgram;
+GLuint postProgram;
 GLuint flatShaderProgram;
 GLuint frameBuffer;
 GLuint intermediateTexture;
@@ -156,6 +170,19 @@ bool whitgl_sys_init(whitgl_sys_setup setup)
 		return false;
 	}
 
+	GLuint postShader = glCreateShader( GL_FRAGMENT_SHADER );
+	glShaderSource( postShader, 1, &post_src, NULL );
+	glCompileShader( postShader );
+
+	glGetShaderiv( postShader, GL_COMPILE_STATUS, &status );
+	if(status != GL_TRUE)
+	{
+		char buffer[512];
+		glGetShaderInfoLog( postShader, 512, NULL, buffer );
+		WHITGL_LOG(buffer);
+		return false;
+	}
+
 	GLuint flatShader = glCreateShader( GL_FRAGMENT_SHADER );
 	glShaderSource( flatShader, 1, &flat_src, NULL );
 	glCompileShader( flatShader );
@@ -174,6 +201,12 @@ bool whitgl_sys_init(whitgl_sys_setup setup)
 	glAttachShader( shaderProgram, fragmentShader );
 	glBindFragDataLocation( shaderProgram, 0, "outColor" );
 	glLinkProgram( shaderProgram );
+
+	postProgram = glCreateProgram();
+	glAttachShader( postProgram, vertexShader );
+	glAttachShader( postProgram, postShader );
+	glBindFragDataLocation( postProgram, 0, "outColor" );
+	glLinkProgram( postProgram );
 
 	flatShaderProgram = glCreateProgram();
 	glAttachShader( flatShaderProgram, vertexShader );
@@ -315,16 +348,16 @@ void whitgl_sys_draw_finish()
 	glBindBuffer( GL_ARRAY_BUFFER, vbo );
 	glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW );
 
-	glUseProgram( shaderProgram );
-	glUniform1i( glGetUniformLocation( shaderProgram, "tex" ), 0 );
-	_whitgl_sys_orthographic(shaderProgram, 0, _window_size.x, 0, _window_size.y);
+	glUseProgram( postProgram );
+	glUniform1i( glGetUniformLocation( postProgram, "tex" ), 0 );
+	_whitgl_sys_orthographic(postProgram, 0, _window_size.x, 0, _window_size.y);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
-	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
+	GLint posAttrib = glGetAttribLocation( postProgram, "position" );
 	glVertexAttribPointer( posAttrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0 );
 	glEnableVertexAttribArray( posAttrib );
 
-	GLint texturePosAttrib = glGetAttribLocation( shaderProgram, "texturepos" );
+	GLint texturePosAttrib = glGetAttribLocation( postProgram, "texturepos" );
 	glVertexAttribPointer( texturePosAttrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), BUFFER_OFFSET(sizeof(float)*2) );
 	glEnableVertexAttribArray( texturePosAttrib );
 
