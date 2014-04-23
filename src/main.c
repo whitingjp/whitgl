@@ -8,15 +8,16 @@
 
 void draw(whitgl_ivec size)
 {
-	whitgl_iaabb full = {{0,0},{16,16}};
-	whitgl_iaabb recta = {{size.x-4-32, size.y-4-32}, {size.x-2, size.y-4}};
-	whitgl_sys_draw_tex_iaabb(0, full, recta);
-	whitgl_iaabb doub = {{-16,-16},{16,16}};
-	whitgl_iaabb rectb = {{50, 50}, {66, 66}};
-	whitgl_sys_draw_tex_iaabb(1, doub, rectb);
-	whitgl_iaabb rectc = {{10, 10}, {25, 25}};
-	whitgl_sys_color col = {255, 10, 120, 255};
-	whitgl_sys_draw_iaabb(rectc, col);
+	whitgl_iaabb screen = {{0, 0}, {size.x, size.y}};
+	whitgl_sys_color col = {0x35, 0x52, 0x76, 0xff};
+	whitgl_sys_draw_iaabb(screen, col);
+	whitgl_sprite sprite = {0, {0,0},{16,16}};
+	whitgl_ivec frametr = {1, 0};
+	whitgl_ivec pos = {30,10};
+	whitgl_sys_draw_sprite(sprite, frametr, pos);
+	whitgl_ivec framebr = {1, 1};
+	pos.x = 50; pos.y = 30;
+	whitgl_sys_draw_sprite(sprite, framebr, pos);
 }
 
 int main()
@@ -34,8 +35,7 @@ int main()
 	whitgl_sound_add(0, "data/beam.ogg");
 	whitgl_sound_play(0, 1);
 
-	whitgl_sys_add_image(0, "data/whit.png");
-	whitgl_sys_add_image(1, "data/whittwo.png");
+	whitgl_sys_add_image(0, "data/sprites.png");
 
 	bool running = true;
 	while(running)

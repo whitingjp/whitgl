@@ -339,6 +339,17 @@ void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb src, whitgl_iaabb dest)
 
 	glDrawArrays( GL_TRIANGLES, 0, 6 );
 }
+void whitgl_sys_draw_sprite(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec pos)
+{
+	whitgl_iaabb src = whitgl_iaabb_zero;
+	whitgl_ivec offset = whitgl_ivec_scale(sprite.size, frame);
+	src.a = whitgl_ivec_add(sprite.top_left, offset);
+	src.b = whitgl_ivec_add(src.a, sprite.size);
+	whitgl_iaabb dest = whitgl_iaabb_zero;
+	dest.a = pos;
+	dest.b = whitgl_ivec_add(dest.a, sprite.size);
+	whitgl_sys_draw_tex_iaabb(sprite.image, src, dest);
+}
 
 void whitgl_sys_add_image(int id, const char* filename)
 {
