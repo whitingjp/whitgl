@@ -35,8 +35,8 @@ cflags += ' -g'
 
 ldflags = ''
 if(plat == 'Windows'):
-  cflags += ' -Iinput/glfw/include -Iinput/fmod/win/inc'
-  ldflags += ' -Linput/glfw/lib-mingw -Linput/fmod/win/lib -lglfw -lglu32 -lopengl32 -lfmodex'
+  cflags += ' -Iinput/glfw/include -Iinput/soil/include -Iinput/glew/include -Iinput/fmod/win/inc'
+  ldflags += ' -Linput/glfw/lib-mingw -Linput/glew/lib -Linput/soil -Linput/fmod/win/lib  -lsoil -lglfw -lglu32 -lopengl32 -lglew32 -lfmodex'
 else:
   cflags += ' -Iinput/fmod/linux/inc'
   ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/linux/lib -lglfw -lGLU -lGL -lGLEW -lfmodex-4.44.15 -lSOIL'
