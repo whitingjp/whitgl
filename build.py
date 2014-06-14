@@ -41,8 +41,8 @@ else:
 
 ldflags = ''
 if(plat == 'Windows'):
-  cflags += ' -Iinput/glfw/include -Iinput/soil/src -Iinput/glew/include -Iinput/fmod/win/inc '
-  ldflags += ' -Linput/glfw/lib-mingw -Linput/glew/lib -Linput/soil/lib -Linput/fmod/win/lib  -lsoil -lglfw -lglu32 -lopengl32 -lglew32 -lfmodex '
+  cflags += ' -Iinput/glfw/include -Iinput/soil/include -Iinput/glew/include -Iinput/fmod/win/inc '
+  ldflags += ' -Linput/glfw/lib-mingw -Linput/glew/lib -Linput/soil -Linput/fmod/win/lib  -lSOIL input/glfw/lib-mingw/glfw3dll.a -lglu32 -lopengl32 -lglew32 -lfmodex '
 else:
   cflags += ' -isystem input/fmod/api/inc -Iinput/glfw/include '
   ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/api/lib -Linput/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lSOIL -lm -l%s -lX11 -lXxf86vm -lpthread -lXrandr -lXi ' % fmodlib
@@ -92,8 +92,7 @@ n.newline()
 if(plat == 'Windows'):
   targets += n.build(joinp(outdir, 'fmodex.dll'), 'cp', joinp(inputdir, 'fmod', 'fmodex.dll'))
   targets += n.build(joinp(outdir, 'glew32.dll'), 'cp', joinp(inputdir, 'glew', 'lib', 'glew32.dll'))
-  targets += n.build(joinp(outdir, 'run_windowed.bat'), 'cp', joinp('windows', 'run_windowed.bat'))
-  targets += n.build(joinp(outdir, 'run_fullscreen.bat'), 'cp', joinp('windows', 'run_fullscreen.bat'))
+  targets += n.build(joinp(outdir, 'glfw3.dll'), 'cp', joinp(inputdir, 'glfw', 'lib-mingw', 'glfw3.dll'))
 else:
   fmodso = 'lib%s.so' % fmodlib
   targets += n.build(joinp(outdir, fmodso), 'cp', joinp(inputdir, 'fmod', 'api', 'lib', fmodso))

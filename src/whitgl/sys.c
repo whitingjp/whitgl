@@ -187,7 +187,7 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	{
 		const GLFWvidmode * mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 		WHITGL_LOG("Opening fullscreen w%d h%d", mode->width, mode->height);
-		_window = glfwCreateWindow(mode->width, mode->height, setup->name, glfwGetPrimaryMonitor(), NULL);		
+		_window = glfwCreateWindow(mode->width, mode->height, setup->name, glfwGetPrimaryMonitor(), NULL);
 		bool searching = true;
 		setup->pixel_size = mode->width/setup->size.x;
 		while(searching)
@@ -396,6 +396,7 @@ void whitgl_sys_draw_finish()
 	glDrawArrays( GL_TRIANGLES, 0, 6 );
 
 	glfwSwapBuffers(_window);
+	glfwPollEvents();
 	glDisable(GL_BLEND);
 }
 

@@ -5,9 +5,9 @@
 bool _heldInputs[WHITGL_INPUT_MAX];
 bool _pressedInputs[WHITGL_INPUT_MAX];
 
-GLFWwindow* _window;
+extern GLFWwindow* _window;
 
-void whitgl_input_init(GLFWwindow* window)
+void whitgl_input_init()
 {
 	int i;
 	for(i=0; i<WHITGL_INPUT_MAX; i++)
@@ -16,7 +16,6 @@ void whitgl_input_init(GLFWwindow* window)
 		_pressedInputs[i] = false;
 	}
 
-	_window = window;
 	// Detect key presses between calls to GetKey
 	// glfwSetInputMode (_window, GLFW_STICKY_KEYS, GL_TRUE);
 }

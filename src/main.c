@@ -61,7 +61,7 @@ int main()
 	whitgl_sound_add(0, "data/beam.ogg");
 	whitgl_sound_play(0, 1);
 
-	// whitgl_sys_add_image(0, "data/sprites.png");
+	whitgl_sys_add_image(0, "data/sprites.png");
 
 	bool running = true;
 	while(running)
