@@ -3,7 +3,7 @@
 
 #define GLEW_STATIC
 #include <GL/glew.h>
-#include <GL/glfw.h>
+#include <GLFW/glfw3.h>
 #include <SOIL/SOIL.h>
 
 #include <whitgl/logging.h>
@@ -13,6 +13,7 @@
 bool _shouldClose;
 int _pixel_scale;
 whitgl_ivec _window_size;
+GLFWwindow* _window;
 
 typedef struct
 {
@@ -84,14 +85,14 @@ whitgl_shader_data shaders[WHITGL_SHADER_MAX];
 GLuint frameBuffer;
 GLuint intermediateTexture;
 
-int GLFWCALL _whitgl_sys_close_callback();
+void _whitgl_sys_close_callback(GLFWwindow*);
 
 whitgl_sys_setup _setup;
 
-// void _whitgl_sys_glfw_error_callback(int code, const char* error)
-// {
-// 	WHITGL_LOG("glfw error %d '%s'", code, error);
-// }
+void _whitgl_sys_glfw_error_callback(int code, const char* error)
+{
+	WHITGL_LOG("glfw error %d '%s'", code, error);
+}
 
 bool whitgl_change_shader(whitgl_shader_slot type, whitgl_shader shader)
 {
@@ -176,27 +177,23 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	}
 
 	WHITGL_LOG("Setting GLFW window hints");
-	glfwOpenWindowHint( GLFW_OPENGL_VERSION_MAJOR, 3 );
-	glfwOpenWindowHint( GLFW_OPENGL_VERSION_MINOR, 2 );
-	glfwOpenWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
-	glfwOpenWindowHint (GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwOpenWindowHint( GLFW_WINDOW_NO_RESIZE, GL_TRUE );
-
-	GLFWvidmode desktop;
-	glfwGetDesktopMode( &desktop );
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	// glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
 
 	if(setup->fullscreen)
 	{
-		WHITGL_LOG("Opening fullscreen w%d h%d", desktop.Width, desktop.Height);
-		result = glfwOpenWindow( desktop.Width, desktop.Height, desktop.RedBits,
-		                         desktop.GreenBits, desktop.BlueBits, 8, 32, 0,
-		                         GLFW_FULLSCREEN );
+		const GLFWvidmode * mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		WHITGL_LOG("Opening fullscreen w%d h%d", mode->width, mode->height);
+		_window = glfwCreateWindow(mode->width, mode->height, setup->name, glfwGetPrimaryMonitor(), NULL);		
 		bool searching = true;
-		setup->pixel_size = desktop.Width/setup->size.x;
+		setup->pixel_size = mode->width/setup->size.x;
 		while(searching)
 		{
-			setup->size.x = desktop.Width/setup->pixel_size;
-			setup->size.y = desktop.Height/setup->pixel_size;
+			setup->size.x = mode->width/setup->pixel_size;
+			setup->size.y = mode->height/setup->pixel_size;
 			searching = false;
 			if(setup->size.x < 320) searching = true;
 			if(setup->size.y < 240) searching = true;
@@ -206,17 +203,15 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	} else
 	{
 		WHITGL_LOG("Opening windowed w%d h%d", setup->size.x*setup->pixel_size, setup->size.y*setup->pixel_size);
-		result = glfwOpenWindow( setup->size.x*setup->pixel_size, setup->size.y*setup->pixel_size,
-		                         0,0,0,0, 0,0, GLFW_WINDOW );
+		_window = glfwCreateWindow(setup->size.x*setup->pixel_size, setup->size.y*setup->pixel_size, setup->name, NULL, NULL);
 	}
 	_pixel_scale = setup->pixel_size;
-	WHITGL_LOG("Setting title");
-	glfwSetWindowTitle(setup->name);
-	if(!result)
+	if(!_window)
 	{
 		WHITGL_LOG("Failed to open GLFW window");
 		exit( EXIT_FAILURE );
 	}
+	glfwMakeContextCurrent(_window);
 
 	WHITGL_LOG("Initiating glew");
 	glewExperimental = GL_TRUE;
@@ -258,12 +253,12 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	glfwSwapInterval( 1 );
 
 	WHITGL_LOG("Setting close callback");
-	glfwSetWindowCloseCallback(_whitgl_sys_close_callback);
+	glfwSetWindowCloseCallback(_window, _whitgl_sys_close_callback);
 
 	if(setup->disable_mouse_cursor)
 	{
 		WHITGL_LOG("Disable mouse cursor");
-		glfwDisable(GLFW_MOUSE_CURSOR);
+		glfwSetInputMode (_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	}
 
 	int i;
@@ -278,10 +273,10 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	return true;
 }
 
-int GLFWCALL _whitgl_sys_close_callback()
+void _whitgl_sys_close_callback(GLFWwindow* window)
 {
-  _shouldClose = true;
-  return true;
+	(void)window;
+	_shouldClose = true;
 }
 
 bool whitgl_sys_should_close()
@@ -299,17 +294,12 @@ double whitgl_sys_getTime()
 	return glfwGetTime();
 }
 
-void whitgl_sys_sleep(double time)
-{
-	glfwSleep(time);
-}
-
 void whitgl_sys_draw_init()
 {
-	int w, h;
-	glfwGetWindowSize( &w, &h);
-	_window_size.x = w;
-	_window_size.y = h;
+	// int w, h;
+	// glfwGetWindowSize( _window, &w, &h);
+	_window_size.x = _setup.size.x*_setup.pixel_size;
+	_window_size.y = _setup.size.y*_setup.pixel_size;
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -405,7 +395,7 @@ void whitgl_sys_draw_finish()
 
 	glDrawArrays( GL_TRIANGLES, 0, 6 );
 
-	glfwSwapBuffers();
+	glfwSwapBuffers(_window);
 	glDisable(GL_BLEND);
 }
 

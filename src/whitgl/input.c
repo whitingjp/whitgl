@@ -1,11 +1,13 @@
-#include <GL/glfw.h>
+#include <GLFW/glfw3.h>
 
 #include <whitgl/input.h>
 
 bool _heldInputs[WHITGL_INPUT_MAX];
 bool _pressedInputs[WHITGL_INPUT_MAX];
 
-void whitgl_input_init()
+GLFWwindow* _window;
+
+void whitgl_input_init(GLFWwindow* window)
 {
 	int i;
 	for(i=0; i<WHITGL_INPUT_MAX; i++)
@@ -14,8 +16,9 @@ void whitgl_input_init()
 		_pressedInputs[i] = false;
 	}
 
+	_window = window;
 	// Detect key presses between calls to GetKey
-	glfwEnable( GLFW_STICKY_KEYS );
+	// glfwSetInputMode (_window, GLFW_STICKY_KEYS, GL_TRUE);
 }
 
 void whitgl_input_shutdown() {}
@@ -33,10 +36,10 @@ bool whitgl_input_pressed(whitgl_input input)
 whitgl_ivec whitgl_input_mouse_pos(int pixel_size)
 {
 	whitgl_ivec out;
-	int x, y;
-	glfwGetMousePos(&x, &y);
-	out.x = x;
-	out.y = y;
+	double x, y;
+	glfwGetCursorPos(_window, &x, &y);
+	out.x = (int)x;
+	out.y = (int)y;
 	out.x /= pixel_size;
 	out.y /= pixel_size;
 	return out;
@@ -44,7 +47,7 @@ whitgl_ivec whitgl_input_mouse_pos(int pixel_size)
 
 bool _press(int key)
 {
-	return glfwGetKey(key) == GLFW_PRESS;
+	return glfwGetKey(_window, key) == GLFW_PRESS;
 }
 
 
@@ -59,7 +62,7 @@ void whitgl_input_update()
 	_heldInputs[WHITGL_INPUT_RIGHT] = _press(GLFW_KEY_RIGHT) || _press('L') || _press('D') || _press(GLFW_KEY_KP_6);
 	_heldInputs[WHITGL_INPUT_DOWN] = _press(GLFW_KEY_DOWN) || _press('J') || _press('S') || _press(GLFW_KEY_KP_2);
 	_heldInputs[WHITGL_INPUT_LEFT] = _press(GLFW_KEY_LEFT) || _press('H') || _press('A') || _press(GLFW_KEY_KP_4);
-	_heldInputs[WHITGL_INPUT_ESC] = _press(GLFW_KEY_ESC);
+	_heldInputs[WHITGL_INPUT_ESC] = _press(GLFW_KEY_ESCAPE);
 	_heldInputs[WHITGL_INPUT_A] = _press('Z');
 	_heldInputs[WHITGL_INPUT_B] = _press('X');
 	_heldInputs[WHITGL_INPUT_X] = _press('C');
