@@ -35,11 +35,14 @@ cflags += ' -g'
 
 ldflags = ''
 if(plat == 'Windows'):
-  cflags += ' -Iinput/glfw/include -Iinput/soil/include -Iinput/glew/include -Iinput/fmod/win/inc'
-  ldflags += ' -Linput/glfw/lib-mingw -Linput/glew/lib -Linput/soil -Linput/fmod/win/lib  -lsoil -lglfw -lglu32 -lopengl32 -lglew32 -lfmodex'
+  cflags += ' -Iinput/glfw/include -Iinput/soil/src -Iinput/glew/include -Iinput/fmod/win/inc'
+  ldflags += ' -Linput/glfw/lib-mingw -Linput/glew/lib -Linput/soil/lib -Linput/fmod/win/lib  -lsoil -lglfw -lglu32 -lopengl32 -lglew32 -lfmodex'
 else:
-  cflags += ' -Iinput/fmod/linux/inc'
-  ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/linux/lib -lglfw -lGLU -lGL -lGLEW -lfmodex-4.44.15 -lSOIL'
+  cflags += ' -isystem input/fmod/api/inc'
+  ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/api/lib -lglfw -lGLU -lGL -lGLEW -lfmodex -lSOIL'
+
+# clfags += -pg
+# ldflags += -pg
 
 n.variable('cflags', cflags)
 n.variable('ldflags', ldflags)
@@ -82,8 +85,11 @@ n.newline()
 
 if(plat == 'Windows'):
   targets += n.build(joinp(outdir, 'fmodex.dll'), 'cp', joinp(inputdir, 'fmod', 'fmodex.dll'))
+  targets += n.build(joinp(outdir, 'glew32.dll'), 'cp', joinp(inputdir, 'glew', 'lib', 'glew32.dll'))
+  targets += n.build(joinp(outdir, 'run_windowed.bat'), 'cp', joinp('windows', 'run_windowed.bat'))
+  targets += n.build(joinp(outdir, 'run_fullscreen.bat'), 'cp', joinp('windows', 'run_fullscreen.bat'))
 else:
-  targets += n.build(joinp(outdir, 'libfmodex-4.44.15.so'), 'cp', joinp(inputdir, 'fmod', 'linux', 'lib', 'libfmodex-4.44.15.so'))
+  targets += n.build(joinp(outdir, 'libfmodex.so'), 'cp', joinp(inputdir, 'fmod', 'api', 'lib', 'libfmodex.so'))
 n.newline()
 
 n.build('all', 'phony', targets)
