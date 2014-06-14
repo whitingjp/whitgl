@@ -1,6 +1,9 @@
 #ifndef WHITGL_SYS_H_
 #define WHITGL_SYS_H_
 
+#include <stdbool.h>
+#include <stddef.h>
+
 #include <whitgl/math.h>
 
 typedef struct
@@ -45,7 +48,7 @@ typedef struct
 } whitgl_shader;
 static const whitgl_shader whitgl_shader_zero = {NULL, NULL, 0, {}};
 
-bool whitgl_sys_init(whitgl_sys_setup setup);
+bool whitgl_sys_init(whitgl_sys_setup* setup);
 bool whitgl_sys_should_close();
 void whitgl_sys_close();
 
@@ -56,7 +59,9 @@ void whitgl_sys_draw_init();
 void whitgl_sys_draw_finish();
 
 void whitgl_sys_add_image(int id, const char* filename);
+void whitgl_sys_image_from_data(int id, whitgl_ivec size, const unsigned char* data);
 void whitgl_sys_draw_iaabb(whitgl_iaabb rectangle, whitgl_sys_color col);
+void whitgl_sys_draw_fcircle(whitgl_fcircle circle, whitgl_sys_color col, int tris);
 void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb src, whitgl_iaabb dest);
 void whitgl_sys_draw_sprite(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec pos);
 

@@ -30,25 +30,39 @@ typedef struct
 } whitgl_faabb;
 static const whitgl_faabb whitgl_faabb_zero = { {0,0}, {0,0} };
 
+typedef struct
+{
+	whitgl_fvec pos;
+	whitgl_float size;
+} whitgl_fcircle;
+static const whitgl_fcircle whitgl_fcircle_zero = { {0,0}, 0};
+
 whitgl_int whitgl_imin(whitgl_int a, whitgl_int b);
 whitgl_int whitgl_imax(whitgl_int a, whitgl_int b);
 whitgl_int whitgl_iminmax(whitgl_int lower, whitgl_int upper, whitgl_int n);
+whitgl_int whitgl_iwrap(whitgl_int a, whitgl_int min, whitgl_int max);
 
 whitgl_float whitgl_fmin(whitgl_float a, whitgl_float b);
 whitgl_float whitgl_fmax(whitgl_float a, whitgl_float b);
 whitgl_float whitgl_fminmax(whitgl_float lower, whitgl_float upper, whitgl_float n);
+whitgl_float whitgl_fsqrt(whitgl_float a);
+whitgl_float whitgl_fwrap(whitgl_float a, whitgl_float min, whitgl_float max);
+whitgl_float whitgl_fsin(whitgl_float a);
+whitgl_float whitgl_fcos(whitgl_float a);
 
 whitgl_ivec whitgl_ivec_add(whitgl_ivec a, whitgl_ivec b);
 whitgl_ivec whitgl_ivec_sub(whitgl_ivec a, whitgl_ivec b);
 whitgl_ivec whitgl_ivec_inverse(whitgl_ivec a);
 whitgl_ivec whitgl_ivec_scale(whitgl_ivec a, whitgl_ivec s);
 whitgl_ivec whitgl_ivec_divide(whitgl_ivec a, whitgl_ivec s);
+whitgl_int whitgl_ivec_sqmagnitude(whitgl_ivec a);
 
 whitgl_fvec whitgl_fvec_add(whitgl_fvec a, whitgl_fvec b);
 whitgl_fvec whitgl_fvec_sub(whitgl_fvec a, whitgl_fvec b);
 whitgl_fvec whitgl_fvec_inverse(whitgl_fvec a);
 whitgl_fvec whitgl_fvec_scale(whitgl_fvec a, whitgl_fvec s);
 whitgl_fvec whitgl_fvec_divide(whitgl_fvec a, whitgl_fvec s);
+whitgl_float whitgl_fvec_sqmagnitude(whitgl_fvec a);
 
 whitgl_iaabb whitgl_iaabb_add(whitgl_iaabb a, whitgl_ivec b);
 whitgl_iaabb whitgl_iaabb_sub(whitgl_iaabb a, whitgl_ivec b);
@@ -72,5 +86,14 @@ whitgl_ivec whitgl_fvec_to_ivec(whitgl_fvec in);
 
 whitgl_faabb whitgl_iaabb_to_faabb(whitgl_iaabb in);
 whitgl_iaabb whitgl_faabb_to_iaabb(whitgl_faabb in);
+
+whitgl_fvec whitgl_angle_to_fvec(whitgl_float in);
+whitgl_float whitgl_fvec_to_angle(whitgl_fvec in);
+
+void whitgl_randseed(whitgl_int seed);
+whitgl_int whitgl_randint(whitgl_int size);
+whitgl_float whitgl_randfloat();
+
+static const whitgl_float whitgl_pi = 3.14159;
 
 #endif // WHITGL_MATH_H_

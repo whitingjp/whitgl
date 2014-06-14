@@ -88,6 +88,11 @@ int GLFWCALL _whitgl_sys_close_callback();
 
 whitgl_sys_setup _setup;
 
+// void _whitgl_sys_glfw_error_callback(int code, const char* error)
+// {
+// 	WHITGL_LOG("glfw error %d '%s'", code, error);
+// }
+
 bool whitgl_change_shader(whitgl_shader_slot type, whitgl_shader shader)
 {
 	if(type >= WHITGL_SHADER_MAX)
@@ -155,15 +160,14 @@ void whitgl_set_shader_uniform(whitgl_shader_slot type, int uniform, float value
 	shaders[type].uniforms[uniform] = value;
 }
 
-bool whitgl_sys_init(whitgl_sys_setup setup)
+bool whitgl_sys_init(whitgl_sys_setup* setup)
 {
-	_setup = setup;
-
 	bool result;
 	_shouldClose = false;
 
 	WHITGL_LOG("Initialize GLFW");
 
+	// glfwSetErrorCallback(&_whitgl_sys_glfw_error_callback);
 	result = glfwInit();
 	if(!result)
 	{
@@ -171,38 +175,56 @@ bool whitgl_sys_init(whitgl_sys_setup setup)
 		exit( EXIT_FAILURE );
 	}
 
+	WHITGL_LOG("Setting GLFW window hints");
 	glfwOpenWindowHint( GLFW_OPENGL_VERSION_MAJOR, 3 );
 	glfwOpenWindowHint( GLFW_OPENGL_VERSION_MINOR, 2 );
-	glfwOpenWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
+	glfwOpenWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE );
 	glfwOpenWindowHint( GLFW_WINDOW_NO_RESIZE, GL_TRUE );
 
 	GLFWvidmode desktop;
 	glfwGetDesktopMode( &desktop );
 
-	_pixel_scale = setup.pixel_size;
-	if(setup.fullscreen)
+	if(setup->fullscreen)
 	{
+		WHITGL_LOG("Opening fullscreen w%d h%d", desktop.Width, desktop.Height);
 		result = glfwOpenWindow( desktop.Width, desktop.Height, desktop.RedBits,
 		                         desktop.GreenBits, desktop.BlueBits, 8, 32, 0,
 		                         GLFW_FULLSCREEN );
-		_pixel_scale = desktop.Width/setup.size.x;
+		bool searching = true;
+		setup->pixel_size = desktop.Width/setup->size.x;
+		while(searching)
+		{
+			setup->size.x = desktop.Width/setup->pixel_size;
+			setup->size.y = desktop.Height/setup->pixel_size;
+			searching = false;
+			if(setup->size.x < 320) searching = true;
+			if(setup->size.y < 240) searching = true;
+			if(setup->pixel_size == 1) searching = false;
+			if(searching) setup->pixel_size--;
+		}
 	} else
 	{
-		result = glfwOpenWindow( setup.size.x*_pixel_scale, setup.size.y*_pixel_scale,
+		WHITGL_LOG("Opening windowed w%d h%d", setup->size.x*setup->pixel_size, setup->size.y*setup->pixel_size);
+		result = glfwOpenWindow( setup->size.x*setup->pixel_size, setup->size.y*setup->pixel_size,
 		                         0,0,0,0, 0,0, GLFW_WINDOW );
 	}
-	glfwSetWindowTitle(setup.name);
+	_pixel_scale = setup->pixel_size;
+	WHITGL_LOG("Setting title");
+	glfwSetWindowTitle(setup->name);
 	if(!result)
 	{
 		WHITGL_LOG("Failed to open GLFW window");
 		exit( EXIT_FAILURE );
 	}
 
+	WHITGL_LOG("Initiating glew");
 	glewExperimental = GL_TRUE;
 	glewInit();
 
+	WHITGL_LOG("Generating vbo");
 	glGenBuffers( 1, &vbo ); // Generate 1 buffer
 
+	WHITGL_LOG("Loading shaders");
 	whitgl_shader flat_shader = whitgl_shader_zero;
 	flat_shader.fragment_src = _flat_src;
 	if(!whitgl_change_shader( WHITGL_SHADER_FLAT, flat_shader))
@@ -213,12 +235,14 @@ bool whitgl_sys_init(whitgl_sys_setup setup)
 	if(!whitgl_change_shader( WHITGL_SHADER_POST, texture_shader))
 		return false;
 
+	WHITGL_LOG("Creating framebuffer");
 	// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
 	glGenFramebuffers(1, &frameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 	glGenTextures(1, &intermediateTexture);
 	glBindTexture(GL_TEXTURE_2D, intermediateTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, setup.size.x, setup.size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	WHITGL_LOG("Creating framebuffer glTexImage2D");
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, setup->size.x, setup->size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, intermediateTexture, 0);
@@ -228,18 +252,27 @@ bool whitgl_sys_init(whitgl_sys_setup setup)
 		WHITGL_LOG("Problem setting up intermediate render target");
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	WHITGL_LOG("Enabling vsync");
 	// Enable vertical sync (on cards that support it)
 	glfwSwapInterval( 1 );
 
+	WHITGL_LOG("Setting close callback");
 	glfwSetWindowCloseCallback(_whitgl_sys_close_callback);
 
-	if(setup.disable_mouse_cursor)
+	if(setup->disable_mouse_cursor)
+	{
+		WHITGL_LOG("Disable mouse cursor");
 		glfwDisable(GLFW_MOUSE_CURSOR);
+	}
 
 	int i;
 	for(i=0; i<WHITGL_IMAGE_MAX; i++)
 		images[i].id = -1;
 	num_images = 0;
+
+	_setup = *setup;
+
+	WHITGL_LOG("Sys initiated");
 
 	return true;
 }
@@ -396,6 +429,46 @@ void whitgl_sys_draw_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 	glDrawArrays( GL_TRIANGLES, 0, 6 );
 }
 
+void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
+{
+	int num_vertices = tris*3*2;
+	whitgl_fvec scale = {c.size, c.size};
+	float *vertices = malloc(sizeof(float)*num_vertices);
+	int i;
+	for(i=0; i<tris; i++)
+	{
+		whitgl_float dir;
+		whitgl_fvec off;
+		int vertex_offset = 6*i;
+		vertices[vertex_offset+0] = c.pos.x; vertices[vertex_offset+1] = c.pos.y;
+
+		dir = ((whitgl_float)i)/tris * whitgl_pi * 2 ;
+		off = whitgl_fvec_scale(whitgl_angle_to_fvec(dir), scale);
+		vertices[vertex_offset+2] = c.pos.x+off.x; vertices[vertex_offset+3] = c.pos.y+off.y;
+
+		dir = ((whitgl_float)(i+1))/tris * whitgl_pi * 2;
+		off = whitgl_fvec_scale(whitgl_angle_to_fvec(dir), scale);
+		vertices[vertex_offset+4] = c.pos.x+off.x; vertices[vertex_offset+5] = c.pos.y+off.y;
+	}
+
+	glBindBuffer( GL_ARRAY_BUFFER, vbo );
+	glBufferData( GL_ARRAY_BUFFER, sizeof(float)*num_vertices , vertices, GL_DYNAMIC_DRAW );
+
+	GLuint shaderProgram = shaders[WHITGL_SHADER_FLAT].program;
+	glUseProgram( shaderProgram );
+	glUniform4f( glGetUniformLocation( shaderProgram, "sColor" ), (float)col.r/255.0, (float)col.g/255.0, (float)col.b/255.0, (float)col.a/255.0 );
+	_whitgl_load_uniforms(WHITGL_SHADER_FLAT);
+	_whitgl_sys_orthographic(shaderProgram, 0, _setup.size.x, 0, _setup.size.y);
+
+	#define BUFFER_OFFSET(i) ((void*)(i))
+	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
+	glVertexAttribPointer( posAttrib, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), 0 );
+	glEnableVertexAttribArray( posAttrib );
+
+	glDrawArrays( GL_TRIANGLES, 0, tris*3 );
+	free(vertices);
+}
+
 void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb src, whitgl_iaabb dest)
 {
 	int index = -1;
@@ -453,6 +526,7 @@ void whitgl_sys_draw_sprite(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec
 
 void whitgl_sys_add_image(int id, const char* filename)
 {
+	WHITGL_LOG("Adding image: %s", filename);
 	if(num_images >= WHITGL_IMAGE_MAX)
 	{
 		WHITGL_LOG("ERR Too many images");
@@ -477,6 +551,54 @@ void whitgl_sys_add_image(int id, const char* filename)
 
 	num_images++;
 }
+void whitgl_sys_image_from_data(int id, whitgl_ivec size, const unsigned char* data)
+{
+	if(num_images >= WHITGL_IMAGE_MAX)
+	{
+		WHITGL_LOG("ERR Too many images");
+		return;
+	}
+	int index = -1;
+	int i;
+	for(i=0; i<num_images; i++)
+	{
+		if(images[i].id == id)
+		{
+			index = i;
+			continue;
+		}
+	}
+
+	if(index == -1)
+	{
+		index = num_images;
+		images[index].gluint = SOIL_create_OGL_texture(data, size.x, size.y, 3, SOIL_CREATE_NEW_ID, SOIL_LOAD_L);
+	}
+	else
+	{
+		SOIL_create_OGL_texture(data, size.x, size.y, 3, images[index].gluint, SOIL_LOAD_L);
+	}
+	if( images[index].gluint == 0 )
+	{
+		WHITGL_LOG( "SOIL loading error: '%s'\n", SOIL_last_result() );
+		return;
+	}
+	images[index].id = id;
+	glBindTexture(GL_TEXTURE_2D, images[index].gluint);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	int w, h;
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &w);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &h);
+	images[index].size.x = w;
+	images[index].size.y = h;
+
+
+	if(index == num_images)
+		num_images++;
+}
+
 double whitgl_sys_get_time()
 {
 	return glfwGetTime();
