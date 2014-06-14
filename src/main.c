@@ -16,7 +16,7 @@ uniform sampler2D tex;\
 uniform float spread;\
 void main()\
 {\
-	vec2 offset = {0.1*spread};\
+	vec2 offset = vec2(0.1*spread);\
 	outColor = vec4(texture( tex, Texturepos-offset ).r, texture( tex, Texturepos ).g, texture( tex, Texturepos+offset ).ba);\
 }\
 ";
