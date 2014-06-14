@@ -1,5 +1,5 @@
 #/usr/bin/bash
-sudo apt-get install ninja-build libglfw-dev libglew-dev
+sudo apt-get install ninja-build libglfw-dev libglew-dev libsoil-dev
 rm -rf input
 mkdir input
 pushd input

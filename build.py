@@ -6,6 +6,7 @@ sys.path.insert(0, 'input')
 import ninja_syntax
 
 plat = platform.system()
+bit64 = platform.architecture()[0] == '64bit'
 joinp = os.path.join
 
 BUILD_FILENAME = 'build.ninja'
@@ -33,13 +34,18 @@ cflags += '-Iinc'
 cflags += ' -Wall -Wextra -Werror'
 cflags += ' -g'
 
+if(bit64):
+  fmodlib = 'fmodex64'
+else:
+  fmodlib = 'fmodex'
+
 ldflags = ''
 if(plat == 'Windows'):
-  cflags += ' -Iinput/glfw/include -Iinput/soil/src -Iinput/glew/include -Iinput/fmod/win/inc'
-  ldflags += ' -Linput/glfw/lib-mingw -Linput/glew/lib -Linput/soil/lib -Linput/fmod/win/lib  -lsoil -lglfw -lglu32 -lopengl32 -lglew32 -lfmodex'
+  cflags += ' -Iinput/glfw/include -Iinput/soil/src -Iinput/glew/include -Iinput/fmod/win/inc '
+  ldflags += ' -Linput/glfw/lib-mingw -Linput/glew/lib -Linput/soil/lib -Linput/fmod/win/lib  -lsoil -lglfw -lglu32 -lopengl32 -lglew32 -lfmodex '
 else:
   cflags += ' -isystem input/fmod/api/inc'
-  ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/api/lib -lglfw -lGLU -lGL -lGLEW -lfmodex -lSOIL'
+  ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/api/lib -lglfw -lGLU -lGL -lGLEW -lSOIL -lm -l%s ' % fmodlib
 
 # clfags += -pg
 # ldflags += -pg
@@ -89,7 +95,8 @@ if(plat == 'Windows'):
   targets += n.build(joinp(outdir, 'run_windowed.bat'), 'cp', joinp('windows', 'run_windowed.bat'))
   targets += n.build(joinp(outdir, 'run_fullscreen.bat'), 'cp', joinp('windows', 'run_fullscreen.bat'))
 else:
-  targets += n.build(joinp(outdir, 'libfmodex.so'), 'cp', joinp(inputdir, 'fmod', 'api', 'lib', 'libfmodex.so'))
+  fmodso = 'lib%s.so' % fmodlib
+  targets += n.build(joinp(outdir, fmodso), 'cp', joinp(inputdir, 'fmod', 'api', 'lib', fmodso))
 n.newline()
 
 n.build('all', 'phony', targets)
