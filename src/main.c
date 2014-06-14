@@ -46,7 +46,7 @@ int main()
 	setup.pixel_size = 16;
 	setup.name = "main";
 
-	if(!whitgl_sys_init(setup))
+	if(!whitgl_sys_init(&setup))
 		return 1;
 	whitgl_shader post_shader = whitgl_shader_zero;
 	post_shader.fragment_src = post_src;
