@@ -4,11 +4,13 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <SOIL/SOIL.h>
+#include <png.h>
 
 #include <whitgl/logging.h>
 #include <whitgl/sys.h>
 
+GLuint vbo;
+float aabbvertices[6*4];
 
 bool _shouldClose;
 int _pixel_scale;
@@ -44,8 +46,8 @@ out vec2 Texturepos;\
 uniform mat4 sLocalToProjMatrix;\
 void main()\
 {\
-    gl_Position = sLocalToProjMatrix * vec4( position, 0.0, 1.0 );\
-    Texturepos = texturepos;\
+	gl_Position = sLocalToProjMatrix * vec4( position, 0.0, 1.0 );\
+	Texturepos = texturepos;\
 }\
 ";
 
@@ -78,7 +80,6 @@ typedef struct
 	float uniforms[WHITGL_MAX_SHADER_UNIFORMS];
 	whitgl_shader shader;
 } whitgl_shader_data;
-
 
 GLuint vbo;
 whitgl_shader_data shaders[WHITGL_SHADER_MAX];
@@ -220,6 +221,11 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	WHITGL_LOG("Generating vbo");
 	glGenBuffers( 1, &vbo ); // Generate 1 buffer
 
+
+	GLuint VertexArrayID;
+	glGenVertexArrays(1, &VertexArrayID);
+	glBindVertexArray(VertexArrayID);
+
 	WHITGL_LOG("Loading shaders");
 	whitgl_shader flat_shader = whitgl_shader_zero;
 	flat_shader.fragment_src = _flat_src;
@@ -305,12 +311,13 @@ void whitgl_sys_draw_init()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluOrtho2D(0, _setup.size.x, _setup.size.y, 0);
 	glViewport( 0, 0, _setup.size.x, _setup.size.y );
 
-	glClearColor(0, 0.0, 0, 1.0);
+	glClearColor(0, 0, 0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 }
@@ -365,7 +372,8 @@ void whitgl_sys_draw_finish()
 	glViewport( 0, 0, _window_size.x, _window_size.y );
 
 	glActiveTexture( GL_TEXTURE0 );
-	glBindTexture( GL_TEXTURE_2D, intermediateTexture );
+	glClear(GL_COLOR_BUFFER_BIT);
+	glBindTexture( GL_TEXTURE_2D, frameBuffer );
 
 	float vertices[6*4];
 	whitgl_iaabb src = whitgl_iaabb_zero;
@@ -404,6 +412,7 @@ void whitgl_sys_draw_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 {
 	float vertices[6*4];
 	_whitgl_populate_vertices(vertices, whitgl_iaabb_zero, rect, whitgl_ivec_zero);
+
 	glBindBuffer( GL_ARRAY_BUFFER, vbo );
 	glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW );
 
@@ -419,6 +428,7 @@ void whitgl_sys_draw_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 	glEnableVertexAttribArray( posAttrib );
 
 	glDrawArrays( GL_TRIANGLES, 0, 6 );
+
 }
 
 void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
@@ -463,7 +473,7 @@ void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
 
 void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb src, whitgl_iaabb dest)
 {
-	int index = -1;
+int index = -1;
 	int i;
 	for(i=0; i<num_images; i++)
 	{
@@ -516,6 +526,126 @@ void whitgl_sys_draw_sprite(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec
 	whitgl_sys_draw_tex_iaabb(sprite.image, src, dest);
 }
 
+bool loadPngImage(const char *name, whitgl_int *outWidth, whitgl_int *outHeight, GLubyte **outData)
+{
+    png_structp png_ptr;
+    png_infop info_ptr;
+    unsigned int sig_read = 0;
+    int color_type, interlace_type;
+    FILE *fp;
+ 
+    if ((fp = fopen(name, "rb")) == NULL)
+        return false;
+ 
+    /* Create and initialize the png_struct
+     * with the desired error handler
+     * functions.  If you want to use the
+     * default stderr and longjump method,
+     * you can supply NULL for the last
+     * three parameters.  We also supply the
+     * the compiler header file version, so
+     * that we know if the application
+     * was compiled with a compatible version
+     * of the library.  REQUIRED
+     */
+    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
+                                     NULL, NULL, NULL);
+ 
+    if (png_ptr == NULL) {
+        fclose(fp);
+        return false;
+    }
+ 
+    /* Allocate/initialize the memory
+     * for image information.  REQUIRED. */
+    info_ptr = png_create_info_struct(png_ptr);
+    if (info_ptr == NULL) {
+        fclose(fp);
+        png_destroy_read_struct(&png_ptr, NULL, NULL);
+        return false;
+    }
+ 
+    /* Set error handling if you are
+     * using the setjmp/longjmp method
+     * (this is the normal method of
+     * doing things with libpng).
+     * REQUIRED unless you  set up
+     * your own error handlers in
+     * the png_create_read_struct()
+     * earlier.
+     */
+    if (setjmp(png_jmpbuf(png_ptr))) {
+        /* Free all of the memory associated
+         * with the png_ptr and info_ptr */
+        png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+        fclose(fp);
+        /* If we get here, we had a
+         * problem reading the file */
+        return false;
+    }
+ 
+    /* Set up the output control if
+     * you are using standard C streams */
+    png_init_io(png_ptr, fp);
+ 
+    /* If we have already
+     * read some of the signature */
+    png_set_sig_bytes(png_ptr, sig_read);
+ 
+    /*
+     * If you have enough memory to read
+     * in the entire image at once, and
+     * you need to specify only
+     * transforms that can be controlled
+     * with one of the PNG_TRANSFORM_*
+     * bits (this presently excludes
+     * dithering, filling, setting
+     * background, and doing gamma
+     * adjustment), then you can read the
+     * entire image (including pixels)
+     * into the info structure with this
+     * call
+     *
+     * PNG_TRANSFORM_STRIP_16 |
+     * PNG_TRANSFORM_PACKING  forces 8 bit
+     * PNG_TRANSFORM_EXPAND forces to
+     *  expand a palette into RGB
+     */
+    png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_PACKING | PNG_TRANSFORM_EXPAND, NULL);
+ 
+    png_uint_32 width, height;
+    int bit_depth;
+    png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
+                 &interlace_type, NULL, NULL);
+    *outWidth = width;
+    *outHeight = height;
+ 
+    unsigned int row_bytes = png_get_rowbytes(png_ptr, info_ptr);
+    *outData = (unsigned char*) malloc(row_bytes *  (*outHeight));
+ 
+    png_bytepp row_pointers = png_get_rows(png_ptr, info_ptr);
+ 
+ 	int i;
+    for (i = 0; i < *outHeight; i++)
+    {
+        // note that png is ordered top to
+        // bottom, but OpenGL expect it bottom to top
+        // so the order or swapped
+        memcpy(*outData+(row_bytes * (*outHeight-1-i)), row_pointers[i], row_bytes);
+    }
+ 
+    /* Clean up after the read,
+     * and free any memory allocated */
+    png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+
+ 
+    /* Close the file */
+    fclose(fp);
+ 
+    /* That's it */
+    return true;
+}
+
 void whitgl_sys_add_image(int id, const char* filename)
 {
 	WHITGL_LOG("Adding image: %s", filename);
@@ -524,71 +654,30 @@ void whitgl_sys_add_image(int id, const char* filename)
 		WHITGL_LOG("ERR Too many images");
 		return;
 	}
-	images[num_images].gluint = SOIL_load_OGL_texture(filename, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID,0);
-	if( images[num_images].gluint == 0 )
+	
+	GLubyte *textureImage;
+	bool success = loadPngImage(filename, &images[num_images].size.x, &images[num_images].size.y, &textureImage);
+	if(!success)
 	{
-		WHITGL_LOG( "SOIL loading error: '%s'\n", SOIL_last_result() );
-		return;
+		WHITGL_LOG("loadPngImage error");	
 	}
-	images[num_images].id = id;
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glPixelStorei(GL_PACK_LSB_FIRST, 1);
+	glGenTextures(1, &images[num_images].gluint );
+	glActiveTexture( GL_TEXTURE0 );
 	glBindTexture(GL_TEXTURE_2D, images[num_images].gluint);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, images[num_images].size.x,
+                 images[num_images].size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                 textureImage);
+	free(textureImage);
 
-	int w, h;
-	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &w);
-	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &h);
-	images[num_images].size.x = w;
-	images[num_images].size.y = h;
-
+	images[num_images].id = id;
 	num_images++;
-}
-void whitgl_sys_image_from_data(int id, whitgl_ivec size, const unsigned char* data)
-{
-	if(num_images >= WHITGL_IMAGE_MAX)
-	{
-		WHITGL_LOG("ERR Too many images");
-		return;
-	}
-	int index = -1;
-	int i;
-	for(i=0; i<num_images; i++)
-	{
-		if(images[i].id == id)
-		{
-			index = i;
-			continue;
-		}
-	}
-
-	if(index == -1)
-	{
-		index = num_images;
-		images[index].gluint = SOIL_create_OGL_texture(data, size.x, size.y, 3, SOIL_CREATE_NEW_ID, SOIL_LOAD_L);
-	}
-	else
-	{
-		SOIL_create_OGL_texture(data, size.x, size.y, 3, images[index].gluint, SOIL_LOAD_L);
-	}
-	if( images[index].gluint == 0 )
-	{
-		WHITGL_LOG( "SOIL loading error: '%s'\n", SOIL_last_result() );
-		return;
-	}
-	images[index].id = id;
-	glBindTexture(GL_TEXTURE_2D, images[index].gluint);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	int w, h;
-	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &w);
-	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &h);
-	images[index].size.x = w;
-	images[index].size.y = h;
-
-
-	if(index == num_images)
-		num_images++;
 }
 
 double whitgl_sys_get_time()
