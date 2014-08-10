@@ -623,10 +623,7 @@ bool loadPngImage(const char *name, whitgl_int *outWidth, whitgl_int *outHeight,
 	int i;
 	for (i = 0; i < *outHeight; i++)
 	{
-		// note that png is ordered top to
-		// bottom, but OpenGL expect it bottom to top
-		// so the order or swapped
-		memcpy(*outData+(row_bytes * (*outHeight-1-i)), row_pointers[i], row_bytes);
+		memcpy(*outData+(row_bytes * (i)), row_pointers[i], row_bytes);
 	}
 
 	/* Clean up after the read,
