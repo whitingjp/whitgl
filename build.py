@@ -15,18 +15,16 @@ n = ninja_syntax.Writer(buildfile)
 
 objext = '.o'
 
-name = 'app'
-if(plat == 'Windows'):
-  target = name+'.exe'
-else:
-  target = name
+target = 'whitgl.a'
 srcdir = 'src'
+examplesrcdir = 'example'
 inputdir = 'input'
 builddir = 'build'
-outdir = joinp(builddir, 'out')
+exampledir = joinp(builddir, 'example')
 objdir = joinp(builddir, 'obj')
-data_in = 'data'
-data_out = joinp(outdir, 'data')
+libdir = joinp(builddir, 'lib')
+data_in =  joinp(examplesrcdir, 'data')
+data_out = joinp(exampledir, 'data')
 targets = []
 
 cflags = ''
@@ -58,6 +56,8 @@ n.rule('cxx',
   command='gcc -MMD -MF $out.d $cflags -c $in -o $out',
   depfile='$out.d',
   description='CXX $out')
+n.rule('static',
+  command='ar rcs $out $in')
 n.rule('link',
   command='gcc $in $libs $ldflags -o $out',
   description='LINK $out')
@@ -66,17 +66,27 @@ n.rule('cp',
   description='COPY $in $out')
 n.newline()
 
-obj = []
-for (dirpath, dirnames, filenames) in os.walk(srcdir):
-  for f in filenames:
-    _, ext = os.path.splitext(f)
-    if ext == '.c':
-      s = os.path.relpath(joinp(dirpath, f), srcdir)
-      o = s.replace('.c', '.o')
-      obj += n.build(joinp(objdir, o), 'cxx', joinp(srcdir, s))
+def walk_src(n, path):
+  obj = []
+  for (dirpath, dirnames, filenames) in os.walk(path):
+    for f in filenames:
+      _, ext = os.path.splitext(f)
+      if ext == '.c':
+        s = os.path.relpath(joinp(dirpath, f), path)
+        o = s.replace('.c', '.o')
+        obj += n.build(joinp(objdir, o), 'cxx', joinp(path, s))
+  n.newline()
+  return obj
+
+# Library
+obj = walk_src(n, srcdir)
+staticlib = n.build(joinp(libdir, target), 'static', obj) 
+targets += staticlib
 n.newline()
 
-targets += n.build(joinp(outdir, target), 'link', obj)
+# Example
+obj = walk_src(n, examplesrcdir)
+targets += n.build(joinp(exampledir, 'example'), 'link', obj+staticlib)
 n.newline()
 
 data = []
@@ -90,12 +100,12 @@ targets += n.build('data', 'phony', data)
 n.newline()
 
 if(plat == 'Windows'):
-  targets += n.build(joinp(outdir, 'fmodex.dll'), 'cp', joinp(inputdir, 'fmod', 'fmodex.dll'))
-  targets += n.build(joinp(outdir, 'glew32.dll'), 'cp', joinp(inputdir, 'glew', 'lib', 'glew32.dll'))
-  targets += n.build(joinp(outdir, 'glfw3.dll'), 'cp', joinp(inputdir, 'glfw', 'lib-mingw', 'glfw3.dll'))
+  targets += n.build(joinp(exampledir, 'fmodex.dll'), 'cp', joinp(inputdir, 'fmod', 'fmodex.dll'))
+  targets += n.build(joinp(exampledir, 'glew32.dll'), 'cp', joinp(inputdir, 'glew', 'lib', 'glew32.dll'))
+  targets += n.build(joinp(exampledir, 'glfw3.dll'), 'cp', joinp(inputdir, 'glfw', 'lib-mingw', 'glfw3.dll'))
 else:
   fmodso = 'lib%s.so' % fmodlib
-  targets += n.build(joinp(outdir, fmodso), 'cp', joinp(inputdir, 'fmod', 'api', 'lib', fmodso))
+  targets += n.build(joinp(exampledir, fmodso), 'cp', joinp(inputdir, 'fmod', 'api', 'lib', fmodso))
 n.newline()
 
 n.build('all', 'phony', targets)
