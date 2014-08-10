@@ -151,6 +151,16 @@ whitgl_float whitgl_fvec_sqmagnitude(whitgl_fvec a)
 	whitgl_float out = a.x*a.x + a.y*a.y;
 	return out;
 }
+whitgl_fvec whitgl_fvec_normalize(whitgl_fvec a)
+{
+	whitgl_float mag = sqrt(whitgl_fvec_sqmagnitude(a));
+	if(mag == 0)
+		return a;
+	whitgl_fvec scale;
+	scale.x = mag;
+	scale.y = mag;
+	return whitgl_fvec_divide(a, scale);
+}
 
 whitgl_iaabb whitgl_iaabb_add(whitgl_iaabb a, whitgl_ivec b)
 {
