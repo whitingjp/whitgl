@@ -63,6 +63,18 @@ def walk_data(n, data_in, data_out):
   n.newline()
   return data
 
+def copy_libs(n, inputs, outdir):
+  targets = []
+  if(plat == 'Windows'):
+    targets += n.build(joinp(outdir, 'fmodex.dll'), 'cp', joinp(inputs, 'fmod', 'fmodex.dll'))
+    targets += n.build(joinp(outdir, 'glew32.dll'), 'cp', joinp(inputs, 'glew', 'lib', 'glew32.dll'))
+    targets += n.build(joinp(outdir, 'glfw3.dll'), 'cp', joinp(inputs, 'glfw', 'lib-mingw', 'glfw3.dll'))
+    targets += n.build(joinp(outdir, 'libpng3.dll'), 'cp', joinp(inputs, 'libpng', 'bin', 'libpng3.dll'))
+  else:
+    targets += n.build(joinp(outdir, fmodso), 'cp', joinp(inputs, 'fmod', 'api', 'lib', fmodso))
+  n.newline()
+  return targets
+
 def main():
   target = 'whitgl.a'
   srcdir = 'src'
@@ -95,14 +107,7 @@ def main():
   targets += n.build('data', 'phony', data)
   n.newline()
 
-  if(plat == 'Windows'):
-    targets += n.build(joinp(exampledir, 'fmodex.dll'), 'cp', joinp(inputdir, 'fmod', 'fmodex.dll'))
-    targets += n.build(joinp(exampledir, 'glew32.dll'), 'cp', joinp(inputdir, 'glew', 'lib', 'glew32.dll'))
-    targets += n.build(joinp(exampledir, 'glfw3.dll'), 'cp', joinp(inputdir, 'glfw', 'lib-mingw', 'glfw3.dll'))
-    targets += n.build(joinp(exampledir, 'libpng3.dll'), 'cp', joinp(inputdir, 'libpng', 'bin', 'libpng3.dll'))
-  else:
-    targets += n.build(joinp(exampledir, fmodso), 'cp', joinp(inputdir, 'fmod', 'api', 'lib', fmodso))
-  n.newline()
+  targets += copy_libs(n, inputdir, exampledir)
 
   n.build('all', 'phony', targets)
   n.default('all')
