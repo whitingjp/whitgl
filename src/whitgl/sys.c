@@ -75,6 +75,7 @@ typedef struct
 {
 	GLuint program;
 	float uniforms[WHITGL_MAX_SHADER_UNIFORMS];
+	whitgl_sys_color colors[WHITGL_MAX_SHADER_COLORS];
 	whitgl_shader shader;
 } whitgl_shader_data;
 
@@ -157,6 +158,20 @@ void whitgl_set_shader_uniform(whitgl_shader_slot type, int uniform, float value
 		return;
 	}
 	shaders[type].uniforms[uniform] = value;
+}
+void whitgl_set_shader_color(whitgl_shader_slot type, int color, whitgl_sys_color value)
+{
+	if(type >= WHITGL_SHADER_MAX)
+	{
+		WHITGL_LOG("Invalid shader type %d", type);
+		return;
+	}
+	if(color < 0 || color >= WHITGL_MAX_SHADER_COLORS || color >= shaders[type].shader.num_colors)
+	{
+		WHITGL_LOG("Invalid shader uniform %d", color);
+		return;
+	}
+	shaders[type].colors[color] = value;
 }
 
 bool whitgl_sys_init(whitgl_sys_setup* setup)
@@ -356,6 +371,15 @@ void _whitgl_load_uniforms(whitgl_shader_slot slot)
 	int i;
 	for(i=0; i<shaders[slot].shader.num_uniforms; i++)
 		glUniform1f( glGetUniformLocation( shaders[slot].program, shaders[slot].shader.uniforms[i]), shaders[slot].uniforms[i]);
+	for(i=0; i<shaders[slot].shader.num_colors; i++)
+	{
+		whitgl_sys_color c = shaders[slot].colors[i];
+		float r = ((float)c.r)/255.0;
+		float g = ((float)c.g)/255.0;
+		float b = ((float)c.b)/255.0;
+		float a = ((float)c.a)/255.0;
+		glUniform4f( glGetUniformLocation( shaders[slot].program, shaders[slot].shader.colors[i]), r, g, b, a);
+	}
 }
 
 void whitgl_sys_draw_finish()

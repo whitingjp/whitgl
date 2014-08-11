@@ -39,14 +39,17 @@ typedef enum
 } whitgl_shader_slot;
 
 #define WHITGL_MAX_SHADER_UNIFORMS (4)
+#define WHITGL_MAX_SHADER_COLORS (4)
 typedef struct
 {
 	const char* vertex_src;
 	const char* fragment_src;
 	int num_uniforms;
 	const char* uniforms[WHITGL_MAX_SHADER_UNIFORMS];
+	int num_colors;
+	const char* colors[WHITGL_MAX_SHADER_COLORS];
 } whitgl_shader;
-static const whitgl_shader whitgl_shader_zero = {NULL, NULL, 0, {}};
+static const whitgl_shader whitgl_shader_zero = {NULL, NULL, 0, {}, 0, {}};
 
 bool whitgl_sys_init(whitgl_sys_setup* setup);
 bool whitgl_sys_should_close();
@@ -54,6 +57,7 @@ void whitgl_sys_close();
 
 bool whitgl_change_shader(whitgl_shader_slot type, whitgl_shader shader);
 void whitgl_set_shader_uniform(whitgl_shader_slot type, int uniform, float value);
+void whitgl_set_shader_color(whitgl_shader_slot type, int color, whitgl_sys_color value);
 
 void whitgl_sys_draw_init();
 void whitgl_sys_draw_finish();
