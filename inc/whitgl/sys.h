@@ -55,6 +55,8 @@ bool whitgl_sys_init(whitgl_sys_setup* setup);
 bool whitgl_sys_should_close();
 void whitgl_sys_close();
 
+void whitgl_sys_set_clear_color(whitgl_sys_color col);
+
 bool whitgl_change_shader(whitgl_shader_slot type, whitgl_shader shader);
 void whitgl_set_shader_uniform(whitgl_shader_slot type, int uniform, float value);
 void whitgl_set_shader_color(whitgl_shader_slot type, int color, whitgl_sys_color value);

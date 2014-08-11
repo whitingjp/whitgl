@@ -93,6 +93,15 @@ void _whitgl_sys_glfw_error_callback(int code, const char* error)
 	WHITGL_LOG("glfw error %d '%s'", code, error);
 }
 
+void whitgl_sys_set_clear_color(whitgl_sys_color col)
+{
+	float r = (float)col.r/255.0;
+	float g = (float)col.g/255.0;
+	float b = (float)col.b/255.0;
+	float a = (float)col.a/255.0;
+	glClearColor(r, g, b, a);
+}
+
 bool whitgl_change_shader(whitgl_shader_slot type, whitgl_shader shader)
 {
 	if(type >= WHITGL_SHADER_MAX)
@@ -214,7 +223,6 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 			if(setup->pixel_size == 1) searching = false;
 			if(searching) setup->pixel_size--;
 		}
-		setup->size = new_size;
 	} else
 	{
 		WHITGL_LOG("Opening windowed w%d h%d", setup->size.x*setup->pixel_size, setup->size.y*setup->pixel_size);
@@ -258,6 +266,8 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	glBindTexture(GL_TEXTURE_2D, intermediateTexture);
 	WHITGL_LOG("Creating framebuffer glTexImage2D");
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, setup->size.x, setup->size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, intermediateTexture, 0);
@@ -315,10 +325,10 @@ double whitgl_sys_getTime()
 
 void whitgl_sys_draw_init()
 {
-	// int w, h;
-	// glfwGetWindowSize( _window, &w, &h);
-	_window_size.x = _setup.size.x*_setup.pixel_size;
-	_window_size.y = _setup.size.y*_setup.pixel_size;
+	int w, h;
+	glfwGetWindowSize( _window, &w, &h);
+	_window_size.x = w;
+	_window_size.y = h;
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -330,9 +340,7 @@ void whitgl_sys_draw_init()
 	gluOrtho2D(0, _setup.size.x, _setup.size.y, 0);
 	glViewport( 0, 0, _setup.size.x, _setup.size.y );
 
-	glClearColor(0, 0, 0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 }
 
 void _whitgl_populate_vertices(float* vertices, whitgl_iaabb s, whitgl_iaabb d, whitgl_ivec image_size)
@@ -388,6 +396,8 @@ void whitgl_sys_draw_finish()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluOrtho2D(0, _window_size.x, _window_size.y, 0);
@@ -401,7 +411,10 @@ void whitgl_sys_draw_finish()
 	whitgl_iaabb dest = whitgl_iaabb_zero;
 	src.b.x = _setup.size.x;
 	src.a.y = _setup.size.y;
-	dest.b = _window_size;
+	dest.a.x = (_window_size.x-_setup.size.x*_setup.pixel_size)/2;
+	dest.a.y = (_window_size.y-_setup.size.y*_setup.pixel_size)/2;
+	dest.b.x = dest.a.x+_setup.size.x*_setup.pixel_size;
+	dest.b.y = dest.a.y+_setup.size.y*_setup.pixel_size;
 
 	_whitgl_populate_vertices(vertices, src, dest, _setup.size);
 	glBindBuffer( GL_ARRAY_BUFFER, vbo );
