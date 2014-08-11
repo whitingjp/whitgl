@@ -203,16 +203,18 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 		_window = glfwCreateWindow(mode->width, mode->height, setup->name, glfwGetPrimaryMonitor(), NULL);
 		bool searching = true;
 		setup->pixel_size = mode->width/setup->size.x;
+		whitgl_ivec new_size = setup->size;
 		while(searching)
 		{
-			setup->size.x = mode->width/setup->pixel_size;
-			setup->size.y = mode->height/setup->pixel_size;
+			new_size.x = mode->width/setup->pixel_size;
+			new_size.y = mode->height/setup->pixel_size;
 			searching = false;
-			if(setup->size.x < 320) searching = true;
-			if(setup->size.y < 240) searching = true;
+			if(new_size.x < setup->size.x) searching = true;
+			if(new_size.y < setup->size.y) searching = true;
 			if(setup->pixel_size == 1) searching = false;
 			if(searching) setup->pixel_size--;
 		}
+		setup->size = new_size;
 	} else
 	{
 		WHITGL_LOG("Opening windowed w%d h%d", setup->size.x*setup->pixel_size, setup->size.y*setup->pixel_size);
