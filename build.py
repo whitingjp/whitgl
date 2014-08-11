@@ -17,8 +17,8 @@ fmodso = 'lib%s.so' % fmodlib
 cflags = '-Iinc -Wall -Wextra -Werror -g'
 ldflags = ''
 if(plat == 'Windows'):
-  cflags += ' -Iinput/glfw/include -Iinput/soil/include -Iinput/glew/include -Iinput/fmod/win/inc '
-  ldflags += ' -Linput/glfw/lib-mingw -Linput/glew/lib -Linput/soil -Linput/fmod/win/lib  -lSOIL input/glfw/lib-mingw/glfw3dll.a -lglu32 -lopengl32 -lglew32 -lfmodex -lpng '
+  cflags += ' -Iinput/glfw/include -Iinput/libpng/include -Iinput/zlib/include -Iinput/glew/include -Iinput/fmod/win/inc '
+  ldflags += ' -Linput/glfw/lib-mingw -Linput/glew/lib -Linput/libpng/lib -Linput/zlib/lib -Linput/fmod/win/lib input/glfw/lib-mingw/glfw3dll.a -lglu32 -lopengl32 -lglew32 -lfmodex -lpng -lz '
 else:
   cflags += ' -isystem input/fmod/api/inc -Iinput/glfw/include '
   ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/api/lib -Linput/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lSOIL -lm -l%s -lX11 -lXxf86vm -lpthread -lXrandr -lXi -lpng' % fmodlib
@@ -99,6 +99,7 @@ def main():
     targets += n.build(joinp(exampledir, 'fmodex.dll'), 'cp', joinp(inputdir, 'fmod', 'fmodex.dll'))
     targets += n.build(joinp(exampledir, 'glew32.dll'), 'cp', joinp(inputdir, 'glew', 'lib', 'glew32.dll'))
     targets += n.build(joinp(exampledir, 'glfw3.dll'), 'cp', joinp(inputdir, 'glfw', 'lib-mingw', 'glfw3.dll'))
+    targets += n.build(joinp(exampledir, 'libpng3.dll'), 'cp', joinp(inputdir, 'libpng', 'bin', 'libpng3.dll'))
   else:
     targets += n.build(joinp(exampledir, fmodso), 'cp', joinp(inputdir, 'fmod', 'api', 'lib', fmodso))
   n.newline()
