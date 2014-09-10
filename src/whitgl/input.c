@@ -49,6 +49,10 @@ bool _press(int key)
 	return glfwGetKey(_window, key) == GLFW_PRESS;
 }
 
+bool _mousepress(int button)
+{
+	return glfwGetMouseButton(_window, button) == GLFW_PRESS;
+}
 
 void whitgl_input_update()
 {
@@ -68,6 +72,9 @@ void whitgl_input_update()
 	_heldInputs[WHITGL_INPUT_Y] = _press('V');
 	_heldInputs[WHITGL_INPUT_START] = _press('B');
 	_heldInputs[WHITGL_INPUT_SELECT] = _press('N');
+	_heldInputs[WHITGL_INPUT_MOUSE_LEFT] = _mousepress(GLFW_MOUSE_BUTTON_1);
+	_heldInputs[WHITGL_INPUT_MOUSE_RIGHT] = _mousepress(GLFW_MOUSE_BUTTON_2);
+	_heldInputs[WHITGL_INPUT_MOUSE_MIDDLE] = _mousepress(GLFW_MOUSE_BUTTON_3);
 
 	_heldInputs[WHITGL_INPUT_ANY] = false;
 	for(i=0; i<WHITGL_INPUT_ANY; i++)
