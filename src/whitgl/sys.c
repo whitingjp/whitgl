@@ -239,6 +239,7 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	WHITGL_LOG("Initiating glew");
 	glewExperimental = GL_TRUE;
 	glewInit();
+	glGetError(); // Ignore any glGetError in glewInit, nothing to panic about, see https://www.opengl.org/wiki/OpenGL_Loading_Library
 
 	WHITGL_LOG("Generating vbo");
 	glGenBuffers( 1, &vbo ); // Generate 1 buffer
@@ -266,8 +267,8 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	glBindTexture(GL_TEXTURE_2D, intermediateTexture);
 	WHITGL_LOG("Creating framebuffer glTexImage2D");
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, setup->size.x, setup->size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, intermediateTexture, 0);
