@@ -31,6 +31,7 @@ whitgl_sys_setup whitgl_default_setup =
 	4,
 	false,
 	false,
+	true,
 };
 
 const char* _vertex_src = "\
@@ -303,9 +304,11 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 		WHITGL_LOG("Problem setting up intermediate render target");
 	GL_CHECK( glBindFramebuffer(GL_FRAMEBUFFER, 0) );
 
-	WHITGL_LOG("Enabling vsync");
-	// Enable vertical sync (on cards that support it)
-	GL_CHECK( glfwSwapInterval( 1 ) );
+	if(setup->vsync)
+	{
+		WHITGL_LOG("Enabling vsync");
+		GL_CHECK( glfwSwapInterval(1) ); // some cards still wont vsync!
+	}
 
 	WHITGL_LOG("Setting close callback");
 	glfwSetWindowCloseCallback(_window, _whitgl_sys_close_callback);
