@@ -308,6 +308,10 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	{
 		WHITGL_LOG("Enabling vsync");
 		GL_CHECK( glfwSwapInterval(1) ); // some cards still wont vsync!
+	} else
+	{
+		WHITGL_LOG("Disabling vsync");
+		GL_CHECK( glfwSwapInterval(0) );
 	}
 
 	WHITGL_LOG("Setting close callback");
