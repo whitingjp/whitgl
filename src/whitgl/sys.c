@@ -421,7 +421,7 @@ void _whitgl_sys_flush_tex_iaabb();
 
 void whitgl_sys_draw_finish()
 {
-	// _whitgl_sys_flush_tex_iaabb();
+	_whitgl_sys_flush_tex_iaabb();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	GL_CHECK( glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) );
@@ -467,6 +467,7 @@ void whitgl_sys_draw_finish()
 
 void whitgl_sys_draw_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 {
+	_whitgl_sys_flush_tex_iaabb();
 	float vertices[6*4];
 	_whitgl_populate_vertices(vertices, whitgl_iaabb_zero, rect, whitgl_ivec_zero);
 
@@ -490,6 +491,7 @@ void whitgl_sys_draw_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 
 void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
 {
+	_whitgl_sys_flush_tex_iaabb();
 	int num_vertices = tris*3*2;
 	whitgl_fvec scale = {c.size, c.size};
 	float *vertices = malloc(sizeof(float)*num_vertices);
