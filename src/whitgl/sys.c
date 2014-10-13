@@ -417,8 +417,11 @@ void _whitgl_load_uniforms(whitgl_shader_slot slot)
 	GL_CHECK( return );
 }
 
+void _whitgl_sys_flush_tex_iaabb();
+
 void whitgl_sys_draw_finish()
 {
+	// _whitgl_sys_flush_tex_iaabb();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	GL_CHECK( glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) );
@@ -525,31 +528,19 @@ void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
 	free(vertices);
 }
 
-void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb src, whitgl_iaabb dest)
+whitgl_int buffer_curindex = -1;
+static const whitgl_int buffer_num_quads = 128;
+float buffer_vertices[128*6*4];
+whitgl_int buffer_index = 0;
+void _whitgl_sys_flush_tex_iaabb()
 {
-	int index = -1;
-	int i;
-	for(i=0; i<num_images; i++)
-	{
-		if(images[i].id == id)
-		{
-			index = i;
-			continue;
-		}
-	}
-	if(index == -1)
-	{
-		WHITGL_LOG("ERR Cannot find image %d", id);
+	if(buffer_index == 0 || buffer_curindex == -1)
 		return;
-	}
-
 	GL_CHECK( glActiveTexture( GL_TEXTURE0 ) );
-	GL_CHECK( glBindTexture( GL_TEXTURE_2D, images[index].gluint ) );
+	GL_CHECK( glBindTexture( GL_TEXTURE_2D, images[buffer_curindex].gluint ) );
 
-	float vertices[6*4];
-	_whitgl_populate_vertices(vertices, src, dest, images[index].size);
 	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, vbo ) );
-	GL_CHECK( glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW ) );
+	GL_CHECK( glBufferData( GL_ARRAY_BUFFER, sizeof(float)*buffer_index*6*4, buffer_vertices, GL_DYNAMIC_DRAW ) );
 
 	GLuint shaderProgram = shaders[WHITGL_SHADER_TEXTURE].program;
 	GL_CHECK( glUseProgram( shaderProgram ) );
@@ -566,7 +557,35 @@ void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb src, whitgl_iaabb dest)
 	GL_CHECK( glVertexAttribPointer( texturePosAttrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), BUFFER_OFFSET(sizeof(float)*2) ) );
 	GL_CHECK( glEnableVertexAttribArray( texturePosAttrib ) );
 
-	GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, 6 ) );
+	GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, buffer_index*6 ) );
+	buffer_curindex = -1;
+	buffer_index = 0;
+}
+void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb src, whitgl_iaabb dest)
+{
+	int index = -1;
+	int i;
+	for(i=0; i<num_images; i++)
+	{
+		if(images[i].id == id)
+		{
+			index = i;
+			break;
+		}
+	}
+	if(index == -1)
+	{
+		WHITGL_LOG("ERR Cannot find image %d", id);
+		return;
+	}
+	if(buffer_curindex != index || buffer_index+1 >= buffer_num_quads)
+	{
+		if(buffer_curindex != -1)
+			_whitgl_sys_flush_tex_iaabb();
+		buffer_curindex = index;
+	}
+	_whitgl_populate_vertices(&buffer_vertices[buffer_index*6*4], src, dest, images[index].size);
+	buffer_index++;
 }
 void whitgl_sys_draw_sprite(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec pos)
 {
