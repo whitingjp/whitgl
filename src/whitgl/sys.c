@@ -9,6 +9,8 @@
 #include <whitgl/logging.h>
 #include <whitgl/sys.h>
 
+void _whitgl_sys_flush_tex_iaabb();
+
 bool _shouldClose;
 int _pixel_scale;
 whitgl_ivec _window_size;
@@ -182,6 +184,7 @@ bool whitgl_change_shader(whitgl_shader_slot type, whitgl_shader shader)
 
 void whitgl_set_shader_uniform(whitgl_shader_slot type, int uniform, float value)
 {
+	_whitgl_sys_flush_tex_iaabb();
 	if(type >= WHITGL_SHADER_MAX)
 	{
 		WHITGL_LOG("Invalid shader type %d", type);
@@ -196,6 +199,7 @@ void whitgl_set_shader_uniform(whitgl_shader_slot type, int uniform, float value
 }
 void whitgl_set_shader_color(whitgl_shader_slot type, int color, whitgl_sys_color value)
 {
+	_whitgl_sys_flush_tex_iaabb();
 	if(type >= WHITGL_SHADER_MAX)
 	{
 		WHITGL_LOG("Invalid shader type %d", type);
@@ -420,8 +424,6 @@ void _whitgl_load_uniforms(whitgl_shader_slot slot)
 	}
 	GL_CHECK( return );
 }
-
-void _whitgl_sys_flush_tex_iaabb();
 
 void whitgl_sys_draw_finish()
 {
