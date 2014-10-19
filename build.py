@@ -53,11 +53,18 @@ def walk_src(n, path, objdir):
         obj += n.build(joinp(objdir, o), 'cxx', joinp(path, s))
   n.newline()
   return obj
-
-def walk_data(n, data_in, data_out):
+  
+def walk_data(n, data_in, data_out, validext=['png','ogg']):
   data = []
   for (dirpath, dirnames, filenames) in os.walk(data_in):
     for f in filenames:
+      ext = f[-3:]
+      valid = False
+      for e in validext:
+        if ext == e:
+          valid = True
+      if not valid:
+        continue
       s = os.path.relpath(joinp(dirpath, f), data_in)
       data += n.build(joinp(data_out, s), 'cp', joinp(data_in, s))
   n.newline()
