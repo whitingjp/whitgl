@@ -235,29 +235,35 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	// glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
 
+	whitgl_ivec screen_size;
 	if(setup->fullscreen)
 	{
 		const GLFWvidmode * mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		screen_size.x = mode->width;
+		screen_size.y = mode->height;
 		WHITGL_LOG("Opening fullscreen w%d h%d", mode->width, mode->height);
 		_window = glfwCreateWindow(mode->width, mode->height, setup->name, glfwGetPrimaryMonitor(), NULL);
-		bool searching = true;
-		setup->pixel_size = mode->width/setup->size.x;
-		whitgl_ivec new_size = setup->size;
-		while(searching)
-		{
-			new_size.x = mode->width/setup->pixel_size;
-			new_size.y = mode->height/setup->pixel_size;
-			searching = false;
-			if(new_size.x < setup->size.x) searching = true;
-			if(new_size.y < setup->size.y) searching = true;
-			if(setup->pixel_size == 1) searching = false;
-			if(searching) setup->pixel_size--;
-		}
 	} else
 	{
-		WHITGL_LOG("Opening windowed w%d h%d", setup->size.x*setup->pixel_size, setup->size.y*setup->pixel_size);
-		_window = glfwCreateWindow(setup->size.x*setup->pixel_size, setup->size.y*setup->pixel_size, setup->name, NULL, NULL);
+		screen_size.x = setup->size.x*setup->pixel_size;
+		screen_size.y = setup->size.y*setup->pixel_size;
+		WHITGL_LOG("Opening windowed w%d h%d", screen_size.x, screen_size.y);
+		_window = glfwCreateWindow(screen_size.x, screen_size.y, setup->name, NULL, NULL);
 	}
+	bool searching = true;
+	setup->pixel_size = screen_size.x/setup->size.x;
+	whitgl_ivec new_size = setup->size;
+	while(searching)
+	{
+		new_size.x = screen_size.x/setup->pixel_size;
+		new_size.y = screen_size.y/setup->pixel_size;
+		searching = false;
+		if(new_size.x < setup->size.x) searching = true;
+		if(new_size.y < setup->size.y) searching = true;
+		if(setup->pixel_size == 1) searching = false;
+		if(searching) setup->pixel_size--;
+	}
+	setup->size = new_size;
 	_pixel_scale = setup->pixel_size;
 	if(!_window)
 	{
