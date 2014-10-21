@@ -333,3 +333,17 @@ whitgl_float whitgl_randfloat()
 {
 	return rand() / (whitgl_float)RAND_MAX;
 }
+whitgl_ivec whitgl_camera(whitgl_ivec pos, whitgl_ivec world_size, whitgl_ivec screen_size)
+{
+	whitgl_ivec out = whitgl_ivec_inverse(pos);
+	whitgl_ivec camoff = {screen_size.x/2, (screen_size.y-16)/2};
+	out = whitgl_ivec_add(out, camoff);
+	whitgl_ivec bound = {screen_size.x-world_size.x, screen_size.y-world_size.y};
+	out.x = whitgl_iminmax(bound.x, 0, out.x);
+	out.y = whitgl_iminmax(bound.y, 0, out.y);
+	if(world_size.x < screen_size.x)
+		out.x = bound.x/2;
+	if(world_size.y < screen_size.y)
+		out.y = bound.y/2;
+	return out;	
+}
