@@ -75,6 +75,27 @@ void whitgl_input_update()
 	_heldInputs[WHITGL_INPUT_MOUSE_LEFT] = _mousepress(GLFW_MOUSE_BUTTON_1);
 	_heldInputs[WHITGL_INPUT_MOUSE_RIGHT] = _mousepress(GLFW_MOUSE_BUTTON_2);
 	_heldInputs[WHITGL_INPUT_MOUSE_MIDDLE] = _mousepress(GLFW_MOUSE_BUTTON_3);
+	if(glfwJoystickPresent(GLFW_JOYSTICK_1))
+	{
+		float dead = 0.4f;
+		int count;
+		const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
+		if(count >= 2)
+		{
+			_heldInputs[WHITGL_INPUT_UP] |= axes[1] < -dead;
+			_heldInputs[WHITGL_INPUT_RIGHT] |= axes[0] > dead;
+			_heldInputs[WHITGL_INPUT_DOWN] |= axes[1] > dead;
+			_heldInputs[WHITGL_INPUT_LEFT] |= axes[0] < -dead;
+		}
+		const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1,&count);
+		if(count >= 4)
+		{
+			_heldInputs[WHITGL_INPUT_A] = buttons[0];
+			_heldInputs[WHITGL_INPUT_B] = buttons[1];
+			_heldInputs[WHITGL_INPUT_X] = buttons[2];
+			_heldInputs[WHITGL_INPUT_Y] = buttons[3];
+		}
+	}
 
 	_heldInputs[WHITGL_INPUT_ANY] = false;
 	for(i=0; i<WHITGL_INPUT_ANY; i++)
