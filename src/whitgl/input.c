@@ -63,7 +63,7 @@ bool _mousepress(int button)
 
 whitgl_float _deadzone(float value)
 {
-	float dead = 0.3;
+	float dead = 0.4;
 	float mag = 1.5;
 	if(value > 0)
 	{
