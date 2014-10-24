@@ -4,6 +4,7 @@
 
 bool _heldInputs[WHITGL_INPUT_MAX];
 bool _pressedInputs[WHITGL_INPUT_MAX];
+whitgl_fvec joystick;
 
 extern GLFWwindow* _window;
 
@@ -15,7 +16,7 @@ void whitgl_input_init()
 		_heldInputs[i] = false;
 		_pressedInputs[i] = false;
 	}
-
+	joystick = whitgl_fvec_zero;
 	// Detect key presses between calls to GetKey
 	// glfwSetInputMode (_window, GLFW_STICKY_KEYS, GL_TRUE);
 }
@@ -44,6 +45,12 @@ whitgl_ivec whitgl_input_mouse_pos(int pixel_size)
 	return out;
 }
 
+
+whitgl_fvec whitgl_input_joystick()
+{
+	return joystick;
+}
+
 bool _press(int key)
 {
 	return glfwGetKey(_window, key) == GLFW_PRESS;
@@ -52,6 +59,23 @@ bool _press(int key)
 bool _mousepress(int button)
 {
 	return glfwGetMouseButton(_window, button) == GLFW_PRESS;
+}
+
+whitgl_float _deadzone(float value)
+{
+	float dead = 0.3;
+	float mag = 1.5;
+	if(value > 0)
+	{
+		if(value < dead) return 0;
+		value = (value-dead)/(1-dead)*mag;
+		return whitgl_fmin(1, value);
+	} else
+	{
+		if(value > -dead) return 0;
+		value = (value+dead)/(1-dead)*mag;
+		return whitgl_fmax(-1, value);
+	}
 }
 
 void whitgl_input_update()
@@ -77,25 +101,26 @@ void whitgl_input_update()
 	_heldInputs[WHITGL_INPUT_MOUSE_MIDDLE] = _mousepress(GLFW_MOUSE_BUTTON_3);
 	if(glfwJoystickPresent(GLFW_JOYSTICK_1))
 	{
-		float dead = 0.4f;
 		int count;
 		const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
 		if(count >= 2)
 		{
-			_heldInputs[WHITGL_INPUT_UP] |= axes[1] < -dead;
-			_heldInputs[WHITGL_INPUT_RIGHT] |= axes[0] > dead;
-			_heldInputs[WHITGL_INPUT_DOWN] |= axes[1] > dead;
-			_heldInputs[WHITGL_INPUT_LEFT] |= axes[0] < -dead;
+			joystick.x = _deadzone(axes[0]);
+			joystick.y = _deadzone(axes[1]);
 		}
 		const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1,&count);
 		if(count >= 4)
 		{
-			_heldInputs[WHITGL_INPUT_A] = buttons[0];
-			_heldInputs[WHITGL_INPUT_B] = buttons[1];
-			_heldInputs[WHITGL_INPUT_X] = buttons[2];
-			_heldInputs[WHITGL_INPUT_Y] = buttons[3];
+			_heldInputs[WHITGL_INPUT_A] |= buttons[0];
+			_heldInputs[WHITGL_INPUT_B] |= buttons[1];
+			_heldInputs[WHITGL_INPUT_X] |= buttons[2];
+			_heldInputs[WHITGL_INPUT_Y] |= buttons[3];
 		}
 	}
+	if(_heldInputs[WHITGL_INPUT_UP]) joystick.y = -1;
+	if(_heldInputs[WHITGL_INPUT_RIGHT]) joystick.x = 1;
+	if(_heldInputs[WHITGL_INPUT_DOWN]) joystick.y = 1;
+	if(_heldInputs[WHITGL_INPUT_LEFT]) joystick.x = -1;
 
 	_heldInputs[WHITGL_INPUT_ANY] = false;
 	for(i=0; i<WHITGL_INPUT_ANY; i++)
