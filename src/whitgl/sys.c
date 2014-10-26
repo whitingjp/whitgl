@@ -505,7 +505,18 @@ void whitgl_sys_draw_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 	GL_CHECK( glEnableVertexAttribArray( posAttrib ) );
 
 	GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, 6 ) );
+}
 
+void whitgl_sys_draw_hollow_iaabb(whitgl_iaabb rect, whitgl_int width, whitgl_sys_color col)
+{
+	whitgl_iaabb n = {rect.a, {rect.b.x, rect.a.x+width}};
+	whitgl_iaabb e = {{rect.b.x-width, rect.a.y}, rect.b};
+	whitgl_iaabb s = {{rect.a.x, rect.b.y-width}, rect.b};
+	whitgl_iaabb w = {rect.a, {rect.a.x+width, rect.b.y}};
+	whitgl_sys_draw_iaabb(n, col);
+	whitgl_sys_draw_iaabb(e, col);
+	whitgl_sys_draw_iaabb(s, col);
+	whitgl_sys_draw_iaabb(w, col);
 }
 
 void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
