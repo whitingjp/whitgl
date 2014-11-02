@@ -116,6 +116,10 @@ void whitgl_input_update()
 			_heldInputs[WHITGL_INPUT_X] |= buttons[2];
 			_heldInputs[WHITGL_INPUT_Y] |= buttons[3];
 		}
+	} else
+	{
+		joystick.x = 0;
+		joystick.y = 0;
 	}
 	if(_heldInputs[WHITGL_INPUT_UP]) joystick.y = -1;
 	if(_heldInputs[WHITGL_INPUT_RIGHT]) joystick.x = 1;
