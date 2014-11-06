@@ -2,8 +2,9 @@
 #define WHITGL_MATH_H_
 
 #include <stdbool.h>
+#include <stdint.h>
 
-typedef long int whitgl_int;
+typedef int64_t whitgl_int;
 typedef double whitgl_float;
 
 typedef struct
