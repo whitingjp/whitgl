@@ -96,6 +96,16 @@ void whitgl_input_update()
 	_heldInputs[WHITGL_INPUT_Y] = _press('V');
 	_heldInputs[WHITGL_INPUT_START] = _press('B');
 	_heldInputs[WHITGL_INPUT_SELECT] = _press('N');
+	_heldInputs[WHITGL_INPUT_0] = _press('0');
+	_heldInputs[WHITGL_INPUT_1] = _press('1');
+	_heldInputs[WHITGL_INPUT_2] = _press('2');
+	_heldInputs[WHITGL_INPUT_3] = _press('3');
+	_heldInputs[WHITGL_INPUT_4] = _press('4');
+	_heldInputs[WHITGL_INPUT_5] = _press('5');
+	_heldInputs[WHITGL_INPUT_6] = _press('6');
+	_heldInputs[WHITGL_INPUT_7] = _press('7');
+	_heldInputs[WHITGL_INPUT_8] = _press('8');
+	_heldInputs[WHITGL_INPUT_9] = _press('9');
 	_heldInputs[WHITGL_INPUT_MOUSE_LEFT] = _mousepress(GLFW_MOUSE_BUTTON_1);
 	_heldInputs[WHITGL_INPUT_MOUSE_RIGHT] = _mousepress(GLFW_MOUSE_BUTTON_2);
 	_heldInputs[WHITGL_INPUT_MOUSE_MIDDLE] = _mousepress(GLFW_MOUSE_BUTTON_3);
