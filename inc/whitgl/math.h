@@ -51,6 +51,7 @@ whitgl_float whitgl_fwrap(whitgl_float a, whitgl_float min, whitgl_float max);
 whitgl_float whitgl_fsin(whitgl_float a);
 whitgl_float whitgl_fcos(whitgl_float a);
 
+whitgl_ivec whitgl_ivec_val(whitgl_int);
 whitgl_ivec whitgl_ivec_add(whitgl_ivec a, whitgl_ivec b);
 whitgl_ivec whitgl_ivec_sub(whitgl_ivec a, whitgl_ivec b);
 whitgl_ivec whitgl_ivec_inverse(whitgl_ivec a);
@@ -58,6 +59,7 @@ whitgl_ivec whitgl_ivec_scale(whitgl_ivec a, whitgl_ivec s);
 whitgl_ivec whitgl_ivec_divide(whitgl_ivec a, whitgl_ivec s);
 whitgl_int whitgl_ivec_sqmagnitude(whitgl_ivec a);
 
+whitgl_fvec whitgl_fvec_val(whitgl_float);
 whitgl_fvec whitgl_fvec_add(whitgl_fvec a, whitgl_fvec b);
 whitgl_fvec whitgl_fvec_sub(whitgl_fvec a, whitgl_fvec b);
 whitgl_fvec whitgl_fvec_inverse(whitgl_fvec a);

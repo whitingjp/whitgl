@@ -70,86 +70,74 @@ whitgl_float whitgl_fcos(whitgl_float a)
 	return cos(a);
 }
 
+whitgl_ivec whitgl_ivec_val(whitgl_int a)
+{
+	whitgl_ivec out = {a, a};
+	return out;
+}
 whitgl_ivec whitgl_ivec_add(whitgl_ivec a, whitgl_ivec b)
 {
-	whitgl_ivec out;
-	out.x = a.x + b.x;
-	out.y = a.y + b.y;
+	whitgl_ivec out = {a.x + b.x, a.y + b.y};
 	return out;
 }
 whitgl_ivec whitgl_ivec_sub(whitgl_ivec a, whitgl_ivec b)
 {
-	whitgl_ivec out;
-	out.x = a.x - b.x;
-	out.y = a.y - b.y;
+	whitgl_ivec out = {a.x - b.x, a.y - b.y};
 	return out;
 }
 whitgl_ivec whitgl_ivec_inverse(whitgl_ivec a)
 {
-	whitgl_ivec out;
-	out.x = -a.x;
-	out.y = -a.y;
+	whitgl_ivec out = {-a.x, -a.y};
 	return out;
 }
 whitgl_ivec whitgl_ivec_scale(whitgl_ivec a, whitgl_ivec s)
 {
-	whitgl_ivec out;
-	out.x = a.x * s.x;
-	out.y = a.y * s.y;
+	whitgl_ivec out = {a.x * s.x, a.y * s.y};
 	return out;
 }
 whitgl_ivec whitgl_ivec_divide(whitgl_ivec a, whitgl_ivec s)
 {
-	whitgl_ivec out;
-	out.x = a.x / s.x;
-	out.y = a.y / s.y;
+	whitgl_ivec out = {a.x / s.x, a.y / s.y};
 	return out;
 }
 whitgl_int whitgl_ivec_sqmagnitude(whitgl_ivec a)
 {
-	whitgl_int out = a.x*a.x + a.y*a.y;
-	return out;
+	return a.x * a.x + a.y * a.y;
 }
 
+whitgl_fvec whitgl_fvec_val(whitgl_float a)
+{
+	whitgl_fvec out = {a, a};
+	return out;
+}
 whitgl_fvec whitgl_fvec_add(whitgl_fvec a, whitgl_fvec b)
 {
-	whitgl_fvec out;
-	out.x = a.x + b.x;
-	out.y = a.y + b.y;
+	whitgl_fvec out = {a.x + b.x, a.y + b.y};
 	return out;
 }
 whitgl_fvec whitgl_fvec_sub(whitgl_fvec a, whitgl_fvec b)
 {
-	whitgl_fvec out;
-	out.x = a.x - b.x;
-	out.y = a.y - b.y;
+	whitgl_fvec out = {a.x - b.x, a.y - b.y};
 	return out;
 }
 whitgl_fvec whitgl_fvec_inverse(whitgl_fvec a)
 {
-	whitgl_fvec out;
-	out.x = -a.x;
-	out.y = -a.y;
+	whitgl_fvec out = {-a.x, -a.y};
 	return out;
 }
 whitgl_fvec whitgl_fvec_scale(whitgl_fvec a, whitgl_fvec s)
 {
-	whitgl_fvec out;
-	out.x = a.x * s.x;
-	out.y = a.y * s.y;
+	whitgl_fvec out = {a.x * s.x, a.y * s.y};
 	return out;
 }
 whitgl_fvec whitgl_fvec_divide(whitgl_fvec a, whitgl_fvec s)
 {
-	whitgl_fvec out;
-	out.x = a.x / s.x;
-	out.y = a.y / s.y;
+	whitgl_fvec out = {a.x / s.x, a.y / s.y};
 	return out;
 }
 whitgl_float whitgl_fvec_sqmagnitude(whitgl_fvec a)
 {
-	whitgl_float out = a.x*a.x + a.y*a.y;
-	return out;
+	return a.x * a.x + a.y * a.y;
 }
 whitgl_fvec whitgl_fvec_normalize(whitgl_fvec a)
 {
@@ -347,5 +335,5 @@ whitgl_ivec whitgl_camera(whitgl_ivec pos, whitgl_ivec world_size, whitgl_ivec s
 		out.y = bound.y/2;
 	else
 		out.y = whitgl_iminmax(bound.y, 0, out.y);
-	return out;	
+	return out;
 }
