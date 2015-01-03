@@ -58,6 +58,7 @@ whitgl_ivec whitgl_ivec_inverse(whitgl_ivec a);
 whitgl_ivec whitgl_ivec_scale(whitgl_ivec a, whitgl_ivec s);
 whitgl_ivec whitgl_ivec_divide(whitgl_ivec a, whitgl_ivec s);
 whitgl_int whitgl_ivec_sqmagnitude(whitgl_ivec a);
+whitgl_ivec whitgl_ivec_bound(whitgl_ivec a, whitgl_iaabb bounds);
 
 whitgl_fvec whitgl_fvec_val(whitgl_float);
 whitgl_fvec whitgl_fvec_add(whitgl_fvec a, whitgl_fvec b);
@@ -67,6 +68,7 @@ whitgl_fvec whitgl_fvec_scale(whitgl_fvec a, whitgl_fvec s);
 whitgl_fvec whitgl_fvec_divide(whitgl_fvec a, whitgl_fvec s);
 whitgl_float whitgl_fvec_sqmagnitude(whitgl_fvec a);
 whitgl_fvec whitgl_fvec_normalize(whitgl_fvec a);
+whitgl_fvec whitgl_fvec_bound(whitgl_fvec a, whitgl_faabb bounds);
 
 whitgl_iaabb whitgl_iaabb_add(whitgl_iaabb a, whitgl_ivec b);
 whitgl_iaabb whitgl_iaabb_sub(whitgl_iaabb a, whitgl_ivec b);
@@ -84,6 +86,8 @@ bool whitgl_faabb_intersects(whitgl_faabb a, whitgl_faabb b);
 
 bool whitgl_ivec_point_in_rect(whitgl_ivec p, whitgl_iaabb rect);
 bool whitgl_fvec_point_in_rect(whitgl_fvec p, whitgl_faabb rect);
+
+
 
 whitgl_fvec whitgl_ivec_to_fvec(whitgl_ivec in);
 whitgl_ivec whitgl_fvec_to_ivec(whitgl_fvec in);

@@ -23,11 +23,35 @@ whitgl_int whitgl_iminmax(whitgl_int lower, whitgl_int upper, whitgl_int n)
 }
 whitgl_int whitgl_iwrap(whitgl_int a, whitgl_int min, whitgl_int max)
 {
-	float size = max-min;
+	whitgl_float size = max-min;
 	while(a < min)
 		a += size;
 	while(a >= max)
 		a -= size;
+	return a;
+}
+whitgl_ivec whitgl_ivec_bound(whitgl_ivec a, whitgl_iaabb bounds)
+{
+	if(bounds.a.x > bounds.b.x)
+	{
+		whitgl_int swap = bounds.a.x;
+		bounds.a.x = bounds.b.x;
+		bounds.b.x = swap;
+	}
+	if(bounds.a.y > bounds.b.y)
+	{
+		whitgl_int swap = bounds.a.y;
+		bounds.a.y = bounds.b.y;
+		bounds.b.y = swap;
+	}
+	if(a.x < bounds.a.x)
+		a.x = bounds.a.x;
+	if(a.x > bounds.b.x)
+		a.x = bounds.b.x;
+	if(a.y < bounds.a.y)
+		a.y = bounds.a.y;
+	if(a.y > bounds.b.y)
+		a.y = bounds.b.y;
 	return a;
 }
 
@@ -148,6 +172,30 @@ whitgl_fvec whitgl_fvec_normalize(whitgl_fvec a)
 	scale.x = mag;
 	scale.y = mag;
 	return whitgl_fvec_divide(a, scale);
+}
+whitgl_fvec whitgl_fvec_bound(whitgl_fvec a, whitgl_faabb bounds)
+{
+	if(bounds.a.x > bounds.b.x)
+	{
+		whitgl_float swap = bounds.a.x;
+		bounds.a.x = bounds.b.x;
+		bounds.b.x = swap;
+	}
+	if(bounds.a.y > bounds.b.y)
+	{
+		whitgl_float swap = bounds.a.y;
+		bounds.a.y = bounds.b.y;
+		bounds.b.y = swap;
+	}
+	if(a.x < bounds.a.x)
+		a.x = bounds.a.x;
+	if(a.x > bounds.b.x)
+		a.x = bounds.b.x;
+	if(a.y < bounds.a.y)
+		a.y = bounds.a.y;
+	if(a.y > bounds.b.y)
+		a.y = bounds.b.y;
+	return a;
 }
 
 whitgl_iaabb whitgl_iaabb_add(whitgl_iaabb a, whitgl_ivec b)
