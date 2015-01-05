@@ -17,9 +17,12 @@ fmodso = 'lib%s.so' % fmodlib
 
 cflags = '-Iinc -Wall -Wextra -Werror -g'
 ldflags = ''
-if(plat == 'Windows'):
+if plat == 'Windows':
   cflags += ' -Iinput/glfw/include -Iinput/libpng/include -Iinput/zlib/include -Iinput/glew/include -Iinput/fmod/win/inc '
   ldflags += ' -Linput/glfw/lib-mingw -Linput/glew/lib -Linput/libpng/lib -Linput/zlib/lib -Linput/fmod/win/lib input/glfw/lib-mingw/glfw3dll.a -lglu32 -lopengl32 -lglew32 -lfmodex -lpng -lz '
+elif plat == 'Darwin':
+  cflags += ' -isystem input/fmod/inc -Iinput/glfw/include -Iinput/glew/include'
+  ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/api/lib -Linput/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lSOIL -lm  -lX11 -lXxf86vm -lpthread -lXrandr -lXi -lpng'
 else:
   cflags += ' -isystem input/fmod/api/inc -Iinput/glfw/include '
   ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/api/lib -Linput/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lSOIL -lm -l%s -lX11 -lXxf86vm -lpthread -lXrandr -lXi -lpng' % fmodlib
