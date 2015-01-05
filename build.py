@@ -8,6 +8,7 @@ import ninja_syntax
 plat = platform.system()
 bit64 = platform.architecture()[0] == '64bit'
 joinp = os.path.join
+
 if(bit64):
   fmodlib = 'fmodex64'
 else:
@@ -72,11 +73,13 @@ def walk_data(n, data_in, data_out, validext=['png','ogg']):
 
 def copy_libs(n, inputs, outdir):
   targets = []
-  if(plat == 'Windows'):
+  if plat == 'Windows':
     targets += n.build(joinp(outdir, 'fmodex.dll'), 'cp', joinp(inputs, 'fmod', 'fmodex.dll'))
     targets += n.build(joinp(outdir, 'glew32.dll'), 'cp', joinp(inputs, 'glew', 'lib', 'glew32.dll'))
     targets += n.build(joinp(outdir, 'glfw3.dll'), 'cp', joinp(inputs, 'glfw', 'lib-mingw', 'glfw3.dll'))
     targets += n.build(joinp(outdir, 'libpng3.dll'), 'cp', joinp(inputs, 'libpng', 'bin', 'libpng3.dll'))
+  elif plat == 'Darwin':
+    targets += n.build(joinp(outdir, 'libfmod.dylib'), 'cp', joinp(inputs, 'fmod', 'lib', 'libfmod.dylib'))
   else:
     targets += n.build(joinp(outdir, fmodso), 'cp', joinp(inputs, 'fmod', 'api', 'lib', fmodso))
   n.newline()
