@@ -67,7 +67,7 @@ void whitgl_sound_add(int id, const char* filename)
 		return;
 	}
 	sounds[num_sounds].id = id;
-	FMOD_RESULT result = FMOD_System_CreateSound(fmodSystem, filename, FMOD_HARDWARE | FMOD_2D, 0, &sounds[num_sounds].sound);
+	FMOD_RESULT result = FMOD_System_CreateSound(fmodSystem, filename, FMOD_CREATESAMPLE | FMOD_2D, 0, &sounds[num_sounds].sound);
 	_whitgl_sound_errcheck("FMOD_System_CreateSound", result);
 	num_sounds++;
 }
@@ -90,11 +90,11 @@ int _whitgl_get_index(int id)
 void whitgl_sound_play(int id, float adjust)
 {
 	int index = _whitgl_get_index(id);
-	FMOD_RESULT result = FMOD_System_PlaySound(fmodSystem, FMOD_CHANNEL_FREE, sounds[index].sound, true, &sounds[index].channel);
+	FMOD_RESULT result = FMOD_System_PlaySound(fmodSystem, sounds[index].sound, NULL, true, &sounds[index].channel);
 	_whitgl_sound_errcheck("FMOD_System_PlaySound", result);
 
 	float defaultFrequency;
-	result = FMOD_Sound_GetDefaults(sounds[index].sound, &defaultFrequency, NULL, NULL, NULL);
+	result = FMOD_Sound_GetDefaults(sounds[index].sound, &defaultFrequency, NULL);
 	_whitgl_sound_errcheck("FMOD_Sound_GetDefaults", result);
 	result = FMOD_Channel_SetFrequency(sounds[index].channel, defaultFrequency*adjust);
 	_whitgl_sound_errcheck("FMOD_Channel_SetFrequency", result);
@@ -111,10 +111,10 @@ void whitgl_loop_add(int id, const char* filename, whitgl_sound_start_state stat
 		return;
 	}
 	sounds[num_sounds].id = id;
-	FMOD_RESULT result = FMOD_System_CreateSound(fmodSystem, filename, FMOD_HARDWARE | FMOD_2D | FMOD_LOOP_NORMAL, 0, &sounds[num_sounds].sound);
+	FMOD_RESULT result = FMOD_System_CreateSound(fmodSystem, filename, FMOD_CREATESTREAM | FMOD_2D | FMOD_LOOP_NORMAL, 0, &sounds[num_sounds].sound);
 	_whitgl_sound_errcheck("FMOD_System_CreateSound", result);
 
-	result = FMOD_System_PlaySound(fmodSystem, FMOD_CHANNEL_FREE, sounds[num_sounds].sound, true, &sounds[num_sounds].channel);
+	result = FMOD_System_PlaySound(fmodSystem, sounds[num_sounds].sound, NULL, true, &sounds[num_sounds].channel);
 	_whitgl_sound_errcheck("FMOD_System_PlaySound", result);
 
 	result = FMOD_Channel_SetVolume(sounds[num_sounds].channel, 0);
