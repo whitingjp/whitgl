@@ -10,10 +10,9 @@ bit64 = platform.architecture()[0] == '64bit'
 joinp = os.path.join
 
 if(bit64):
-  fmodlib = 'fmodex64'
+  fmoddir = 'x86_64'
 else:
-  fmodlib = 'fmodex'
-fmodso = 'lib%s.so' % fmodlib
+  fmoddir = 'x86'
 
 cflags = '-Iinc -Wall -Wextra -Werror -g'
 ldflags = ''
@@ -22,10 +21,10 @@ if plat == 'Windows':
   ldflags += ' -Linput/glfw/lib-mingw -Linput/glew/lib -Linput/libpng/lib -Linput/zlib/lib -Linput/fmod/win/lib input/glfw/lib-mingw/glfw3dll.a -lglu32 -lopengl32 -lglew32 -lfmodex -lpng -lz '
 elif plat == 'Darwin':
   cflags += ' -isystem input/fmod/inc -Iinput/glfw/include -Iinput/glew/include'
-  ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/api/lib -Linput/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lSOIL -lm  -lX11 -lXxf86vm -lpthread -lXrandr -lXi -lpng'
+  ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/lowlevel/api/lib -Linput/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lSOIL -lm  -lX11 -lXxf86vm -lpthread -lXrandr -lXi -lpng'
 else:
-  cflags += ' -isystem input/fmod/api/inc -Iinput/glfw/include '
-  ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/api/lib -Linput/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lSOIL -lm -l%s -lX11 -lXxf86vm -lpthread -lXrandr -lXi -lpng' % fmodlib
+  cflags += ' -isystem input/fmod/api/lowlevel/inc -Iinput/glfw/include '
+  ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/api/lowlevel/lib/%s -Linput/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lSOIL -lm -lfmod -lX11 -lXxf86vm -lpthread -lXrandr -lXi -lpng' % fmoddir
 
 def rules(n, cflags, ldflags):
   n.variable('cflags', cflags)
@@ -84,7 +83,7 @@ def copy_libs(n, inputs, outdir):
   elif plat == 'Darwin':
     targets += n.build(joinp(outdir, 'libfmod.dylib'), 'cp', joinp(inputs, 'fmod', 'lib', 'libfmod.dylib'))
   else:
-    targets += n.build(joinp(outdir, fmodso), 'cp', joinp(inputs, 'fmod', 'api', 'lib', fmodso))
+    targets += n.build(joinp(outdir, 'libfmod.so.5'), 'cp', joinp(inputs, 'fmod', 'api', 'lowlevel', 'lib', fmoddir, 'libfmod.so'))
   n.newline()
   return targets
 
