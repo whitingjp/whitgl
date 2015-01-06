@@ -15,5 +15,6 @@ void whitgl_sound_play(int id, float adjust);
 void whitgl_loop_add(int id, const char* filename, whitgl_sound_start_state state);
 void whitgl_loop_volume(int id, float volume);
 void whitgl_loop_unpause(int id);
+void whitgl_loop_seek(int id, float time);
 
 #endif // WHITGL_SOUND_H_
