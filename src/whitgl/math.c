@@ -23,7 +23,8 @@ whitgl_int whitgl_iminmax(whitgl_int lower, whitgl_int upper, whitgl_int n)
 }
 whitgl_int whitgl_iwrap(whitgl_int a, whitgl_int min, whitgl_int max)
 {
-	whitgl_float size = max-min;
+	whitgl_int size = max-min;
+	a = ((a-min)%size)+min;
 	while(a < min)
 		a += size;
 	while(a >= max)
@@ -79,6 +80,7 @@ whitgl_float whitgl_fsqrt(whitgl_float a)
 whitgl_float whitgl_fwrap(whitgl_float a, whitgl_float min, whitgl_float max)
 {
 	float size = max-min;
+	a = fmod(a-min, size)+min;
 	while(a < min)
 		a += size;
 	while(a >= max)
