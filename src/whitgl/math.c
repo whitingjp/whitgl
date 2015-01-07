@@ -165,6 +165,10 @@ whitgl_float whitgl_fvec_sqmagnitude(whitgl_fvec a)
 {
 	return a.x * a.x + a.y * a.y;
 }
+whitgl_float whitgl_fvec_magnitude(whitgl_fvec a)
+{
+	return whitgl_fsqrt(whitgl_fvec_sqmagnitude(a));
+}
 whitgl_fvec whitgl_fvec_normalize(whitgl_fvec a)
 {
 	whitgl_float mag = sqrt(whitgl_fvec_sqmagnitude(a));
