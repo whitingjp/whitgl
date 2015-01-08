@@ -140,10 +140,19 @@ void whitgl_loop_unpause(int id)
 	FMOD_RESULT result = FMOD_Channel_SetPaused(sounds[index].channel, false);
 	_whitgl_sound_errcheck("FMOD_Channel_SetPaused", result);
 }
-
 void whitgl_loop_seek(int id, float time)
 {
 	int index = _whitgl_get_index(id);
 	FMOD_RESULT result = FMOD_Channel_SetPosition(sounds[index].channel, time*1000, FMOD_TIMEUNIT_MS);
 	_whitgl_sound_errcheck("FMOD_Channel_SetPosition", result);
+}
+void whitgl_loop_frequency(int id, float adjust)
+{
+	int index = _whitgl_get_index(id);
+	float defaultFrequency;
+	FMOD_RESULT result;
+	result = FMOD_Sound_GetDefaults(sounds[index].sound, &defaultFrequency, NULL);
+	_whitgl_sound_errcheck("FMOD_Sound_GetDefaults", result);
+	result = FMOD_Channel_SetFrequency(sounds[index].channel, defaultFrequency*adjust);
+	_whitgl_sound_errcheck("FMOD_Channel_SetFrequency", result);
 }
