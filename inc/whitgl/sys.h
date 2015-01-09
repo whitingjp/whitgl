@@ -14,6 +14,7 @@ typedef struct
 	bool fullscreen;
 	bool disable_mouse_cursor;
 	bool vsync;
+	bool exact_size;
 } whitgl_sys_setup;
 extern whitgl_sys_setup whitgl_default_setup;
 

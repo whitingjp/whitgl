@@ -12,7 +12,6 @@
 void _whitgl_sys_flush_tex_iaabb();
 
 bool _shouldClose;
-int _pixel_scale;
 whitgl_ivec _window_size;
 GLFWwindow* _window;
 
@@ -34,6 +33,7 @@ whitgl_sys_setup whitgl_default_setup =
 	false,
 	false,
 	true,
+	false,
 };
 
 const char* _vertex_src = "\
@@ -256,20 +256,22 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 		_window = glfwCreateWindow(screen_size.x, screen_size.y, setup->name, NULL, NULL);
 	}
 	bool searching = true;
-	setup->pixel_size = screen_size.x/setup->size.x;
-	whitgl_ivec new_size = setup->size;
-	while(searching)
+	if(!setup->exact_size)
 	{
-		new_size.x = screen_size.x/setup->pixel_size;
-		new_size.y = screen_size.y/setup->pixel_size;
-		searching = false;
-		if(new_size.x < setup->size.x) searching = true;
-		if(new_size.y < setup->size.y) searching = true;
-		if(setup->pixel_size == 1) searching = false;
-		if(searching) setup->pixel_size--;
+		setup->pixel_size = screen_size.x/setup->size.x;
+		whitgl_ivec new_size = setup->size;
+		while(searching)
+		{
+			new_size.x = screen_size.x/setup->pixel_size;
+			new_size.y = screen_size.y/setup->pixel_size;
+			searching = false;
+			if(new_size.x < setup->size.x) searching = true;
+			if(new_size.y < setup->size.y) searching = true;
+			if(setup->pixel_size == 1) searching = false;
+			if(searching) setup->pixel_size--;
+		}
+		setup->size = new_size;
 	}
-	setup->size = new_size;
-	_pixel_scale = setup->pixel_size;
 	if(!_window)
 	{
 		WHITGL_LOG("Failed to open GLFW window");
@@ -453,10 +455,17 @@ void whitgl_sys_draw_finish()
 	whitgl_iaabb dest = whitgl_iaabb_zero;
 	src.b.x = _setup.size.x;
 	src.a.y = _setup.size.y;
-	dest.a.x = (_window_size.x-_setup.size.x*_setup.pixel_size)/2;
-	dest.a.y = (_window_size.y-_setup.size.y*_setup.pixel_size)/2;
-	dest.b.x = dest.a.x+_setup.size.x*_setup.pixel_size;
-	dest.b.y = dest.a.y+_setup.size.y*_setup.pixel_size;
+	if(_setup.exact_size)
+	{
+		dest.b = _window_size;
+	}
+	else
+	{
+		dest.a.x = (_window_size.x-_setup.size.x*_setup.pixel_size)/2;
+		dest.a.y = (_window_size.y-_setup.size.y*_setup.pixel_size)/2;
+		dest.b.x = dest.a.x+_setup.size.x*_setup.pixel_size;
+		dest.b.y = dest.a.y+_setup.size.y*_setup.pixel_size;
+	}
 
 	_whitgl_populate_vertices(vertices, src, dest, _setup.size);
 	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, vbo ) );
