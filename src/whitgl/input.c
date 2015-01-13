@@ -117,6 +117,11 @@ void whitgl_input_update()
 		{
 			joystick.x = _deadzone(axes[0]);
 			joystick.y = _deadzone(axes[1]);
+			float button_dead = 0.1;
+			if(joystick.y < -button_dead) _heldInputs[WHITGL_INPUT_UP] = true;
+			if(joystick.x > button_dead) _heldInputs[WHITGL_INPUT_RIGHT] = true;
+			if(joystick.y > button_dead) _heldInputs[WHITGL_INPUT_DOWN] = true;
+			if(joystick.x < -button_dead) _heldInputs[WHITGL_INPUT_LEFT] = true;
 		}
 		const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1,&count);
 		if(count >= 4)
