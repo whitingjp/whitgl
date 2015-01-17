@@ -37,10 +37,17 @@ void whitgl_sound_init()
 	result = FMOD_System_Create(&fmodSystem);
 	_whitgl_sound_errcheck("FMOD_System_Create", result);
 
+	unsigned int version;
+    result = FMOD_System_GetVersion(fmodSystem, &version);
+    _whitgl_sound_errcheck("FMOD_System_GetVersion", result);
+
+    if (version < FMOD_VERSION)
+    {
+        WHITGL_PANIC("FMOD lib version %08x doesn't match header version %08x", version, FMOD_VERSION);
+    }
+
 	result = FMOD_System_Init(fmodSystem, 1024, FMOD_INIT_NORMAL, NULL);
 	_whitgl_sound_errcheck("FMOD_System_Init", result);
-
-
 }
 void whitgl_sound_update()
 {
@@ -67,7 +74,7 @@ void whitgl_sound_add(int id, const char* filename)
 		return;
 	}
 	sounds[num_sounds].id = id;
-	FMOD_RESULT result = FMOD_System_CreateSound(fmodSystem, filename, FMOD_CREATESAMPLE | FMOD_2D, 0, &sounds[num_sounds].sound);
+	FMOD_RESULT result = FMOD_System_CreateSound(fmodSystem, filename, FMOD_DEFAULT, 0, &sounds[num_sounds].sound);
 	_whitgl_sound_errcheck("FMOD_System_CreateSound", result);
 	num_sounds++;
 }
@@ -89,8 +96,9 @@ int _whitgl_get_index(int id)
 }
 void whitgl_sound_play(int id, float adjust)
 {
+	FMOD_RESULT result;
 	int index = _whitgl_get_index(id);
-	FMOD_RESULT result = FMOD_System_PlaySound(fmodSystem, sounds[index].sound, NULL, true, &sounds[index].channel);
+	result = FMOD_System_PlaySound(fmodSystem, sounds[index].sound, NULL, true, &sounds[index].channel);
 	_whitgl_sound_errcheck("FMOD_System_PlaySound", result);
 
 	float defaultFrequency;

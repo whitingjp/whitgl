@@ -76,7 +76,7 @@ def walk_data(n, data_in, data_out, validext=['png','ogg']):
 def copy_libs(n, inputs, outdir):
   targets = []
   if plat == 'Windows':
-    targets += n.build(joinp(outdir, 'fmodex.dll'), 'cp', joinp(inputs, 'fmod', 'fmodex.dll'))
+    targets += n.build(joinp(outdir, 'fmod.dll'), 'cp', joinp(inputs, 'fmod', 'win', 'lib', 'fmod.dll'))
     targets += n.build(joinp(outdir, 'glew32.dll'), 'cp', joinp(inputs, 'glew', 'lib', 'glew32.dll'))
     targets += n.build(joinp(outdir, 'glfw3.dll'), 'cp', joinp(inputs, 'glfw', 'lib-mingw', 'glfw3.dll'))
     targets += n.build(joinp(outdir, 'libpng3.dll'), 'cp', joinp(inputs, 'libpng', 'bin', 'libpng3.dll'))
