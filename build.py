@@ -82,6 +82,7 @@ def copy_libs(n, inputs, outdir):
     targets += n.build(joinp(outdir, 'libpng3.dll'), 'cp', joinp(inputs, 'libpng', 'bin', 'libpng3.dll'))
   elif plat == 'Darwin':
     targets += n.build(joinp(outdir, 'libfmod.dylib'), 'cp', joinp(inputs, 'fmod', 'lib', 'libfmod.dylib'))
+    targets += n.build(joinp(outdir, 'libGLEW.1.11.0.dylib'), 'cp', joinp(inputs, 'glew', 'lib', 'libGLEW.1.11.0.dylib'))
   else:
     targets += n.build(joinp(outdir, 'libfmod.so.5'), 'cp', joinp(inputs, 'fmod', 'api', 'lowlevel', 'lib', fmoddir, 'libfmod.so'))
   n.newline()
