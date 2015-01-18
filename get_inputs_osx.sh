@@ -12,13 +12,21 @@ curl -O http://www.fmod.org/download/fmodstudio/api/Mac/fmodstudioapi10510mac-in
 hdiutil mount fmodstudioapi10510mac-installer.dmg
 cp -r /Volumes/FMOD\ Programmers\ API\ Mac/FMOD\ Programmers\ API/api/lowlevel/ fmod
 hdiutil unmount /Volumes/FMOD\ Programmers\ API\ Mac/
-git clone https://github.com/glfw/glfw.git
+git clone --depth=1 https://github.com/glfw/glfw.git
 mkdir glfw/build
 pushd glfw/build
 cmake ..
 make
 popd
-git clone https://github.com/nigels-com/glew.git
+git clone --depth=1 https://github.com/nigels-com/glew.git
 pushd glew
 make extensions
 make
+popd
+curl -O ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng12/libpng-1.2.52.tar.gz
+tar -xzf libpng-1.2.52.tar.gz
+ln -s libpng-1.2.52 libpng
+pushd libpng
+./configure
+make
+popd

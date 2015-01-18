@@ -20,8 +20,8 @@ if plat == 'Windows':
   cflags += ' -Iinput/glfw/include -Iinput/libpng/include -Iinput/zlib/include -Iinput/glew/include -Iinput/fmod/win/inc '
   ldflags += ' -Linput/glfw/lib-mingw -Linput/glew/lib -Linput/libpng/lib -Linput/zlib/lib -Linput/fmod/win/lib input/glfw/lib-mingw/glfw3dll.a -lglu32 -lopengl32 -lglew32 -lfmod -lpng -lz '
 elif plat == 'Darwin':
-  cflags += ' -isystem input/fmod/inc -Iinput/glfw/include -Iinput/glew/include'
-  ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/lowlevel/api/lib -Linput/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lSOIL -lm  -lX11 -lXxf86vm -lpthread -lXrandr -lXi -lpng'
+  cflags += ' -isystem input/fmod/inc -Iinput/glfw/include -Iinput/glew/include -Iinput/libpng/'
+  ldflags += ' -Linput/fmod/lib -Linput/glfw/build/src -Linput/libpng/.libs -Linput/glew/lib -framework OpenGL -framework Cocoa -framework IOKit -framework ForceFeedback -framework Carbon -framework CoreAudio -framework CoreVideo -framework AudioUnit -lpng -lfmod -lglfw3 -lGLEW'
 else:
   cflags += ' -isystem input/fmod/api/lowlevel/inc -Iinput/glfw/include '
   ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/api/lowlevel/lib/%s -Linput/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lSOIL -lm -lfmod -lX11 -lXxf86vm -lpthread -lXrandr -lXi -lpng' % fmoddir
