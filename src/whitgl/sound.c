@@ -110,7 +110,7 @@ void whitgl_sound_play(int id, float adjust)
 	_whitgl_sound_errcheck("FMOD_Channel_SetPaused", result);
 }
 
-void whitgl_loop_add(int id, const char* filename, whitgl_sound_start_state state)
+void whitgl_loop_add(int id, const char* filename, whitgl_sound_state state)
 {
 	WHITGL_LOG("Adding loop: %s", filename);
 	if(num_sounds >= WHITGL_SOUND_MAX)
@@ -128,13 +128,9 @@ void whitgl_loop_add(int id, const char* filename, whitgl_sound_start_state stat
 	result = FMOD_Channel_SetVolume(sounds[num_sounds].channel, 0);
 	_whitgl_sound_errcheck("FMOD_Channel_SetVolume", result);
 
-	if(state == WHITGL_SOUND_START_UNPAUSED)
-	{
-		result = FMOD_Channel_SetPaused(sounds[num_sounds].channel, false);
-		_whitgl_sound_errcheck("FMOD_Channel_SetPaused", result);
-	}
-
 	num_sounds++;
+
+	whitgl_loop_set_state(id, state);
 }
 void whitgl_loop_volume(int id, float volume)
 {
@@ -142,10 +138,11 @@ void whitgl_loop_volume(int id, float volume)
 	FMOD_RESULT result = FMOD_Channel_SetVolume(sounds[index].channel, volume);
 	_whitgl_sound_errcheck("FMOD_Channel_SetVolume", result);
 }
-void whitgl_loop_unpause(int id)
+void whitgl_loop_set_state(int id, whitgl_sound_state state)
 {
 	int index = _whitgl_get_index(id);
-	FMOD_RESULT result = FMOD_Channel_SetPaused(sounds[index].channel, false);
+	bool paused = state == WHITGL_SOUND_PAUSED ? true: false;
+	FMOD_RESULT result = FMOD_Channel_SetPaused(sounds[index].channel, paused);
 	_whitgl_sound_errcheck("FMOD_Channel_SetPaused", result);
 }
 void whitgl_loop_seek(int id, float time)
