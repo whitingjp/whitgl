@@ -49,10 +49,6 @@ void whitgl_sound_init()
 	result = FMOD_System_Init(fmodSystem, 1024, FMOD_INIT_NORMAL, NULL);
 	_whitgl_sound_errcheck("FMOD_System_Init", result);
 }
-void whitgl_sound_update()
-{
-	FMOD_System_Update(fmodSystem);
-}
 void whitgl_sound_shutdown()
 {
 	WHITGL_LOG("Shutdown fmod");
@@ -64,6 +60,19 @@ void whitgl_sound_shutdown()
 	_whitgl_sound_errcheck("FMOD_System_Close", result);
 	result = FMOD_System_Release(fmodSystem);
 	_whitgl_sound_errcheck("FMOD_System_Release", result);
+}
+void whitgl_sound_update()
+{
+	FMOD_System_Update(fmodSystem);
+}
+void whitgl_sound_volume(float volume)
+{
+	FMOD_RESULT result;
+	FMOD_CHANNELGROUP* group;
+	result = FMOD_System_GetMasterChannelGroup(fmodSystem, &group);
+	_whitgl_sound_errcheck("FMOD_System_GetMasterChannelGroup", result);
+	result = FMOD_ChannelGroup_SetVolume(group, volume);
+	_whitgl_sound_errcheck("FMOD_Channel_SetVolume", result);
 }
 void whitgl_sound_add(int id, const char* filename)
 {
@@ -129,6 +138,8 @@ void whitgl_loop_add(int id, const char* filename)
 	_whitgl_sound_errcheck("FMOD_Channel_SetVolume", result);
 
 	num_sounds++;
+
+	whitgl_loop_set_paused(id, false);
 }
 void whitgl_loop_volume(int id, float volume)
 {
