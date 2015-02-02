@@ -131,6 +131,10 @@ void whitgl_input_update()
 			_heldInputs[WHITGL_INPUT_X] |= buttons[2];
 			_heldInputs[WHITGL_INPUT_Y] |= buttons[3];
 		}
+		if(count >= 8)
+		{
+			_heldInputs[WHITGL_INPUT_START] |= buttons[7];
+		}
 	} else
 	{
 		joystick.x = 0;
