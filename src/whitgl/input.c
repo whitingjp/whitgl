@@ -90,8 +90,7 @@ void whitgl_input_update()
 	_heldInputs[WHITGL_INPUT_DOWN] = _press(GLFW_KEY_DOWN) || _press('J') || _press('S') || _press(GLFW_KEY_KP_2);
 	_heldInputs[WHITGL_INPUT_LEFT] = _press(GLFW_KEY_LEFT) || _press('H') || _press('A') || _press(GLFW_KEY_KP_4);
 	_heldInputs[WHITGL_INPUT_ESC] = _press(GLFW_KEY_ESCAPE);
-	_heldInputs[WHITGL_INPUT_A] = _press('Z');
-	_heldInputs[WHITGL_INPUT_A] = _press(' ');
+	_heldInputs[WHITGL_INPUT_A] = _press('Z') || _press(' ');
 	_heldInputs[WHITGL_INPUT_B] = _press('X');
 	_heldInputs[WHITGL_INPUT_X] = _press('C');
 	_heldInputs[WHITGL_INPUT_Y] = _press('V');
