@@ -1,5 +1,5 @@
 #/usr/bin/bash
-sudo apt-get install ninja-build libglfw-dev libglew-dev libpng12-dev xorg-dev libglu1-mesa-dev
+sudo apt-get install ninja-build libglfw-dev libglew-dev libpng12-dev xorg-dev libglu1-mesa-dev wget libpng12-dev
 rm -rf input
 mkdir input
 pushd input

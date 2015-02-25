@@ -24,7 +24,7 @@ elif plat == 'Darwin':
   ldflags += ' -Linput/fmod/lib -Linput/glfw/build/src -Linput/libpng -Linput/zlib -Linput/glew/lib -framework OpenGL -framework Cocoa -framework IOKit -framework ForceFeedback -framework Carbon -framework CoreAudio -framework CoreVideo -framework AudioUnit -lpng -lfmod -lglfw3 -lGLEW -lz'
 else:
   cflags += ' -isystem input/fmod/api/lowlevel/inc -Iinput/glfw/include '
-  ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/api/lowlevel/lib/%s -Linput/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lSOIL -lm -lfmod -lX11 -lXxf86vm -lpthread -lXrandr -lXi -lpng' % fmoddir
+  ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/api/lowlevel/lib/%s -Linput/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lm -lfmod -lX11 -lXxf86vm -lpthread -lXrandr -lXi -lpng' % fmoddir
 
 def rules(n, cflags, ldflags):
   n.variable('cflags', cflags)
