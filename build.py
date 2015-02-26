@@ -39,7 +39,7 @@ def rules(n, cflags, ldflags):
     command='ar rcs $out $in')
   if plat == 'Darwin':
     n.rule('link',
-      command='gcc $in $libs $ldflags -o $out && install_name_tool -change @rpath/libfmod.dylib ./libfmod.dylib $out && install_name_tool -change /usr/lib/libGLEW.1.11.0.dylib ./libGLEW.1.11.0.dylib $out',
+      command='gcc $in $libs $ldflags -o $out && install_name_tool -change @rpath/libfmod.dylib @executable_path/libfmod.dylib $out && install_name_tool -change /usr/lib/libGLEW.1.11.0.dylib @executable_path/libGLEW.1.11.0.dylib $out',
       description='LINK $out')
   else:
     n.rule('link',
