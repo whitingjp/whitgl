@@ -18,7 +18,7 @@ cflags = '-Iinc -Wall -Wextra -Werror -g'
 ldflags = ''
 if plat == 'Windows':
   cflags += ' -Iinput/glfw/include -Iinput/libpng/include -Iinput/zlib/include -Iinput/glew/include -Iinput/fmod/win/inc '
-  ldflags += ' -Linput/glfw/lib-mingw -Linput/glew/lib -Linput/libpng/lib -Linput/fmod/win/lib input/glfw/lib-mingw/glfw3dll.a -lglu32 -lopengl32 -lglew32 -lfmod -lpng input/zlib/lib/zdll.lib '
+  ldflags += ' -Linput/glfw/lib-mingw -Linput/glew/lib -Linput/libpng/lib -Linput/fmod/win/lib input/glfw/lib-mingw/glfw3dll.a -lglu32 -lopengl32 -lglew32 -lfmod -lpng input/zlib/lib/zdll.lib -mwindows'
 elif plat == 'Darwin':
   cflags += ' -isystem input/fmod/inc -Iinput/glfw/include -Iinput/glew/include -Iinput/libpng/'
   ldflags += ' -Linput/fmod/lib -Linput/glfw/build/src -Linput/libpng -Linput/zlib -Linput/glew/lib -framework OpenGL -framework Cocoa -framework IOKit -framework ForceFeedback -framework Carbon -framework CoreAudio -framework CoreVideo -framework AudioUnit -lpng -lfmod -lglfw3 -lGLEW -lz'
