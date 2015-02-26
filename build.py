@@ -18,7 +18,7 @@ cflags = '-Iinc -Wall -Wextra -Werror -g'
 ldflags = ''
 if plat == 'Windows':
   cflags += ' -Iinput/glfw/include -Iinput/libpng/include -Iinput/zlib/include -Iinput/glew/include -Iinput/fmod/win/inc '
-  ldflags += ' -Linput/glfw/lib-mingw -Linput/glew/lib -Linput/libpng/lib -Linput/zlib/lib -Linput/fmod/win/lib input/glfw/lib-mingw/glfw3dll.a -lglu32 -lopengl32 -lglew32 -lfmod -lpng -lz '
+  ldflags += ' -Linput/glfw/lib-mingw -Linput/glew/lib -Linput/libpng/lib -Linput/fmod/win/lib input/glfw/lib-mingw/glfw3dll.a -lglu32 -lopengl32 -lglew32 -lfmod -lpng input/zlib/lib/zdll.lib '
 elif plat == 'Darwin':
   cflags += ' -isystem input/fmod/inc -Iinput/glfw/include -Iinput/glew/include -Iinput/libpng/'
   ldflags += ' -Linput/fmod/lib -Linput/glfw/build/src -Linput/libpng -Linput/zlib -Linput/glew/lib -framework OpenGL -framework Cocoa -framework IOKit -framework ForceFeedback -framework Carbon -framework CoreAudio -framework CoreVideo -framework AudioUnit -lpng -lfmod -lglfw3 -lGLEW -lz'
@@ -39,7 +39,7 @@ def rules(n, cflags, ldflags):
     command='ar rcs $out $in')
   if plat == 'Darwin':
     n.rule('link',
-      command='gcc $in $libs $ldflags -o $out && install_name_tool -change @rpath/libfmod.dylib ./libfmod.dylib $out && install_name_tool -change /usr/lib/libGLEW.1.11.0.dylib ./libGLEW.1.11.0.dylib $out',
+      command='gcc $in $libs $ldflags -o $out && install_name_tool -change @rpath/libfmod.dylib @executable_path/libfmod.dylib $out && install_name_tool -change /usr/lib/libGLEW.1.11.0.dylib @executable_path/libGLEW.1.11.0.dylib $out',
       description='LINK $out')
   else:
     n.rule('link',
@@ -85,6 +85,7 @@ def copy_libs(n, inputs, outdir):
     targets += n.build(joinp(outdir, 'glew32.dll'), 'cp', joinp(inputs, 'glew', 'lib', 'glew32.dll'))
     targets += n.build(joinp(outdir, 'glfw3.dll'), 'cp', joinp(inputs, 'glfw', 'lib-mingw', 'glfw3.dll'))
     targets += n.build(joinp(outdir, 'libpng3.dll'), 'cp', joinp(inputs, 'libpng', 'bin', 'libpng3.dll'))
+    targets += n.build(joinp(outdir, 'zlib1.dll'), 'cp', joinp(inputs, 'zlib', 'zlib1.dll'))
   elif plat == 'Darwin':
     targets += n.build(joinp(outdir, 'libfmod.dylib'), 'cp', joinp(inputs, 'fmod', 'lib', 'libfmod.dylib'))
     targets += n.build(joinp(outdir, 'libGLEW.1.11.0.dylib'), 'cp', joinp(inputs, 'glew', 'lib', 'libGLEW.1.11.0.dylib'))
