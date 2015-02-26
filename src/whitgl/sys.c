@@ -376,7 +376,7 @@ double whitgl_sys_getTime()
 void whitgl_sys_draw_init()
 {
 	int w, h;
-	glfwGetWindowSize( _window, &w, &h);
+	glfwGetFramebufferSize(_window, &w, &h);
 	_window_size.x = w;
 	_window_size.y = h;
 
