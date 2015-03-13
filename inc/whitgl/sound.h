@@ -1,6 +1,8 @@
 #ifndef WHITGL_SOUND_H_
 #define WHITGL_SOUND_H_
 
+#include <stdbool.h>
+
 typedef enum
 {
 	WHITGL_SOUND_PAUSED,
