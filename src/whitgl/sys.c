@@ -788,3 +788,14 @@ double whitgl_sys_get_time()
 {
 	return glfwGetTime();
 }
+
+whitgl_sys_color whitgl_sys_color_blend(whitgl_sys_color a, whitgl_sys_color b, whitgl_float factor)
+{
+	whitgl_sys_color out;
+	float inv = 1-factor;
+	out.r = a.r*inv + b.r*factor;
+	out.g = a.g*inv + b.g*factor;
+	out.b = a.b*inv + b.b*factor;
+	out.a = a.a*inv + b.a*factor;
+	return out;
+}
