@@ -135,10 +135,10 @@ void whitgl_input_update()
 		joystick.x = 0;
 		joystick.y = 0;
 	}
-	if(_heldInputs[WHITGL_INPUT_UP]) joystick.y = -1;
-	if(_heldInputs[WHITGL_INPUT_RIGHT]) joystick.x = 1;
-	if(_heldInputs[WHITGL_INPUT_DOWN]) joystick.y = 1;
-	if(_heldInputs[WHITGL_INPUT_LEFT]) joystick.x = -1;
+	if(_heldInputs[WHITGL_INPUT_UP] && !_heldInputs[WHITGL_INPUT_DOWN]) joystick.y = -1;
+	if(_heldInputs[WHITGL_INPUT_RIGHT] && !_heldInputs[WHITGL_INPUT_LEFT]) joystick.x = 1;
+	if(_heldInputs[WHITGL_INPUT_DOWN] && !_heldInputs[WHITGL_INPUT_UP]) joystick.y = 1;
+	if(_heldInputs[WHITGL_INPUT_LEFT] && !_heldInputs[WHITGL_INPUT_RIGHT]) joystick.x = -1;
 	float button_dead = 0.1;
 	if(joystick.y < -button_dead) _heldInputs[WHITGL_INPUT_UP] = true;
 	if(joystick.x > button_dead) _heldInputs[WHITGL_INPUT_RIGHT] = true;
