@@ -40,7 +40,7 @@ int main()
 {
 	WHITGL_LOG("Starting main.");
 
-	whitgl_sys_setup setup = whitgl_default_setup;
+	whitgl_sys_setup setup = whitgl_sys_setup_zero;
 	setup.size.x = 32;
 	setup.size.y = 32;
 	setup.pixel_size = 16;

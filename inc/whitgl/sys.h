@@ -15,8 +15,19 @@ typedef struct
 	bool disable_mouse_cursor;
 	bool vsync;
 	bool exact_size;
+	bool over_render;
 } whitgl_sys_setup;
-extern whitgl_sys_setup whitgl_default_setup;
+static const whitgl_sys_setup whitgl_sys_setup_zero =
+{
+	"default window name",
+	{120, 80},
+	4,
+	false,
+	false,
+	true,
+	false,
+	false,
+};
 
 typedef struct
 {

@@ -25,16 +25,7 @@ typedef struct
 whitgl_image images[WHITGL_IMAGE_MAX];
 int num_images;
 
-whitgl_sys_setup whitgl_default_setup =
-{
-	"default window name",
-	{120, 80},
-	4,
-	false,
-	false,
-	true,
-	false,
-};
+
 
 const char* _vertex_src = "\
 #version 150\
@@ -270,7 +261,9 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 			if(setup->pixel_size == 1) searching = false;
 			if(searching) setup->pixel_size--;
 		}
-		setup->size = new_size;
+		if(setup->over_render)
+			setup->pixel_size++;
+		setup->size = whitgl_ivec_divide(screen_size, whitgl_ivec_val(setup->pixel_size));
 	}
 	if(!_window)
 	{
