@@ -14,12 +14,12 @@ whitgl_int whitgl_imax(whitgl_int a, whitgl_int b)
 	if(a > b) return a;
 	return b;
 }
-whitgl_int whitgl_iminmax(whitgl_int lower, whitgl_int upper, whitgl_int n)
+whitgl_int whitgl_iclamp(whitgl_int a, whitgl_int min, whitgl_int max)
 {
-	if(lower > upper) WHITGL_LOG("ERR lower > than upper!");
-	if(n < lower) return lower;
-	if(n > upper) return upper;
-	return n;
+	if(min > max) WHITGL_LOG("ERR min > than max!");
+	if(a < min) return min;
+	if(a > max) return max;
+	return a;
 }
 whitgl_int whitgl_iwrap(whitgl_int a, whitgl_int min, whitgl_int max)
 {
@@ -66,12 +66,12 @@ whitgl_float whitgl_fmax(whitgl_float a, whitgl_float b)
 	if(a > b) return a;
 	return b;
 }
-whitgl_float whitgl_fminmax(whitgl_float lower, whitgl_float upper, whitgl_float n)
+whitgl_float whitgl_fclamp(whitgl_float a, whitgl_float min, whitgl_float max)
 {
-	if(lower > upper) WHITGL_LOG("ERR lower > than upper!");
-	if(n < lower) return lower;
-	if(n > upper) return upper;
-	return n;
+	if(min > max) WHITGL_LOG("ERR min > than max!");
+	if(a < min) return min;
+	if(a > max) return max;
+	return a;
 }
 whitgl_float whitgl_fsqrt(whitgl_float a)
 {
@@ -391,10 +391,10 @@ whitgl_ivec whitgl_camera(whitgl_ivec pos, whitgl_ivec world_size, whitgl_ivec s
 	if(world_size.x < screen_size.x)
 		out.x = bound.x/2;
 	else
-		out.x = whitgl_iminmax(bound.x, 0, out.x);
+		out.x = whitgl_iclamp(out.x, bound.x, 0);
 	if(world_size.y < screen_size.y)
 		out.y = bound.y/2;
 	else
-		out.y = whitgl_iminmax(bound.y, 0, out.y);
+		out.y = whitgl_iclamp(out.y, bound.y, 0);
 	return out;
 }

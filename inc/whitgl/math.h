@@ -40,12 +40,12 @@ static const whitgl_fcircle whitgl_fcircle_zero = { {0,0}, 0};
 
 whitgl_int whitgl_imin(whitgl_int a, whitgl_int b);
 whitgl_int whitgl_imax(whitgl_int a, whitgl_int b);
-whitgl_int whitgl_iminmax(whitgl_int lower, whitgl_int upper, whitgl_int n);
+whitgl_int whitgl_iclamp(whitgl_int a, whitgl_int min, whitgl_int max);
 whitgl_int whitgl_iwrap(whitgl_int a, whitgl_int min, whitgl_int max);
 
 whitgl_float whitgl_fmin(whitgl_float a, whitgl_float b);
 whitgl_float whitgl_fmax(whitgl_float a, whitgl_float b);
-whitgl_float whitgl_fminmax(whitgl_float lower, whitgl_float upper, whitgl_float n);
+whitgl_float whitgl_fclamp(whitgl_float a, whitgl_float min, whitgl_float max);
 whitgl_float whitgl_fsqrt(whitgl_float a);
 whitgl_float whitgl_fwrap(whitgl_float a, whitgl_float min, whitgl_float max);
 whitgl_float whitgl_fsin(whitgl_float a);
