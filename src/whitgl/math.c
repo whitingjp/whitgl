@@ -369,6 +369,23 @@ whitgl_float whitgl_fvec_to_angle(whitgl_fvec in)
 {
 	return atan2(in.y, in.x);
 }
+whitgl_ivec whitgl_facing_to_ivec(whitgl_int facing)
+{
+	whitgl_ivec vec = whitgl_ivec_zero;
+	switch(facing)
+	{
+		case 0: vec.y = -1; break;
+		case 1: vec.x = 1; break;
+		case 2: vec.y = 1; break;
+		case 3: vec.x = -1; break;
+	}
+	return vec;
+}
+whitgl_fvec whitgl_facing_to_fvec(whitgl_int facing)
+{
+	whitgl_ivec i = whitgl_facing_to_ivec(facing);
+	return whitgl_ivec_to_fvec(i);
+}
 
 void whitgl_randseed(whitgl_int seed)
 {
