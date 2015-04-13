@@ -386,6 +386,18 @@ whitgl_fvec whitgl_facing_to_fvec(whitgl_int facing)
 	whitgl_ivec i = whitgl_facing_to_ivec(facing);
 	return whitgl_ivec_to_fvec(i);
 }
+whitgl_int whitgl_ivec_to_facing(whitgl_ivec vec)
+{
+	return whitgl_fvec_to_facing(whitgl_ivec_to_fvec(vec));
+}
+whitgl_int whitgl_fvec_to_facing(whitgl_fvec vec)
+{
+	if(vec.x*vec.x > vec.y*vec.y)
+		return vec.x > 0 ? 1 : 3;
+	else
+		return vec.y > 0 ? 2 : 0;
+}
+
 
 void whitgl_randseed(whitgl_int seed)
 {

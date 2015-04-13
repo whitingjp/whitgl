@@ -100,6 +100,8 @@ whitgl_float whitgl_fvec_to_angle(whitgl_fvec in);
 
 whitgl_ivec whitgl_facing_to_ivec(whitgl_int facing);
 whitgl_fvec whitgl_facing_to_fvec(whitgl_int facing);
+whitgl_int whitgl_ivec_to_facing(whitgl_ivec vec);
+whitgl_int whitgl_fvec_to_facing(whitgl_fvec vec);
 
 void whitgl_randseed(whitgl_int seed);
 whitgl_int whitgl_randint(whitgl_int size);
