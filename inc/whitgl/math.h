@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+typedef bool whitgl_bool;
 typedef int64_t whitgl_int;
 typedef double whitgl_float;
 
