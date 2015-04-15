@@ -51,7 +51,7 @@ typedef enum
 	WHITGL_SHADER_MAX,
 } whitgl_shader_slot;
 
-#define WHITGL_MAX_SHADER_UNIFORMS (4)
+#define WHITGL_MAX_SHADER_UNIFORMS (8)
 #define WHITGL_MAX_SHADER_COLORS (4)
 typedef struct
 {

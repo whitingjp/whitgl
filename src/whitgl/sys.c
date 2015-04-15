@@ -177,12 +177,12 @@ void whitgl_set_shader_uniform(whitgl_shader_slot type, int uniform, float value
 {
 	if(type >= WHITGL_SHADER_MAX)
 	{
-		WHITGL_LOG("Invalid shader type %d", type);
+		WHITGL_PANIC("Invalid shader type %d", type);
 		return;
 	}
 	if(uniform < 0 || uniform >= WHITGL_MAX_SHADER_UNIFORMS || uniform >= shaders[type].shader.num_uniforms)
 	{
-		WHITGL_LOG("Invalid shader uniform %d", uniform);
+		WHITGL_PANIC("Invalid shader uniform %d", uniform);
 		return;
 	}
 	if(shaders[type].uniforms[uniform] != value)
@@ -193,12 +193,12 @@ void whitgl_set_shader_color(whitgl_shader_slot type, int color, whitgl_sys_colo
 {
 	if(type >= WHITGL_SHADER_MAX)
 	{
-		WHITGL_LOG("Invalid shader type %d", type);
+		WHITGL_PANIC("Invalid shader type %d", type);
 		return;
 	}
 	if(color < 0 || color >= WHITGL_MAX_SHADER_COLORS || color >= shaders[type].shader.num_colors)
 	{
-		WHITGL_LOG("Invalid shader uniform %d", color);
+		WHITGL_PANIC("Invalid shader uniform %d", color);
 		return;
 	}
 	if(shaders[type].colors[color].r != value.r ||
