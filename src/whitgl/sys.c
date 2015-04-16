@@ -109,7 +109,7 @@ whitgl_sys_setup _setup;
 
 void _whitgl_sys_glfw_error_callback(int code, const char* error)
 {
-	WHITGL_LOG("glfw error %d '%s'", code, error);
+	WHITGL_PANIC("glfw error %d '%s'", code, error);
 }
 
 void whitgl_sys_set_clear_color(whitgl_sys_color col)
@@ -125,7 +125,7 @@ bool whitgl_change_shader(whitgl_shader_slot type, whitgl_shader shader)
 {
 	if(type >= WHITGL_SHADER_MAX)
 	{
-		WHITGL_LOG("Invalid shader type %d", type);
+		WHITGL_PANIC("Invalid shader type %d", type);
 		return false;
 	}
 	shaders[type].shader = shader;
@@ -147,7 +147,7 @@ bool whitgl_change_shader(whitgl_shader_slot type, whitgl_shader shader)
 	{
 		char buffer[512];
 		glGetShaderInfoLog( vertexShader, 512, NULL, buffer );
-		WHITGL_LOG(buffer);
+		WHITGL_PANIC(buffer);
 		return false;
 	}
 
@@ -160,7 +160,7 @@ bool whitgl_change_shader(whitgl_shader_slot type, whitgl_shader shader)
 	{
 		char buffer[512];
 		glGetShaderInfoLog( fragmentShader, 512, NULL, buffer );
-		WHITGL_LOG(buffer);
+		WHITGL_PANIC(buffer);
 		return false;
 	}
 
@@ -220,7 +220,7 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	result = glfwInit();
 	if(!result)
 	{
-		WHITGL_LOG("Failed to initialize GLFW");
+		WHITGL_PANIC("Failed to initialize GLFW");
 		exit( EXIT_FAILURE );
 	}
 
@@ -267,7 +267,7 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	}
 	if(!_window)
 	{
-		WHITGL_LOG("Failed to open GLFW window");
+		WHITGL_PANIC("Failed to open GLFW window");
 		exit( EXIT_FAILURE );
 	}
 	glfwMakeContextCurrent(_window);
@@ -609,7 +609,7 @@ void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb src, whitgl_iaabb dest)
 	}
 	if(index == -1)
 	{
-		WHITGL_LOG("ERR Cannot find image %d", id);
+		WHITGL_PANIC("ERR Cannot find image %d", id);
 		return;
 	}
 	if(buffer_curindex != index || buffer_index+1 >= buffer_num_quads)
@@ -755,7 +755,7 @@ void whitgl_sys_add_image(int id, const char* filename)
 	WHITGL_LOG("Adding image: %s", filename);
 	if(num_images >= WHITGL_IMAGE_MAX)
 	{
-		WHITGL_LOG("ERR Too many images");
+		WHITGL_PANIC("ERR Too many images");
 		return;
 	}
 
@@ -763,7 +763,7 @@ void whitgl_sys_add_image(int id, const char* filename)
 	bool success = loadPngImage(filename, &images[num_images].size.x, &images[num_images].size.y, &textureImage);
 	if(!success)
 	{
-		WHITGL_LOG("loadPngImage error");
+		WHITGL_PANIC("loadPngImage error");
 	}
 
 	GL_CHECK( glPixelStorei(GL_UNPACK_ALIGNMENT, 1) );
