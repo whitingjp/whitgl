@@ -23,9 +23,9 @@ pushd glew
 make extensions
 make
 popd
-curl -O ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng12/libpng-1.2.52.tar.gz
-tar -xzf libpng-1.2.52.tar.gz
-ln -s libpng-1.2.52 libpng
+curl -O ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng12/libpng-1.2.53.tar.gz
+tar -xzf libpng-1.2.53.tar.gz
+ln -s libpng-1.2.53 libpng
 pushd libpng
 make -f scripts/makefile.darwin
 popd

@@ -39,7 +39,7 @@ def rules(n, cflags, ldflags):
     command='ar rcs $out $in')
   if plat == 'Darwin':
     n.rule('link',
-      command='gcc $in $libs $ldflags -o $out && install_name_tool -change @rpath/libfmod.dylib @executable_path/libfmod.dylib $out && install_name_tool -change /usr/lib/libGLEW.1.11.0.dylib @executable_path/libGLEW.1.11.0.dylib $out',
+      command='gcc $in $libs $ldflags -o $out && install_name_tool -change @rpath/libfmod.dylib @executable_path/libfmod.dylib $out && install_name_tool -change /usr/lib/libGLEW.1.12.0.dylib @executable_path/libGLEW.1.12.0.dylib $out',
       description='LINK $out')
   else:
     n.rule('link',
@@ -88,7 +88,7 @@ def copy_libs(n, inputs, outdir):
     targets += n.build(joinp(outdir, 'zlib1.dll'), 'cp', joinp(inputs, 'zlib', 'zlib1.dll'))
   elif plat == 'Darwin':
     targets += n.build(joinp(outdir, 'libfmod.dylib'), 'cp', joinp(inputs, 'fmod', 'lib', 'libfmod.dylib'))
-    targets += n.build(joinp(outdir, 'libGLEW.1.11.0.dylib'), 'cp', joinp(inputs, 'glew', 'lib', 'libGLEW.1.11.0.dylib'))
+    targets += n.build(joinp(outdir, 'libGLEW.1.12.0.dylib'), 'cp', joinp(inputs, 'glew', 'lib', 'libGLEW.1.12.0.dylib'))
   else:
     targets += n.build(joinp(outdir, 'libfmod.so.5'), 'cp', joinp(inputs, 'fmod', 'api', 'lowlevel', 'lib', fmoddir, 'libfmod.so'))
   n.newline()
