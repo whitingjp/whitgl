@@ -56,6 +56,7 @@ bool whitgl_file_load(const char* fileName, int size, void* data)
   if(readSize != size)
   {
     WHITGL_LOG("Read size (%d) does not equal data structure size (%d)", readSize, size);
+    return false;
   }
   read = fread( data, 1, size, src );
   if(read != size)
