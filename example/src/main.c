@@ -6,6 +6,7 @@
 #include <whitgl/math.h>
 #include <whitgl/sound.h>
 #include <whitgl/sys.h>
+#include <whitgl/timer.h>
 
 const char* post_src = "\
 #version 150\
@@ -63,11 +64,20 @@ int main()
 
 	whitgl_sys_add_image(0, "data/sprites.png");
 
+	whitgl_timer_init();
+	whitgl_float elapsed_time = 0;
+
 	bool running = true;
 	while(running)
 	{
 		whitgl_sound_update();
-		whitgl_input_update();
+
+		elapsed_time += whitgl_timer_next_frame();
+		while(elapsed_time > 0)
+		{
+			whitgl_input_update();
+			elapsed_time -= 1.0/60.0;
+		}
 
 		whitgl_sys_draw_init();
 		draw(setup.size);
