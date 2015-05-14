@@ -65,30 +65,30 @@ int main()
 	whitgl_sys_add_image(0, "data/sprites.png");
 
 	whitgl_timer_init();
-	whitgl_float elapsed_time = 0;
+	whitgl_float uniform = 0;
 
 	bool running = true;
 	while(running)
 	{
 		whitgl_sound_update();
 
-		elapsed_time += whitgl_timer_next_frame();
-		while(elapsed_time > 0)
+		whitgl_timer_tick();
+		while(whitgl_timer_should_do_frame(60))
 		{
 			whitgl_input_update();
-			elapsed_time -= 1.0/60.0;
+			whitgl_ivec mousepos = whitgl_input_mouse_pos(setup.pixel_size);
+			uniform = ((float)mousepos.x-setup.size.x/2)/30;
+
+			if(whitgl_input_pressed(WHITGL_INPUT_ESC))
+				running = false;
+			if(whitgl_sys_should_close())
+				running = false;
 		}
 
 		whitgl_sys_draw_init();
 		draw(setup.size);
-		whitgl_ivec mousepos = whitgl_input_mouse_pos(setup.pixel_size);
-		whitgl_set_shader_uniform(WHITGL_SHADER_POST, 0, ((float)mousepos.x-setup.size.x/2)/30);
+		whitgl_set_shader_uniform(WHITGL_SHADER_POST, 0, uniform);
 		whitgl_sys_draw_finish();
-
-		if(whitgl_input_pressed(WHITGL_INPUT_ESC))
-			running = false;
-		if(whitgl_sys_should_close())
-			running = false;
 	}
 
 	whitgl_input_shutdown();
