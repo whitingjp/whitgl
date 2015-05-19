@@ -1,6 +1,9 @@
 #include <GLFW/glfw3.h>
 
 #include <whitgl/input.h>
+#include <whitgl/logging.h>
+
+#include <string.h>
 
 bool _heldInputs[WHITGL_INPUT_MAX];
 bool _pressedInputs[WHITGL_INPUT_MAX];
@@ -85,10 +88,14 @@ void whitgl_input_update()
 	for(i=0; i<WHITGL_INPUT_MAX; i++)
 		_oldInputs[i] = _heldInputs[i];
 
-	_heldInputs[WHITGL_INPUT_UP] = _press(GLFW_KEY_UP) || _press('K') || _press('W') || _press(GLFW_KEY_KP_8);
-	_heldInputs[WHITGL_INPUT_RIGHT] = _press(GLFW_KEY_RIGHT) || _press('L') || _press('D') || _press(GLFW_KEY_KP_6);
-	_heldInputs[WHITGL_INPUT_DOWN] = _press(GLFW_KEY_DOWN) || _press('J') || _press('S') || _press(GLFW_KEY_KP_2);
-	_heldInputs[WHITGL_INPUT_LEFT] = _press(GLFW_KEY_LEFT) || _press('H') || _press('A') || _press(GLFW_KEY_KP_4);
+	_heldInputs[WHITGL_INPUT_KEYBOARD_UP] = _press(GLFW_KEY_UP) || _press('K') || _press('W') || _press(GLFW_KEY_KP_8);
+	_heldInputs[WHITGL_INPUT_KEYBOARD_RIGHT] = _press(GLFW_KEY_RIGHT) || _press('L') || _press('D') || _press(GLFW_KEY_KP_6);
+	_heldInputs[WHITGL_INPUT_KEYBOARD_DOWN] = _press(GLFW_KEY_DOWN) || _press('J') || _press('S') || _press(GLFW_KEY_KP_2);
+	_heldInputs[WHITGL_INPUT_KEYBOARD_LEFT] = _press(GLFW_KEY_LEFT) || _press('H') || _press('A') || _press(GLFW_KEY_KP_4);
+	_heldInputs[WHITGL_INPUT_UP] = _heldInputs[WHITGL_INPUT_KEYBOARD_UP];
+	_heldInputs[WHITGL_INPUT_RIGHT] = _heldInputs[WHITGL_INPUT_KEYBOARD_RIGHT];
+	_heldInputs[WHITGL_INPUT_DOWN] = _heldInputs[WHITGL_INPUT_KEYBOARD_DOWN];
+	_heldInputs[WHITGL_INPUT_LEFT] = _heldInputs[WHITGL_INPUT_KEYBOARD_LEFT];
 	_heldInputs[WHITGL_INPUT_ESC] = _press(GLFW_KEY_ESCAPE);
 	_heldInputs[WHITGL_INPUT_A] = _press('Z') || _press(' ') || _press(GLFW_KEY_ENTER);
 	_heldInputs[WHITGL_INPUT_B] = _press('X');
@@ -119,12 +126,23 @@ void whitgl_input_update()
 			joystick.y = _deadzone(axes[1]);
 		}
 		const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1,&count);
+		const char* joyname = glfwGetJoystickName(GLFW_JOYSTICK_1);
+		bool is_ps3 = strncmp(joyname, "PLAYSTATION(R)3 Controller", 26)==0;
 		if(count >= 4)
 		{
-			_heldInputs[WHITGL_INPUT_A] |= buttons[0];
-			_heldInputs[WHITGL_INPUT_B] |= buttons[1];
-			_heldInputs[WHITGL_INPUT_X] |= buttons[2];
-			_heldInputs[WHITGL_INPUT_Y] |= buttons[3];
+			if(is_ps3)
+			{
+				_heldInputs[WHITGL_INPUT_A] |= buttons[14];
+				_heldInputs[WHITGL_INPUT_B] |= buttons[13];
+				_heldInputs[WHITGL_INPUT_X] |= buttons[15];
+				_heldInputs[WHITGL_INPUT_X] |= buttons[12];
+			} else
+			{
+				_heldInputs[WHITGL_INPUT_A] |= buttons[0];
+				_heldInputs[WHITGL_INPUT_B] |= buttons[1];
+				_heldInputs[WHITGL_INPUT_X] |= buttons[2];
+				_heldInputs[WHITGL_INPUT_Y] |= buttons[3];
+			}
 		}
 		if(count >= 8)
 		{
