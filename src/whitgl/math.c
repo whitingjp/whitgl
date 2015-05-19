@@ -210,6 +210,13 @@ whitgl_fvec whitgl_fvec_from_angle(whitgl_float a)
 	out.y = cos(a);
 	return out;
 }
+whitgl_fvec whitgl_fvec_interpolate(whitgl_fvec a, whitgl_fvec b, whitgl_float ratio)
+{
+	whitgl_fvec out = whitgl_fvec_zero;
+	out = whitgl_fvec_add(out, whitgl_fvec_scale(a, whitgl_fvec_val(1-ratio)));
+	out = whitgl_fvec_add(out, whitgl_fvec_scale(b, whitgl_fvec_val(ratio)));
+	return out;
+}
 
 whitgl_iaabb whitgl_iaabb_add(whitgl_iaabb a, whitgl_ivec b)
 {
