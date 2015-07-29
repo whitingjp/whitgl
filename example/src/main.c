@@ -24,10 +24,8 @@ void main()\
 
 void draw(whitgl_ivec size)
 {
-	(void)size;
-	whitgl_iaabb screen = {{0, 0}, {size.x, size.y}};
-	whitgl_sys_color col = {0x35, 0x52, 0x76, 0xff};
-	whitgl_sys_draw_iaabb(screen, col);
+	whitgl_sprite full = {1, {0,0}, size};
+	whitgl_sys_draw_sprite(full, whitgl_ivec_zero, whitgl_ivec_zero);
 	whitgl_sprite sprite = {0, {0,0},{16,16}};
 	whitgl_ivec frametr = {1, 0};
 	whitgl_ivec pos = {16,0};
@@ -63,6 +61,17 @@ int main()
 	whitgl_sound_play(0, 1);
 
 	whitgl_sys_add_image(0, "data/sprites.png");
+	unsigned char data_texture[32*32*4*4];
+	whitgl_int i;
+	for(i=0; i<32*32*4; i+=4)
+	{
+		whitgl_int pixel = i/4;
+		data_texture[i] = (pixel%32)*8;
+		data_texture[i+1] = (pixel/32)*8;
+		data_texture[i+2] = whitgl_randint(255);
+		data_texture[i+3] = 255;
+	}
+	whitgl_sys_add_image_from_data(1, setup.size, data_texture);
 
 	whitgl_timer_init();
 	whitgl_float uniform = 0;

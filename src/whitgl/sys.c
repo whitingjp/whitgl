@@ -750,22 +750,16 @@ bool loadPngImage(const char *name, whitgl_int *outWidth, whitgl_int *outHeight,
 	return true;
 }
 
-void whitgl_sys_add_image(int id, const char* filename)
+void whitgl_sys_add_image_from_data(int id, whitgl_ivec size, unsigned char* data)
 {
-	WHITGL_LOG("Adding image: %s", filename);
+	WHITGL_LOG("Adding image from data");
 	if(num_images >= WHITGL_IMAGE_MAX)
 	{
 		WHITGL_PANIC("ERR Too many images");
 		return;
 	}
 
-	GLubyte *textureImage;
-	bool success = loadPngImage(filename, &images[num_images].size.x, &images[num_images].size.y, &textureImage);
-	if(!success)
-	{
-		WHITGL_PANIC("loadPngImage error");
-	}
-
+	images[num_images].size = size;
 	GL_CHECK( glPixelStorei(GL_UNPACK_ALIGNMENT, 1) );
 	GL_CHECK( glPixelStorei(GL_PACK_LSB_FIRST, 1) );
 	GL_CHECK( glGenTextures(1, &images[num_images].gluint ) );
@@ -775,13 +769,25 @@ void whitgl_sys_add_image(int id, const char* filename)
 	GL_CHECK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE) );
 	GL_CHECK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST) );
 	GL_CHECK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST) );
-	GL_CHECK( glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, images[num_images].size.x,
-				 images[num_images].size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-				 textureImage) );
-	free(textureImage);
+	GL_CHECK( glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x,
+				 size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+				 data) );
 
 	images[num_images].id = id;
 	num_images++;
+}
+
+void whitgl_sys_add_image(int id, const char* filename)
+{
+	GLubyte *textureImage;
+	whitgl_ivec size;
+	bool success = loadPngImage(filename, &size.x, &size.y, &textureImage);
+	if(!success)
+	{
+		WHITGL_PANIC("loadPngImage error");
+	}
+	whitgl_sys_add_image_from_data(id, size, textureImage);
+	free(textureImage);
 }
 
 double whitgl_sys_get_time()
