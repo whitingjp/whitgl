@@ -633,7 +633,7 @@ void whitgl_sys_draw_sprite(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec
 	whitgl_sys_draw_tex_iaabb(sprite.image, src, dest);
 }
 
-bool loadPngImage(const char *name, whitgl_int *outWidth, whitgl_int *outHeight, GLubyte **outData)
+bool whitgl_sys_load_png(const char *name, whitgl_int *outWidth, whitgl_int *outHeight, unsigned char **outData)
 {
 	png_structp png_ptr;
 	png_infop info_ptr;
@@ -810,7 +810,7 @@ void whitgl_sys_add_image(int id, const char* filename)
 {
 	GLubyte *textureImage;
 	whitgl_ivec size;
-	bool success = loadPngImage(filename, &size.x, &size.y, &textureImage);
+	bool success = whitgl_sys_load_png(filename, &size.x, &size.y, &textureImage);
 	if(!success)
 	{
 		WHITGL_PANIC("loadPngImage error");

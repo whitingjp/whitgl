@@ -79,6 +79,7 @@ void whitgl_sys_draw_finish();
 
 void whitgl_sys_add_image_from_data(int id, whitgl_ivec size, unsigned char* data);
 void whitgl_sys_update_image_from_data(int id, whitgl_ivec size, unsigned char* data);
+bool whitgl_sys_load_png(const char *name, whitgl_int *outWidth, whitgl_int *outHeight, unsigned char **outData);
 void whitgl_sys_add_image(int id, const char* filename);
 void whitgl_sys_image_from_data(int id, whitgl_ivec size, const unsigned char* data);
 void whitgl_sys_draw_iaabb(whitgl_iaabb rectangle, whitgl_sys_color col);
