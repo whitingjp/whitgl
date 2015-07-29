@@ -777,6 +777,35 @@ void whitgl_sys_add_image_from_data(int id, whitgl_ivec size, unsigned char* dat
 	num_images++;
 }
 
+void whitgl_sys_update_image_from_data(int id, whitgl_ivec size, unsigned char* data)
+{
+	int index = -1;
+	int i;
+	for(i=0; i<num_images; i++)
+	{
+		if(images[i].id == id)
+		{
+			index = i;
+			break;
+		}
+	}
+	if(index == -1)
+	{
+		WHITGL_PANIC("ERR Cannot find image %d", id);
+		return;
+	}
+	if(images[index].size.x != size.x || images[index].size.y != size.y)
+	{
+		WHITGL_PANIC("ERR Image sizes don't match");
+		return;
+	}
+	GL_CHECK( glActiveTexture( GL_TEXTURE0 ) );
+	GL_CHECK( glBindTexture(GL_TEXTURE_2D, images[index].gluint) );
+	GL_CHECK( glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x,
+				 size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+				 data) );
+}
+
 void whitgl_sys_add_image(int id, const char* filename)
 {
 	GLubyte *textureImage;

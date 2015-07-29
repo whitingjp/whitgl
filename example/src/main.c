@@ -61,14 +61,14 @@ int main()
 	whitgl_sound_play(0, 1);
 
 	whitgl_sys_add_image(0, "data/sprites.png");
-	unsigned char data_texture[32*32*4*4];
+	unsigned char data_texture[setup.size.x*setup.size.y*4];
 	whitgl_int i;
-	for(i=0; i<32*32*4; i+=4)
+	for(i=0; i<setup.size.x*setup.size.y*4; i+=4)
 	{
 		whitgl_int pixel = i/4;
 		data_texture[i] = (pixel%32)*8;
 		data_texture[i+1] = (pixel/32)*8;
-		data_texture[i+2] = whitgl_randint(255);
+		data_texture[i+2] = whitgl_randint(32)+128;
 		data_texture[i+3] = 255;
 	}
 	whitgl_sys_add_image_from_data(1, setup.size, data_texture);
@@ -93,6 +93,11 @@ int main()
 			if(whitgl_sys_should_close())
 				running = false;
 		}
+
+		for(i=0; i<setup.size.x*setup.size.y*4; i+=4)
+			data_texture[i+2] = whitgl_randint(32)+128;
+
+		whitgl_sys_update_image_from_data(1, setup.size, data_texture);
 
 		whitgl_sys_draw_init();
 		draw(setup.size);
