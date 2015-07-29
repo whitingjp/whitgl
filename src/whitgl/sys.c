@@ -302,7 +302,7 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	GL_CHECK( glGenTextures(1, &intermediateTexture) );
 	GL_CHECK( glBindTexture(GL_TEXTURE_2D, intermediateTexture) );
 	WHITGL_LOG("Creating framebuffer glTexImage2D");
-	GL_CHECK( glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, setup->size.x, setup->size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0) );
+	GL_CHECK( glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, setup->size.x, setup->size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0) );
 	GL_CHECK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE) );
 	GL_CHECK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE) );
 	GL_CHECK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST) );
