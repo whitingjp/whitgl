@@ -16,7 +16,7 @@ whitgl_int whitgl_imax(whitgl_int a, whitgl_int b)
 }
 whitgl_int whitgl_iclamp(whitgl_int a, whitgl_int min, whitgl_int max)
 {
-	if(min > max) WHITGL_LOG("ERR min > than max!");
+	if(min > max) WHITGL_PANIC("ERR min > than max!");
 	if(a < min) return min;
 	if(a > max) return max;
 	return a;
