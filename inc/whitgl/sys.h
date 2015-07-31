@@ -6,13 +6,20 @@
 
 #include <whitgl/math.h>
 
+typedef enum
+{
+	CURSOR_SHOW,
+	CURSOR_HIDE,
+	CURSOR_DISABLE,
+} whitgl_sys_cursor_mode;
+
 typedef struct
 {
 	const char* name;
 	whitgl_ivec size;
 	int pixel_size;
 	bool fullscreen;
-	bool disable_mouse_cursor;
+	whitgl_sys_cursor_mode cursor;
 	bool vsync;
 	bool exact_size;
 	bool over_render;
@@ -23,7 +30,7 @@ static const whitgl_sys_setup whitgl_sys_setup_zero =
 	{120, 80},
 	4,
 	false,
-	false,
+	CURSOR_SHOW,
 	true,
 	false,
 	false,

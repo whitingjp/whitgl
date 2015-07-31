@@ -327,11 +327,16 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	WHITGL_LOG("Setting close callback");
 	glfwSetWindowCloseCallback(_window, _whitgl_sys_close_callback);
 
-	if(setup->disable_mouse_cursor)
+	// Set mouse cursor mode
+	WHITGL_LOG("Disable mouse cursor");
+	whitgl_int glfw_mode;
+	switch(setup->cursor)
 	{
-		WHITGL_LOG("Disable mouse cursor");
-		glfwSetInputMode (_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		case CURSOR_SHOW: glfw_mode = GLFW_CURSOR_NORMAL; break;
+		case CURSOR_HIDE: glfw_mode = GLFW_CURSOR_HIDDEN; break;
+		case CURSOR_DISABLE: glfw_mode = GLFW_CURSOR_DISABLED; break;
 	}
+	glfwSetInputMode (_window, GLFW_CURSOR, glfw_mode);
 
 	int i;
 	for(i=0; i<WHITGL_IMAGE_MAX; i++)
