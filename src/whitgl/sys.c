@@ -332,9 +332,11 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	whitgl_int glfw_mode;
 	switch(setup->cursor)
 	{
-		case CURSOR_SHOW: glfw_mode = GLFW_CURSOR_NORMAL; break;
 		case CURSOR_HIDE: glfw_mode = GLFW_CURSOR_HIDDEN; break;
 		case CURSOR_DISABLE: glfw_mode = GLFW_CURSOR_DISABLED; break;
+		case CURSOR_SHOW:
+		default:
+			glfw_mode = GLFW_CURSOR_NORMAL; break;
 	}
 	glfwSetInputMode (_window, GLFW_CURSOR, glfw_mode);
 
