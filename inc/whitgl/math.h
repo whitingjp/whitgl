@@ -51,6 +51,10 @@ whitgl_float whitgl_fsqrt(whitgl_float a);
 whitgl_float whitgl_fwrap(whitgl_float a, whitgl_float min, whitgl_float max);
 whitgl_float whitgl_fsin(whitgl_float a);
 whitgl_float whitgl_fcos(whitgl_float a);
+whitgl_float whitgl_ftan(whitgl_float a);
+whitgl_float whitgl_fasin(whitgl_float a);
+whitgl_float whitgl_facos(whitgl_float a);
+whitgl_float whitgl_fatan(whitgl_float a);
 
 whitgl_ivec whitgl_ivec_val(whitgl_int);
 whitgl_ivec whitgl_ivec_add(whitgl_ivec a, whitgl_ivec b);

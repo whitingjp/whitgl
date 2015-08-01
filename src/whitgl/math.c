@@ -95,6 +95,22 @@ whitgl_float whitgl_fcos(whitgl_float a)
 {
 	return cos(a);
 }
+whitgl_float whitgl_ftan(whitgl_float a)
+{
+	return tan(a);
+}
+whitgl_float whitgl_fasin(whitgl_float a)
+{
+	return asin(a);
+}
+whitgl_float whitgl_facos(whitgl_float a)
+{
+	return acos(a);
+}
+whitgl_float whitgl_fatan(whitgl_float a)
+{
+	return atan(a);
+}
 
 whitgl_ivec whitgl_ivec_val(whitgl_int a)
 {
