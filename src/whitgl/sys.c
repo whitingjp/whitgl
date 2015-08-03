@@ -731,18 +731,23 @@ bool whitgl_sys_load_png(const char *name, whitgl_int *outWidth, whitgl_int *out
 	int bit_depth;
 	png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
 				 &interlace_type, NULL, NULL);
-	*outWidth = width;
-	*outHeight = height;
+	if(outWidth)
+		*outWidth = width;
+	if(outHeight)
+		*outHeight = height;
 
 	unsigned int row_bytes = png_get_rowbytes(png_ptr, info_ptr);
-	*outData = (unsigned char*) malloc(row_bytes *  (*outHeight));
-
-	png_bytepp row_pointers = png_get_rows(png_ptr, info_ptr);
-
-	int i;
-	for (i = 0; i < *outHeight; i++)
+	if(outData)
 	{
-		memcpy(*outData+(row_bytes * (i)), row_pointers[i], row_bytes);
+		*outData = (unsigned char*) malloc(row_bytes * height);
+
+		png_bytepp row_pointers = png_get_rows(png_ptr, info_ptr);
+
+		png_uint_32 i;
+		for (i = 0; i < height; i++)
+		{
+			memcpy(*outData+(row_bytes * (i)), row_pointers[i], row_bytes);
+		}
 	}
 
 	/* Clean up after the read,
