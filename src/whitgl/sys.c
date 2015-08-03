@@ -841,3 +841,13 @@ whitgl_sys_color whitgl_sys_color_blend(whitgl_sys_color a, whitgl_sys_color b, 
 	out.a = a.a*inv + b.a*factor;
 	return out;
 }
+whitgl_sys_color whitgl_sys_color_multiply(whitgl_sys_color a, whitgl_sys_color b)
+{
+	whitgl_sys_color out;
+	out.r = ((a.r/256.0)*(b.r/256.0))*256;
+	out.g = ((a.g/256.0)*(b.g/256.0))*256;
+	out.b = ((a.b/256.0)*(b.b/256.0))*256;
+	out.a = ((a.a/256.0)*(b.a/256.0))*256;
+
+	return out;
+}
