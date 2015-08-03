@@ -103,6 +103,8 @@ void whitgl_input_update()
 	_heldInputs[WHITGL_INPUT_Y] = _press('V');
 	_heldInputs[WHITGL_INPUT_START] = _press('B');
 	_heldInputs[WHITGL_INPUT_SELECT] = _press('N');
+	_heldInputs[WHITGL_INPUT_Z_UP] = _press('Q');
+	_heldInputs[WHITGL_INPUT_Z_DOWN] = _press('E');
 	_heldInputs[WHITGL_INPUT_0] = _press('0');
 	_heldInputs[WHITGL_INPUT_1] = _press('1');
 	_heldInputs[WHITGL_INPUT_2] = _press('2');
