@@ -8,14 +8,14 @@ git checkout release
 ./configure.py --bootstrap
 popd
 curl -O https://raw.githubusercontent.com/martine/ninja/master/misc/ninja_syntax.py
-curl -O http://www.fmod.org/download/fmodstudio/api/Mac/fmodstudioapi10510mac-installer.dmg 
+curl -O http://www.fmod.org/download/fmodstudio/api/Mac/fmodstudioapi10510mac-installer.dmg
 hdiutil mount fmodstudioapi10510mac-installer.dmg
 cp -r /Volumes/FMOD\ Programmers\ API\ Mac/FMOD\ Programmers\ API/api/lowlevel/ fmod
 hdiutil unmount /Volumes/FMOD\ Programmers\ API\ Mac/
 git clone --depth=1 https://github.com/glfw/glfw.git
 mkdir glfw/build
 pushd glfw/build
-cmake ..
+cmake .. -DGLFW_BUILD_EXAMPLES=off -DGLFW_BUILD_TESTS=off
 make
 popd
 git clone --depth=1 https://github.com/nigels-com/glew.git
