@@ -109,6 +109,8 @@ whitgl_fvec whitgl_facing_to_fvec(whitgl_int facing);
 whitgl_int whitgl_ivec_to_facing(whitgl_ivec vec);
 whitgl_int whitgl_fvec_to_facing(whitgl_fvec vec);
 
+bool whitgl_ray_circle_intersect(whitgl_fcircle circ, whitgl_fvec start, whitgl_fvec speed, whitgl_float* t1, whitgl_float* t2);
+
 void whitgl_randseed(whitgl_int seed);
 whitgl_int whitgl_randint(whitgl_int size);
 whitgl_float whitgl_randfloat();

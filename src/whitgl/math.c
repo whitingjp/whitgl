@@ -421,6 +421,22 @@ whitgl_int whitgl_fvec_to_facing(whitgl_fvec vec)
 		return vec.y > 0 ? 2 : 0;
 }
 
+bool whitgl_ray_circle_intersect(whitgl_fcircle circ, whitgl_fvec start, whitgl_fvec speed, whitgl_float* t1, whitgl_float* t2)
+{
+	whitgl_float a = speed.x*speed.x + speed.y*speed.y;
+	whitgl_float b = 2*speed.x*(start.x-circ.pos.x) + 2*speed.y*(start.y-circ.pos.y);
+	whitgl_float c = circ.pos.x*circ.pos.x + circ.pos.y*circ.pos.y + start.x*start.x + start.y*start.y - 2*(circ.pos.x*start.x + circ.pos.y*start.y) - circ.size*circ.size;
+	whitgl_float discr = b*b - 4*a*c;
+	if(a!=0 && discr > 0)
+	{
+		// hit
+		discr = whitgl_fsqrt(discr);
+		*t1 = (-b - discr)/(2*a);
+		*t2 = (-b + discr)/(2*a);
+		return true;
+	}
+	return false;
+}
 
 void whitgl_randseed(whitgl_int seed)
 {
