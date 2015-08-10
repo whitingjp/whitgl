@@ -466,3 +466,12 @@ whitgl_ivec whitgl_camera(whitgl_ivec pos, whitgl_ivec world_size, whitgl_ivec s
 		out.y = whitgl_iclamp(out.y, bound.y, 0);
 	return out;
 }
+
+whitgl_fvec whitgl_rotate_point_around_point(whitgl_fvec src, whitgl_fvec pivot, whitgl_float angle)
+{
+	whitgl_float c = whitgl_fcos(angle);
+	whitgl_float s = whitgl_fsin(angle);
+	whitgl_fvec mp = whitgl_fvec_sub(src, pivot);
+	whitgl_fvec rotated = {mp.x*c - mp.y*s, mp.x*s + mp.y*c};
+	return whitgl_fvec_add(pivot, rotated);
+}
