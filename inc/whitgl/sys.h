@@ -41,6 +41,9 @@ typedef struct
 	unsigned char r,g,b,a;
 } whitgl_sys_color;
 static const whitgl_sys_color whitgl_sys_color_zero = {0,0,0,0};
+static const whitgl_sys_color whitgl_sys_color_white = {0xff,0xff,0xff,0xff};
+static const whitgl_sys_color whitgl_sys_color_black = {0x00,0x00,0x00,0xff};
+
 
 typedef struct
 {
