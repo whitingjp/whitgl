@@ -7,9 +7,17 @@
 
 bool _heldInputs[WHITGL_INPUT_MAX];
 bool _pressedInputs[WHITGL_INPUT_MAX];
-whitgl_fvec joystick;
+whitgl_fvec _joystick;
+whitgl_float _scroll;
 
 extern GLFWwindow* _window;
+
+void _whitgl_scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	(void)window;
+	(void)xoffset;
+	_scroll += yoffset;
+}
 
 void whitgl_input_init()
 {
@@ -19,12 +27,16 @@ void whitgl_input_init()
 		_heldInputs[i] = false;
 		_pressedInputs[i] = false;
 	}
-	joystick = whitgl_fvec_zero;
+	_joystick = whitgl_fvec_zero;
 	// Detect key presses between calls to GetKey
 	// glfwSetInputMode (_window, GLFW_STICKY_KEYS, GL_TRUE);
+	glfwSetScrollCallback(_window, _whitgl_scroll_callback);
 }
 
-void whitgl_input_shutdown() {}
+void whitgl_input_shutdown()
+{
+	glfwSetScrollCallback(_window, NULL);
+}
 
 bool whitgl_input_down(whitgl_input input)
 {
@@ -51,7 +63,7 @@ whitgl_ivec whitgl_input_mouse_pos(int pixel_size)
 
 whitgl_fvec whitgl_input_joystick()
 {
-	return joystick;
+	return _joystick;
 }
 
 bool _press(int key)
@@ -115,17 +127,20 @@ void whitgl_input_update()
 	_heldInputs[WHITGL_INPUT_7] = _press('7');
 	_heldInputs[WHITGL_INPUT_8] = _press('8');
 	_heldInputs[WHITGL_INPUT_9] = _press('9');
-	_heldInputs[WHITGL_INPUT_MOUSE_LEFT] = _mousepress(GLFW_MOUSE_BUTTON_1);
-	_heldInputs[WHITGL_INPUT_MOUSE_RIGHT] = _mousepress(GLFW_MOUSE_BUTTON_2);
-	_heldInputs[WHITGL_INPUT_MOUSE_MIDDLE] = _mousepress(GLFW_MOUSE_BUTTON_3);
+	_heldInputs[WHITGL_INPUT_MOUSE_LEFT] = _mousepress(GLFW_MOUSE_BUTTON_LEFT);
+	_heldInputs[WHITGL_INPUT_MOUSE_RIGHT] = _mousepress(GLFW_MOUSE_BUTTON_RIGHT);
+	_heldInputs[WHITGL_INPUT_MOUSE_MIDDLE] = _mousepress(GLFW_MOUSE_BUTTON_MIDDLE);
+	_heldInputs[WHITGL_INPUT_MOUSE_SCROLL_UP] = _scroll < 0;
+	_heldInputs[WHITGL_INPUT_MOUSE_SCROLL_DOWN] = _scroll > 0;
+	_scroll = 0;
 	if(glfwJoystickPresent(GLFW_JOYSTICK_1))
 	{
 		int count;
 		const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
 		if(count >= 2)
 		{
-			joystick.x = _deadzone(axes[0]);
-			joystick.y = _deadzone(axes[1]);
+			_joystick.x = _deadzone(axes[0]);
+			_joystick.y = _deadzone(axes[1]);
 		}
 		const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1,&count);
 		const char* joyname = glfwGetJoystickName(GLFW_JOYSTICK_1);
@@ -152,18 +167,18 @@ void whitgl_input_update()
 		}
 	} else
 	{
-		joystick.x = 0;
-		joystick.y = 0;
+		_joystick.x = 0;
+		_joystick.y = 0;
 	}
-	if(_heldInputs[WHITGL_INPUT_UP] && !_heldInputs[WHITGL_INPUT_DOWN]) joystick.y = -1;
-	if(_heldInputs[WHITGL_INPUT_RIGHT] && !_heldInputs[WHITGL_INPUT_LEFT]) joystick.x = 1;
-	if(_heldInputs[WHITGL_INPUT_DOWN] && !_heldInputs[WHITGL_INPUT_UP]) joystick.y = 1;
-	if(_heldInputs[WHITGL_INPUT_LEFT] && !_heldInputs[WHITGL_INPUT_RIGHT]) joystick.x = -1;
+	if(_heldInputs[WHITGL_INPUT_UP] && !_heldInputs[WHITGL_INPUT_DOWN]) _joystick.y = -1;
+	if(_heldInputs[WHITGL_INPUT_RIGHT] && !_heldInputs[WHITGL_INPUT_LEFT]) _joystick.x = 1;
+	if(_heldInputs[WHITGL_INPUT_DOWN] && !_heldInputs[WHITGL_INPUT_UP]) _joystick.y = 1;
+	if(_heldInputs[WHITGL_INPUT_LEFT] && !_heldInputs[WHITGL_INPUT_RIGHT]) _joystick.x = -1;
 	float button_dead = 0.1;
-	if(joystick.y < -button_dead) _heldInputs[WHITGL_INPUT_UP] = true;
-	if(joystick.x > button_dead) _heldInputs[WHITGL_INPUT_RIGHT] = true;
-	if(joystick.y > button_dead) _heldInputs[WHITGL_INPUT_DOWN] = true;
-	if(joystick.x < -button_dead) _heldInputs[WHITGL_INPUT_LEFT] = true;
+	if(_joystick.y < -button_dead) _heldInputs[WHITGL_INPUT_UP] = true;
+	if(_joystick.x > button_dead) _heldInputs[WHITGL_INPUT_RIGHT] = true;
+	if(_joystick.y > button_dead) _heldInputs[WHITGL_INPUT_DOWN] = true;
+	if(_joystick.x < -button_dead) _heldInputs[WHITGL_INPUT_LEFT] = true;
 
 	_heldInputs[WHITGL_INPUT_ANY] = false;
 	for(i=0; i<WHITGL_INPUT_ANY; i++)
