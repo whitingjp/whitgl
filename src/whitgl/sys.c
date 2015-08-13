@@ -628,7 +628,13 @@ void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb src, whitgl_iaabb dest)
 	_whitgl_populate_vertices(&buffer_vertices[buffer_index*6*4], src, dest, images[index].size);
 	buffer_index++;
 }
+
 void whitgl_sys_draw_sprite(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec pos)
+{
+	whitgl_sys_draw_sprite_sized(sprite, frame, pos, sprite.size);
+}
+
+void whitgl_sys_draw_sprite_sized(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec pos, whitgl_ivec dest_size)
 {
 	whitgl_iaabb src = whitgl_iaabb_zero;
 	whitgl_ivec offset = whitgl_ivec_scale(sprite.size, frame);
@@ -636,7 +642,7 @@ void whitgl_sys_draw_sprite(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec
 	src.b = whitgl_ivec_add(src.a, sprite.size);
 	whitgl_iaabb dest = whitgl_iaabb_zero;
 	dest.a = pos;
-	dest.b = whitgl_ivec_add(dest.a, sprite.size);
+	dest.b = whitgl_ivec_add(dest.a, dest_size);
 	whitgl_sys_draw_tex_iaabb(sprite.image, src, dest);
 }
 
