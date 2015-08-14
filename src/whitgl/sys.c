@@ -845,20 +845,21 @@ double whitgl_sys_get_time()
 whitgl_sys_color whitgl_sys_color_blend(whitgl_sys_color a, whitgl_sys_color b, whitgl_float factor)
 {
 	whitgl_sys_color out;
-	float inv = 1-factor;
-	out.r = a.r*inv + b.r*factor;
-	out.g = a.g*inv + b.g*factor;
-	out.b = a.b*inv + b.b*factor;
-	out.a = a.a*inv + b.a*factor;
+	whitgl_int fac = 256*factor;
+	whitgl_int inv = 256*(1-factor);
+	out.r = (a.r*inv + b.r*fac)>>8;
+	out.g = (a.g*inv + b.g*fac)>>8;
+	out.b = (a.b*inv + b.b*fac)>>8;
+	out.a = (a.a*inv + b.a*fac)>>8;
 	return out;
 }
 whitgl_sys_color whitgl_sys_color_multiply(whitgl_sys_color a, whitgl_sys_color b)
 {
 	whitgl_sys_color out;
-	out.r = ((a.r/256.0)*(b.r/256.0))*256;
-	out.g = ((a.g/256.0)*(b.g/256.0))*256;
-	out.b = ((a.b/256.0)*(b.b/256.0))*256;
-	out.a = ((a.a/256.0)*(b.a/256.0))*256;
+	out.r = (((whitgl_int)a.r)*((whitgl_int)b.r))>>8;
+	out.g = (((whitgl_int)a.g)*((whitgl_int)b.g))>>8;
+	out.b = (((whitgl_int)a.b)*((whitgl_int)b.b))>>8;
+	out.a = (((whitgl_int)a.a)*((whitgl_int)b.a))>>8;
 
 	return out;
 }
