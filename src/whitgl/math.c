@@ -31,6 +31,11 @@ whitgl_int whitgl_iwrap(whitgl_int a, whitgl_int min, whitgl_int max)
 		a -= size;
 	return a;
 }
+whitgl_int whitgl_ipow(whitgl_int a, whitgl_int b)
+{
+	return pow(a,b);
+}
+
 whitgl_ivec whitgl_ivec_bound(whitgl_ivec a, whitgl_iaabb bounds)
 {
 	if(bounds.a.x > bounds.b.x)
@@ -111,6 +116,10 @@ whitgl_float whitgl_fatan(whitgl_float a)
 {
 	return atan(a);
 }
+whitgl_float whitgl_fpow(whitgl_float a, whitgl_float b)
+{
+	return pow(a,b);
+}
 
 whitgl_ivec whitgl_ivec_val(whitgl_int a)
 {
@@ -145,6 +154,10 @@ whitgl_ivec whitgl_ivec_divide(whitgl_ivec a, whitgl_ivec s)
 whitgl_int whitgl_ivec_sqmagnitude(whitgl_ivec a)
 {
 	return a.x * a.x + a.y * a.y;
+}
+whitgl_bool whitgl_ivec_eq(whitgl_ivec a, whitgl_ivec b)
+{
+	return a.x == b.x && a.y == b.y;
 }
 
 whitgl_fvec whitgl_fvec_val(whitgl_float a)
@@ -232,6 +245,10 @@ whitgl_fvec whitgl_fvec_interpolate(whitgl_fvec a, whitgl_fvec b, whitgl_float r
 	out.x = a.x*(1-ratio) + b.x*ratio;
 	out.y = a.y*(1-ratio) + b.y*ratio;
 	return out;
+}
+whitgl_bool whitgl_fvec_eq(whitgl_fvec a, whitgl_fvec b)
+{
+	return a.x == b.x && a.y == b.y;
 }
 
 whitgl_iaabb whitgl_iaabb_add(whitgl_iaabb a, whitgl_ivec b)
