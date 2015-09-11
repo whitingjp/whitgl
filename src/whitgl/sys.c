@@ -73,10 +73,18 @@ typedef struct
 	whitgl_shader shader;
 } whitgl_shader_data;
 
+typedef struct
+{
+	bool do_next;
+	char file[512];
+} whitgl_frame_capture;
+static const whitgl_frame_capture whitgl_frame_capture_zero = {false, {'\0'}};
+
 GLuint vbo;
 whitgl_shader_data shaders[WHITGL_SHADER_MAX];
 GLuint frameBuffer;
 GLuint intermediateTexture;
+whitgl_frame_capture capture;
 
 void _whitgl_check_gl_error(const char* stmt, const char *file, int line)
 {
@@ -347,6 +355,8 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 
 	_setup = *setup;
 
+	capture = whitgl_frame_capture_zero;
+
 	WHITGL_LOG("Sys initiated");
 
 	return true;
@@ -488,10 +498,14 @@ void whitgl_sys_draw_finish()
 
 	GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, 6 ) );
 
-	// unsigned char* buffer = malloc(_window_size.x*_window_size.y*4);
-	// glReadPixels(0, 0, _window_size.x, _window_size.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-	// whitgl_sys_save_png("../../../../../test.png", _window_size.x, _window_size.y, buffer);
-	// free(buffer);
+	if(capture.do_next)
+	{
+		unsigned char* buffer = malloc(_window_size.x*_window_size.y*4);
+		glReadPixels(0, 0, _window_size.x, _window_size.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+		whitgl_sys_save_png(capture.file, _window_size.x, _window_size.y, buffer);
+		free(buffer);
+		capture.do_next = false;
+	}
 
 	glfwSwapBuffers(_window);
 	glfwPollEvents();
@@ -849,6 +863,12 @@ void whitgl_sys_add_image_from_data(int id, whitgl_ivec size, unsigned char* dat
 
 	images[num_images].id = id;
 	num_images++;
+}
+void whitgl_sys_capture_frame(const char *name)
+{
+	capture = whitgl_frame_capture_zero;
+	capture.do_next = true;
+	strncpy(capture.file, name, sizeof(capture.file));
 }
 
 void whitgl_sys_update_image_from_data(int id, whitgl_ivec size, unsigned char* data)
