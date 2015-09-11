@@ -488,6 +488,11 @@ void whitgl_sys_draw_finish()
 
 	GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, 6 ) );
 
+	// unsigned char* buffer = malloc(_window_size.x*_window_size.y*4);
+	// glReadPixels(0, 0, _window_size.x, _window_size.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+	// whitgl_sys_save_png("../../../../../test.png", _window_size.x, _window_size.y, buffer);
+	// free(buffer);
+
 	glfwSwapBuffers(_window);
 	glfwPollEvents();
 	GL_CHECK( glDisable(GL_BLEND) );
