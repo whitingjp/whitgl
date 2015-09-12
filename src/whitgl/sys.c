@@ -827,7 +827,7 @@ bool whitgl_sys_save_png(const char *name, whitgl_int width, whitgl_int height, 
 	{
 		whitgl_int size = sizeof (uint8_t) * png_width * 4;
 		// png_byte *row = png_malloc (png, sizeof (uint8_t) * png_width * 4);
-		row_pointers[y] = &data[size*y];
+		row_pointers[height-1-y] = &data[size*y];
 	}
 
 	png_write_image(png, row_pointers);
