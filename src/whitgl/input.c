@@ -144,26 +144,29 @@ void whitgl_input_update()
 		}
 		const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1,&count);
 		const char* joyname = glfwGetJoystickName(GLFW_JOYSTICK_1);
-		bool is_ps3 = strncmp(joyname, "PLAYSTATION(R)3 Controller", 26)==0;
-		if(count >= 4)
+		// WHITGL_LOG("joyname %s", joyname);
+		if(strncmp(joyname, "PLAYSTATION(R)3 Controller", 26)==0)
 		{
-			if(is_ps3)
-			{
-				_heldInputs[WHITGL_INPUT_A] |= buttons[14];
-				_heldInputs[WHITGL_INPUT_B] |= buttons[13];
-				_heldInputs[WHITGL_INPUT_X] |= buttons[15];
-				_heldInputs[WHITGL_INPUT_X] |= buttons[12];
-			} else
-			{
-				_heldInputs[WHITGL_INPUT_A] |= buttons[0];
-				_heldInputs[WHITGL_INPUT_B] |= buttons[1];
-				_heldInputs[WHITGL_INPUT_X] |= buttons[2];
-				_heldInputs[WHITGL_INPUT_Y] |= buttons[3];
-			}
-		}
-		if(count >= 8)
+			_heldInputs[WHITGL_INPUT_A] |= buttons[14];
+			_heldInputs[WHITGL_INPUT_B] |= buttons[13];
+			_heldInputs[WHITGL_INPUT_X] |= buttons[15];
+			_heldInputs[WHITGL_INPUT_Y] |= buttons[12];
+			_heldInputs[WHITGL_INPUT_START] |= buttons[7]; // ??
+			_heldInputs[WHITGL_INPUT_ESC] |= buttons[7]; // ??
+		} else if(strncmp(joyname, "Xbox 360 Wired Controller", 26)==0)
 		{
-			_heldInputs[WHITGL_INPUT_START] |= buttons[7];
+			_heldInputs[WHITGL_INPUT_A] |= buttons[11];
+			_heldInputs[WHITGL_INPUT_B] |= buttons[12];
+			_heldInputs[WHITGL_INPUT_X] |= buttons[13];
+			_heldInputs[WHITGL_INPUT_Y] |= buttons[14];
+			_heldInputs[WHITGL_INPUT_START] |= buttons[4];
+			_heldInputs[WHITGL_INPUT_ESC] |= buttons[4];
+		} else if(count >= 4)
+		{
+			_heldInputs[WHITGL_INPUT_A] |= buttons[0];
+			_heldInputs[WHITGL_INPUT_B] |= buttons[1];
+			_heldInputs[WHITGL_INPUT_X] |= buttons[2];
+			_heldInputs[WHITGL_INPUT_Y] |= buttons[3];
 		}
 	} else
 	{
