@@ -8,6 +8,7 @@
 bool _heldInputs[WHITGL_INPUT_MAX];
 bool _pressedInputs[WHITGL_INPUT_MAX];
 whitgl_fvec _joystick;
+whitgl_fvec _joystick2;
 whitgl_float _scroll;
 
 extern GLFWwindow* _window;
@@ -64,6 +65,10 @@ whitgl_ivec whitgl_input_mouse_pos(int pixel_size)
 whitgl_fvec whitgl_input_joystick()
 {
 	return _joystick;
+}
+whitgl_fvec whitgl_input_joystick2()
+{
+	return _joystick2;
 }
 
 bool _press(int key)
@@ -142,6 +147,11 @@ void whitgl_input_update()
 			_joystick.x = _deadzone(axes[0]);
 			_joystick.y = _deadzone(axes[1]);
 		}
+		if(count >= 4)
+		{
+			_joystick2.x = _deadzone(axes[2]);
+			_joystick2.y = _deadzone(axes[3]);
+		}
 		const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1,&count);
 		const char* joyname = glfwGetJoystickName(GLFW_JOYSTICK_1);
 		// WHITGL_LOG("joyname %s", joyname);
@@ -172,6 +182,8 @@ void whitgl_input_update()
 	{
 		_joystick.x = 0;
 		_joystick.y = 0;
+		_joystick2.x = 0;
+		_joystick2.y = 0;
 	}
 	if(_heldInputs[WHITGL_INPUT_UP] && !_heldInputs[WHITGL_INPUT_DOWN]) _joystick.y = -1;
 	if(_heldInputs[WHITGL_INPUT_RIGHT] && !_heldInputs[WHITGL_INPUT_LEFT]) _joystick.x = 1;

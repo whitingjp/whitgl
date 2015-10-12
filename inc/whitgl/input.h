@@ -51,5 +51,6 @@ bool whitgl_input_down(whitgl_input input);
 bool whitgl_input_pressed(whitgl_input input);
 whitgl_ivec whitgl_input_mouse_pos(int pixel_size);
 whitgl_fvec whitgl_input_joystick();
+whitgl_fvec whitgl_input_joystick2();
 
 #endif // WHITGL_INPUT_H_
