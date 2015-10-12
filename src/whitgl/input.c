@@ -140,6 +140,8 @@ void whitgl_input_update()
 	_scroll = 0;
 	if(glfwJoystickPresent(GLFW_JOYSTICK_1))
 	{
+		const char* joyname = glfwGetJoystickName(GLFW_JOYSTICK_1);
+		// WHITGL_LOG("joyname %s", joyname);
 		int count;
 		const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
 		if(count >= 2)
@@ -149,12 +151,23 @@ void whitgl_input_update()
 		}
 		if(count >= 4)
 		{
-			_joystick2.x = _deadzone(axes[2]);
-			_joystick2.y = _deadzone(axes[3]);
+			if(strncmp(joyname, "Microsoft PC-joystick driver", 28)==0)
+			{
+				_joystick2.x = _deadzone(axes[4]);
+				_joystick2.y = _deadzone(axes[3]);
+			} else
+			{
+				_joystick2.x = _deadzone(axes[2]);
+				_joystick2.y = _deadzone(axes[3]);
+			}
 		}
 		const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1,&count);
-		const char* joyname = glfwGetJoystickName(GLFW_JOYSTICK_1);
-		// WHITGL_LOG("joyname %s", joyname);
+		// whitgl_int i;
+		// for(i=0; i<count; i++)
+		// {
+		// 	if(buttons[i])
+		// 		WHITGL_LOG("button held %d", i);
+		// }
 		if(strncmp(joyname, "PLAYSTATION(R)3 Controller", 26)==0)
 		{
 			_heldInputs[WHITGL_INPUT_A] |= buttons[14];
@@ -163,7 +176,7 @@ void whitgl_input_update()
 			_heldInputs[WHITGL_INPUT_Y] |= buttons[12];
 			_heldInputs[WHITGL_INPUT_START] |= buttons[7]; // ??
 			_heldInputs[WHITGL_INPUT_ESC] |= buttons[7]; // ??
-		} else if(strncmp(joyname, "Xbox 360 Wired Controller", 26)==0)
+		} else if(strncmp(joyname, "Xbox 360 Wired Controller", 25)==0)
 		{
 			_heldInputs[WHITGL_INPUT_A] |= buttons[11];
 			_heldInputs[WHITGL_INPUT_B] |= buttons[12];
@@ -171,6 +184,14 @@ void whitgl_input_update()
 			_heldInputs[WHITGL_INPUT_Y] |= buttons[14];
 			_heldInputs[WHITGL_INPUT_START] |= buttons[4];
 			_heldInputs[WHITGL_INPUT_ESC] |= buttons[4];
+		} else if(strncmp(joyname, "Microsoft PC-joystick driver", 28)==0)
+		{
+			_heldInputs[WHITGL_INPUT_A] |= buttons[0];
+			_heldInputs[WHITGL_INPUT_B] |= buttons[1];
+			_heldInputs[WHITGL_INPUT_X] |= buttons[2];
+			_heldInputs[WHITGL_INPUT_Y] |= buttons[3];
+			_heldInputs[WHITGL_INPUT_START] |= buttons[7];
+			_heldInputs[WHITGL_INPUT_ESC] |= buttons[7];
 		} else if(count >= 4)
 		{
 			_heldInputs[WHITGL_INPUT_A] |= buttons[0];
