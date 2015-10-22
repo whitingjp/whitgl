@@ -239,21 +239,26 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	// glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
 
-	whitgl_ivec screen_size;
 	if(setup->fullscreen)
 	{
 		const GLFWvidmode * mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-		screen_size.x = mode->width;
-		screen_size.y = mode->height;
 		WHITGL_LOG("Opening fullscreen w%d h%d", mode->width, mode->height);
 		_window = glfwCreateWindow(mode->width, mode->height, setup->name, glfwGetPrimaryMonitor(), NULL);
 	} else
 	{
-		screen_size.x = setup->size.x*setup->pixel_size;
-		screen_size.y = setup->size.y*setup->pixel_size;
-		WHITGL_LOG("Opening windowed w%d h%d", screen_size.x, screen_size.y);
-		_window = glfwCreateWindow(screen_size.x, screen_size.y, setup->name, NULL, NULL);
+		whitgl_ivec window_size;
+		window_size.x = setup->size.x*setup->pixel_size;
+		window_size.y = setup->size.y*setup->pixel_size;
+		WHITGL_LOG("Opening windowed w%d h%d", window_size.x, window_size.y);
+		_window = glfwCreateWindow(window_size.x, window_size.y, setup->name, NULL, NULL);
 	}
+
+	// Retrieve actual size of window in pixels, don't make an assumption
+	// (because of retina screens etc.
+	int w, h;
+	glfwGetFramebufferSize(_window, &w, &h);
+	whitgl_ivec screen_size = {w, h};
+
 	bool searching = true;
 	if(!setup->exact_size)
 	{
