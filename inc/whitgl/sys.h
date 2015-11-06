@@ -6,13 +6,20 @@
 
 #include <whitgl/math.h>
 
+typedef enum
+{
+	CURSOR_SHOW,
+	CURSOR_HIDE,
+	CURSOR_DISABLE,
+} whitgl_sys_cursor_mode;
+
 typedef struct
 {
 	const char* name;
 	whitgl_ivec size;
 	int pixel_size;
 	bool fullscreen;
-	bool disable_mouse_cursor;
+	whitgl_sys_cursor_mode cursor;
 	bool vsync;
 	bool exact_size;
 	bool over_render;
@@ -23,7 +30,7 @@ static const whitgl_sys_setup whitgl_sys_setup_zero =
 	{120, 80},
 	4,
 	false,
-	false,
+	CURSOR_SHOW,
 	true,
 	false,
 	false,
@@ -34,6 +41,9 @@ typedef struct
 	unsigned char r,g,b,a;
 } whitgl_sys_color;
 static const whitgl_sys_color whitgl_sys_color_zero = {0,0,0,0};
+static const whitgl_sys_color whitgl_sys_color_white = {0xff,0xff,0xff,0xff};
+static const whitgl_sys_color whitgl_sys_color_black = {0x00,0x00,0x00,0xff};
+
 
 typedef struct
 {
@@ -79,6 +89,9 @@ void whitgl_sys_draw_finish();
 
 void whitgl_sys_add_image_from_data(int id, whitgl_ivec size, unsigned char* data);
 void whitgl_sys_update_image_from_data(int id, whitgl_ivec size, unsigned char* data);
+bool whitgl_sys_load_png(const char *name, whitgl_int *width, whitgl_int *height, unsigned char **data);
+bool whitgl_sys_save_png(const char *name, whitgl_int width, whitgl_int height, unsigned char *data);
+void whitgl_sys_capture_frame(const char *name);
 void whitgl_sys_add_image(int id, const char* filename);
 void whitgl_sys_image_from_data(int id, whitgl_ivec size, const unsigned char* data);
 void whitgl_sys_draw_iaabb(whitgl_iaabb rectangle, whitgl_sys_color col);
@@ -86,9 +99,11 @@ void whitgl_sys_draw_hollow_iaabb(whitgl_iaabb rect, whitgl_int width, whitgl_sy
 void whitgl_sys_draw_fcircle(whitgl_fcircle circle, whitgl_sys_color col, int tris);
 void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb src, whitgl_iaabb dest);
 void whitgl_sys_draw_sprite(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec pos);
+void whitgl_sys_draw_sprite_sized(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec pos, whitgl_ivec dest_size);
 
 double whitgl_sys_get_time();
 
 whitgl_sys_color whitgl_sys_color_blend(whitgl_sys_color a, whitgl_sys_color b, whitgl_float factor);
+whitgl_sys_color whitgl_sys_color_multiply(whitgl_sys_color a, whitgl_sys_color b);
 
 #endif // WHITGL_SYS_H_

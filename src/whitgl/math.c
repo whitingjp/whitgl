@@ -16,7 +16,7 @@ whitgl_int whitgl_imax(whitgl_int a, whitgl_int b)
 }
 whitgl_int whitgl_iclamp(whitgl_int a, whitgl_int min, whitgl_int max)
 {
-	if(min > max) WHITGL_LOG("ERR min > than max!");
+	if(min > max) WHITGL_PANIC("ERR min > than max!");
 	if(a < min) return min;
 	if(a > max) return max;
 	return a;
@@ -31,6 +31,11 @@ whitgl_int whitgl_iwrap(whitgl_int a, whitgl_int min, whitgl_int max)
 		a -= size;
 	return a;
 }
+whitgl_int whitgl_ipow(whitgl_int a, whitgl_int b)
+{
+	return pow(a,b);
+}
+
 whitgl_ivec whitgl_ivec_bound(whitgl_ivec a, whitgl_iaabb bounds)
 {
 	if(bounds.a.x > bounds.b.x)
@@ -95,6 +100,26 @@ whitgl_float whitgl_fcos(whitgl_float a)
 {
 	return cos(a);
 }
+whitgl_float whitgl_ftan(whitgl_float a)
+{
+	return tan(a);
+}
+whitgl_float whitgl_fasin(whitgl_float a)
+{
+	return asin(a);
+}
+whitgl_float whitgl_facos(whitgl_float a)
+{
+	return acos(a);
+}
+whitgl_float whitgl_fatan(whitgl_float a)
+{
+	return atan(a);
+}
+whitgl_float whitgl_fpow(whitgl_float a, whitgl_float b)
+{
+	return pow(a,b);
+}
 
 whitgl_ivec whitgl_ivec_val(whitgl_int a)
 {
@@ -129,6 +154,10 @@ whitgl_ivec whitgl_ivec_divide(whitgl_ivec a, whitgl_ivec s)
 whitgl_int whitgl_ivec_sqmagnitude(whitgl_ivec a)
 {
 	return a.x * a.x + a.y * a.y;
+}
+whitgl_bool whitgl_ivec_eq(whitgl_ivec a, whitgl_ivec b)
+{
+	return a.x == b.x && a.y == b.y;
 }
 
 whitgl_fvec whitgl_fvec_val(whitgl_float a)
@@ -213,9 +242,13 @@ whitgl_fvec whitgl_fvec_from_angle(whitgl_float a)
 whitgl_fvec whitgl_fvec_interpolate(whitgl_fvec a, whitgl_fvec b, whitgl_float ratio)
 {
 	whitgl_fvec out = whitgl_fvec_zero;
-	out = whitgl_fvec_add(out, whitgl_fvec_scale(a, whitgl_fvec_val(1-ratio)));
-	out = whitgl_fvec_add(out, whitgl_fvec_scale(b, whitgl_fvec_val(ratio)));
+	out.x = a.x*(1-ratio) + b.x*ratio;
+	out.y = a.y*(1-ratio) + b.y*ratio;
 	return out;
+}
+whitgl_bool whitgl_fvec_eq(whitgl_fvec a, whitgl_fvec b)
+{
+	return a.x == b.x && a.y == b.y;
 }
 
 whitgl_iaabb whitgl_iaabb_add(whitgl_iaabb a, whitgl_ivec b)
@@ -405,6 +438,22 @@ whitgl_int whitgl_fvec_to_facing(whitgl_fvec vec)
 		return vec.y > 0 ? 2 : 0;
 }
 
+bool whitgl_ray_circle_intersect(whitgl_fcircle circ, whitgl_fvec start, whitgl_fvec speed, whitgl_float* t1, whitgl_float* t2)
+{
+	whitgl_float a = speed.x*speed.x + speed.y*speed.y;
+	whitgl_float b = 2*speed.x*(start.x-circ.pos.x) + 2*speed.y*(start.y-circ.pos.y);
+	whitgl_float c = circ.pos.x*circ.pos.x + circ.pos.y*circ.pos.y + start.x*start.x + start.y*start.y - 2*(circ.pos.x*start.x + circ.pos.y*start.y) - circ.size*circ.size;
+	whitgl_float discr = b*b - 4*a*c;
+	if(a!=0 && discr > 0)
+	{
+		// hit
+		discr = whitgl_fsqrt(discr);
+		*t1 = (-b - discr)/(2*a);
+		*t2 = (-b + discr)/(2*a);
+		return true;
+	}
+	return false;
+}
 
 void whitgl_randseed(whitgl_int seed)
 {
@@ -433,4 +482,13 @@ whitgl_ivec whitgl_camera(whitgl_ivec pos, whitgl_ivec world_size, whitgl_ivec s
 	else
 		out.y = whitgl_iclamp(out.y, bound.y, 0);
 	return out;
+}
+
+whitgl_fvec whitgl_rotate_point_around_point(whitgl_fvec src, whitgl_fvec pivot, whitgl_float angle)
+{
+	whitgl_float c = whitgl_fcos(angle);
+	whitgl_float s = whitgl_fsin(angle);
+	whitgl_fvec mp = whitgl_fvec_sub(src, pivot);
+	whitgl_fvec rotated = {mp.x*c - mp.y*s, mp.x*s + mp.y*c};
+	return whitgl_fvec_add(pivot, rotated);
 }

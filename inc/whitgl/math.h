@@ -43,6 +43,7 @@ whitgl_int whitgl_imin(whitgl_int a, whitgl_int b);
 whitgl_int whitgl_imax(whitgl_int a, whitgl_int b);
 whitgl_int whitgl_iclamp(whitgl_int a, whitgl_int min, whitgl_int max);
 whitgl_int whitgl_iwrap(whitgl_int a, whitgl_int min, whitgl_int max);
+whitgl_int whitgl_ipow(whitgl_int a, whitgl_int b);
 
 whitgl_float whitgl_fmin(whitgl_float a, whitgl_float b);
 whitgl_float whitgl_fmax(whitgl_float a, whitgl_float b);
@@ -51,6 +52,11 @@ whitgl_float whitgl_fsqrt(whitgl_float a);
 whitgl_float whitgl_fwrap(whitgl_float a, whitgl_float min, whitgl_float max);
 whitgl_float whitgl_fsin(whitgl_float a);
 whitgl_float whitgl_fcos(whitgl_float a);
+whitgl_float whitgl_ftan(whitgl_float a);
+whitgl_float whitgl_fasin(whitgl_float a);
+whitgl_float whitgl_facos(whitgl_float a);
+whitgl_float whitgl_fatan(whitgl_float a);
+whitgl_float whitgl_fpow(whitgl_float a, whitgl_float b);
 
 whitgl_ivec whitgl_ivec_val(whitgl_int);
 whitgl_ivec whitgl_ivec_add(whitgl_ivec a, whitgl_ivec b);
@@ -60,6 +66,7 @@ whitgl_ivec whitgl_ivec_scale(whitgl_ivec a, whitgl_ivec s);
 whitgl_ivec whitgl_ivec_divide(whitgl_ivec a, whitgl_ivec s);
 whitgl_int whitgl_ivec_sqmagnitude(whitgl_ivec a);
 whitgl_ivec whitgl_ivec_bound(whitgl_ivec a, whitgl_iaabb bounds);
+whitgl_bool whitgl_ivec_eq(whitgl_ivec a, whitgl_ivec b);
 
 whitgl_fvec whitgl_fvec_val(whitgl_float);
 whitgl_fvec whitgl_fvec_add(whitgl_fvec a, whitgl_fvec b);
@@ -73,6 +80,7 @@ whitgl_fvec whitgl_fvec_normalize(whitgl_fvec a);
 whitgl_fvec whitgl_fvec_bound(whitgl_fvec a, whitgl_faabb bounds);
 whitgl_fvec whitgl_fvec_from_angle(whitgl_float a);
 whitgl_fvec whitgl_fvec_interpolate(whitgl_fvec a, whitgl_fvec b, whitgl_float ratio);
+whitgl_bool whitgl_fvec_eq(whitgl_fvec a, whitgl_fvec b);
 
 whitgl_iaabb whitgl_iaabb_add(whitgl_iaabb a, whitgl_ivec b);
 whitgl_iaabb whitgl_iaabb_sub(whitgl_iaabb a, whitgl_ivec b);
@@ -104,6 +112,9 @@ whitgl_ivec whitgl_facing_to_ivec(whitgl_int facing);
 whitgl_fvec whitgl_facing_to_fvec(whitgl_int facing);
 whitgl_int whitgl_ivec_to_facing(whitgl_ivec vec);
 whitgl_int whitgl_fvec_to_facing(whitgl_fvec vec);
+
+bool whitgl_ray_circle_intersect(whitgl_fcircle circ, whitgl_fvec start, whitgl_fvec speed, whitgl_float* t1, whitgl_float* t2);
+whitgl_fvec whitgl_rotate_point_around_point(whitgl_fvec src, whitgl_fvec pivot, whitgl_float angle);
 
 void whitgl_randseed(whitgl_int seed);
 whitgl_int whitgl_randint(whitgl_int size);

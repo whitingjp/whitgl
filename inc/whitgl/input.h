@@ -12,6 +12,8 @@ typedef enum
 	WHITGL_INPUT_RIGHT,
 	WHITGL_INPUT_DOWN,
 	WHITGL_INPUT_LEFT,
+	WHITGL_INPUT_Z_UP,
+	WHITGL_INPUT_Z_DOWN,
 	WHITGL_INPUT_KEYBOARD_UP,
 	WHITGL_INPUT_KEYBOARD_RIGHT,
 	WHITGL_INPUT_KEYBOARD_DOWN,
@@ -36,6 +38,8 @@ typedef enum
 	WHITGL_INPUT_MOUSE_LEFT,
 	WHITGL_INPUT_MOUSE_RIGHT,
 	WHITGL_INPUT_MOUSE_MIDDLE,
+	WHITGL_INPUT_MOUSE_SCROLL_UP,
+	WHITGL_INPUT_MOUSE_SCROLL_DOWN,
 	WHITGL_INPUT_ANY,
 	WHITGL_INPUT_MAX,
 } whitgl_input;
@@ -47,5 +51,6 @@ bool whitgl_input_down(whitgl_input input);
 bool whitgl_input_pressed(whitgl_input input);
 whitgl_ivec whitgl_input_mouse_pos(int pixel_size);
 whitgl_fvec whitgl_input_joystick();
+whitgl_fvec whitgl_input_joystick2();
 
 #endif // WHITGL_INPUT_H_

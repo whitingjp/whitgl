@@ -73,10 +73,18 @@ typedef struct
 	whitgl_shader shader;
 } whitgl_shader_data;
 
+typedef struct
+{
+	bool do_next;
+	char file[512];
+} whitgl_frame_capture;
+static const whitgl_frame_capture whitgl_frame_capture_zero = {false, {'\0'}};
+
 GLuint vbo;
 whitgl_shader_data shaders[WHITGL_SHADER_MAX];
 GLuint frameBuffer;
 GLuint intermediateTexture;
+whitgl_frame_capture capture;
 
 void _whitgl_check_gl_error(const char* stmt, const char *file, int line)
 {
@@ -231,21 +239,34 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	// glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
 
-	whitgl_ivec screen_size;
+	const GLFWvidmode * mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+	// attempt to ensure that no mode changing takes place
+	glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+	glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+	glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+	glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+
 	if(setup->fullscreen)
 	{
-		const GLFWvidmode * mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-		screen_size.x = mode->width;
-		screen_size.y = mode->height;
 		WHITGL_LOG("Opening fullscreen w%d h%d", mode->width, mode->height);
+		//_window = glfwCreateWindow(mode->width, mode->height, setup->name, glfwGetPrimaryMonitor(), NULL);
 		_window = glfwCreateWindow(mode->width, mode->height, setup->name, glfwGetPrimaryMonitor(), NULL);
 	} else
 	{
-		screen_size.x = setup->size.x*setup->pixel_size;
-		screen_size.y = setup->size.y*setup->pixel_size;
-		WHITGL_LOG("Opening windowed w%d h%d", screen_size.x, screen_size.y);
-		_window = glfwCreateWindow(screen_size.x, screen_size.y, setup->name, NULL, NULL);
+		whitgl_ivec window_size;
+		window_size.x = setup->size.x*setup->pixel_size;
+		window_size.y = setup->size.y*setup->pixel_size;
+		WHITGL_LOG("Opening windowed w%d h%d", window_size.x, window_size.y);
+		_window = glfwCreateWindow(window_size.x, window_size.y, setup->name, NULL, NULL);
 	}
+
+	// Retrieve actual size of window in pixels, don't make an assumption
+	// (because of retina screens etc.
+	int w, h;
+	glfwGetFramebufferSize(_window, &w, &h);
+	whitgl_ivec screen_size = {w, h};
+
 	bool searching = true;
 	if(!setup->exact_size)
 	{
@@ -302,7 +323,7 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	GL_CHECK( glGenTextures(1, &intermediateTexture) );
 	GL_CHECK( glBindTexture(GL_TEXTURE_2D, intermediateTexture) );
 	WHITGL_LOG("Creating framebuffer glTexImage2D");
-	GL_CHECK( glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, setup->size.x, setup->size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0) );
+	GL_CHECK( glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, setup->size.x, setup->size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0) );
 	GL_CHECK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE) );
 	GL_CHECK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE) );
 	GL_CHECK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST) );
@@ -327,11 +348,18 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	WHITGL_LOG("Setting close callback");
 	glfwSetWindowCloseCallback(_window, _whitgl_sys_close_callback);
 
-	if(setup->disable_mouse_cursor)
+	// Set mouse cursor mode
+	WHITGL_LOG("Disable mouse cursor");
+	whitgl_int glfw_mode;
+	switch(setup->cursor)
 	{
-		WHITGL_LOG("Disable mouse cursor");
-		glfwSetInputMode (_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		case CURSOR_HIDE: glfw_mode = GLFW_CURSOR_HIDDEN; break;
+		case CURSOR_DISABLE: glfw_mode = GLFW_CURSOR_DISABLED; break;
+		case CURSOR_SHOW:
+		default:
+			glfw_mode = GLFW_CURSOR_NORMAL; break;
 	}
+	glfwSetInputMode (_window, GLFW_CURSOR, glfw_mode);
 
 	int i;
 	for(i=0; i<WHITGL_IMAGE_MAX; i++)
@@ -339,6 +367,8 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	num_images = 0;
 
 	_setup = *setup;
+
+	capture = whitgl_frame_capture_zero;
 
 	WHITGL_LOG("Sys initiated");
 
@@ -481,6 +511,15 @@ void whitgl_sys_draw_finish()
 
 	GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, 6 ) );
 
+	if(capture.do_next)
+	{
+		unsigned char* buffer = malloc(_window_size.x*_window_size.y*4);
+		glReadPixels(0, 0, _window_size.x, _window_size.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+		whitgl_sys_save_png(capture.file, _window_size.x, _window_size.y, buffer);
+		free(buffer);
+		capture.do_next = false;
+	}
+
 	glfwSwapBuffers(_window);
 	glfwPollEvents();
 	GL_CHECK( glDisable(GL_BLEND) );
@@ -621,7 +660,13 @@ void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb src, whitgl_iaabb dest)
 	_whitgl_populate_vertices(&buffer_vertices[buffer_index*6*4], src, dest, images[index].size);
 	buffer_index++;
 }
+
 void whitgl_sys_draw_sprite(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec pos)
+{
+	whitgl_sys_draw_sprite_sized(sprite, frame, pos, sprite.size);
+}
+
+void whitgl_sys_draw_sprite_sized(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec pos, whitgl_ivec dest_size)
 {
 	whitgl_iaabb src = whitgl_iaabb_zero;
 	whitgl_ivec offset = whitgl_ivec_scale(sprite.size, frame);
@@ -629,11 +674,11 @@ void whitgl_sys_draw_sprite(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec
 	src.b = whitgl_ivec_add(src.a, sprite.size);
 	whitgl_iaabb dest = whitgl_iaabb_zero;
 	dest.a = pos;
-	dest.b = whitgl_ivec_add(dest.a, sprite.size);
+	dest.b = whitgl_ivec_add(dest.a, dest_size);
 	whitgl_sys_draw_tex_iaabb(sprite.image, src, dest);
 }
 
-bool loadPngImage(const char *name, whitgl_int *outWidth, whitgl_int *outHeight, GLubyte **outData)
+bool whitgl_sys_load_png(const char *name, whitgl_int *width, whitgl_int *height, unsigned char **data)
 {
 	png_structp png_ptr;
 	png_infop info_ptr;
@@ -720,22 +765,27 @@ bool loadPngImage(const char *name, whitgl_int *outWidth, whitgl_int *outHeight,
 	 */
 	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_PACKING | PNG_TRANSFORM_EXPAND, NULL);
 
-	png_uint_32 width, height;
+	png_uint_32 read_width, read_height;
 	int bit_depth;
-	png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
+	png_get_IHDR(png_ptr, info_ptr, &read_width, &read_height, &bit_depth, &color_type,
 				 &interlace_type, NULL, NULL);
-	*outWidth = width;
-	*outHeight = height;
+	if(width)
+		*width = read_width;
+	if(height)
+		*height = read_height;
 
 	unsigned int row_bytes = png_get_rowbytes(png_ptr, info_ptr);
-	*outData = (unsigned char*) malloc(row_bytes *  (*outHeight));
-
-	png_bytepp row_pointers = png_get_rows(png_ptr, info_ptr);
-
-	int i;
-	for (i = 0; i < *outHeight; i++)
+	if(data)
 	{
-		memcpy(*outData+(row_bytes * (i)), row_pointers[i], row_bytes);
+		*data = (unsigned char*) malloc(row_bytes * read_height);
+
+		png_bytepp row_pointers = png_get_rows(png_ptr, info_ptr);
+
+		png_uint_32 i;
+		for (i = 0; i < read_height; i++)
+		{
+			memcpy(*data+(row_bytes * (i)), row_pointers[i], row_bytes);
+		}
 	}
 
 	/* Clean up after the read,
@@ -747,6 +797,57 @@ bool loadPngImage(const char *name, whitgl_int *outWidth, whitgl_int *outHeight,
 	fclose(fp);
 
 	/* That's it */
+	return true;
+}
+bool whitgl_sys_save_png(const char *name, whitgl_int width, whitgl_int height, unsigned char *data)
+{
+	FILE *fp = fopen(name, "wb");
+	if(!fp) return false;
+
+	png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	if (!png) return false;
+
+	png_infop info = png_create_info_struct(png);
+	if (!info) return false;
+
+	if (setjmp(png_jmpbuf(png))) return false;
+
+	png_init_io(png, fp);
+
+	png_uint_32 png_width = width;
+	png_uint_32 png_height = height;
+
+	// Output is 8bit depth, RGBA format.
+	png_set_IHDR(
+		png,
+		info,
+		png_width, png_height,
+		8,
+		PNG_COLOR_TYPE_RGBA,
+		PNG_INTERLACE_NONE,
+		PNG_COMPRESSION_TYPE_DEFAULT,
+		PNG_FILTER_TYPE_DEFAULT
+	);
+	png_write_info(png, info);
+
+	// To remove the alpha channel for PNG_COLOR_TYPE_RGB format,
+	// Use png_set_filler().
+	//png_set_filler(png, 0, PNG_FILLER_AFTER);
+
+	png_byte ** row_pointers = png_malloc (png, png_height * sizeof (png_byte *));
+	whitgl_int y;
+	for (y = 0; y < height; ++y)
+	{
+		whitgl_int size = sizeof (uint8_t) * png_width * 4;
+		// png_byte *row = png_malloc (png, sizeof (uint8_t) * png_width * 4);
+		row_pointers[height-1-y] = &data[size*y];
+	}
+
+	png_write_image(png, row_pointers);
+	png_write_end(png, NULL);
+
+	fclose(fp);
+
 	return true;
 }
 
@@ -775,6 +876,12 @@ void whitgl_sys_add_image_from_data(int id, whitgl_ivec size, unsigned char* dat
 
 	images[num_images].id = id;
 	num_images++;
+}
+void whitgl_sys_capture_frame(const char *name)
+{
+	capture = whitgl_frame_capture_zero;
+	capture.do_next = true;
+	strncpy(capture.file, name, sizeof(capture.file));
 }
 
 void whitgl_sys_update_image_from_data(int id, whitgl_ivec size, unsigned char* data)
@@ -810,7 +917,7 @@ void whitgl_sys_add_image(int id, const char* filename)
 {
 	GLubyte *textureImage;
 	whitgl_ivec size;
-	bool success = loadPngImage(filename, &size.x, &size.y, &textureImage);
+	bool success = whitgl_sys_load_png(filename, &size.x, &size.y, &textureImage);
 	if(!success)
 	{
 		WHITGL_PANIC("loadPngImage error");
@@ -827,10 +934,21 @@ double whitgl_sys_get_time()
 whitgl_sys_color whitgl_sys_color_blend(whitgl_sys_color a, whitgl_sys_color b, whitgl_float factor)
 {
 	whitgl_sys_color out;
-	float inv = 1-factor;
-	out.r = a.r*inv + b.r*factor;
-	out.g = a.g*inv + b.g*factor;
-	out.b = a.b*inv + b.b*factor;
-	out.a = a.a*inv + b.a*factor;
+	whitgl_int fac = 256*factor;
+	whitgl_int inv = 256*(1-factor);
+	out.r = (a.r*inv + b.r*fac)>>8;
+	out.g = (a.g*inv + b.g*fac)>>8;
+	out.b = (a.b*inv + b.b*fac)>>8;
+	out.a = (a.a*inv + b.a*fac)>>8;
+	return out;
+}
+whitgl_sys_color whitgl_sys_color_multiply(whitgl_sys_color a, whitgl_sys_color b)
+{
+	whitgl_sys_color out;
+	out.r = (((whitgl_int)a.r)*((whitgl_int)b.r))>>8;
+	out.g = (((whitgl_int)a.g)*((whitgl_int)b.g))>>8;
+	out.b = (((whitgl_int)a.b)*((whitgl_int)b.b))>>8;
+	out.a = (((whitgl_int)a.a)*((whitgl_int)b.a))>>8;
+
 	return out;
 }

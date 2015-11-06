@@ -141,6 +141,28 @@ void whitgl_loop_add(int id, const char* filename)
 
 	whitgl_loop_set_paused(id, false);
 }
+void whitgl_loop_add_positional(int id, const char* filename)
+{
+	WHITGL_LOG("Adding loop: %s", filename);
+	if(num_sounds >= WHITGL_SOUND_MAX)
+	{
+		WHITGL_LOG("ERR Too many sounds");
+		return;
+	}
+	sounds[num_sounds].id = id;
+	FMOD_RESULT result = FMOD_System_CreateSound(fmodSystem, filename, FMOD_CREATESTREAM | FMOD_3D | FMOD_LOOP_NORMAL, 0, &sounds[num_sounds].sound);
+	_whitgl_sound_errcheck("FMOD_System_CreateSound", result);
+
+	result = FMOD_System_PlaySound(fmodSystem, sounds[num_sounds].sound, NULL, true, &sounds[num_sounds].channel);
+	_whitgl_sound_errcheck("FMOD_System_PlaySound", result);
+
+	result = FMOD_Channel_SetVolume(sounds[num_sounds].channel, 0);
+	_whitgl_sound_errcheck("FMOD_Channel_SetVolume", result);
+
+	num_sounds++;
+
+	whitgl_loop_set_paused(id, false);
+}
 void whitgl_loop_volume(int id, float volume)
 {
 	int index = _whitgl_get_index(id);
@@ -168,4 +190,24 @@ void whitgl_loop_frequency(int id, float adjust)
 	_whitgl_sound_errcheck("FMOD_Sound_GetDefaults", result);
 	result = FMOD_Channel_SetFrequency(sounds[index].channel, defaultFrequency*adjust);
 	_whitgl_sound_errcheck("FMOD_Channel_SetFrequency", result);
+}
+void whitgl_loop_set_listener(whitgl_fvec p, whitgl_fvec v, whitgl_float angle)
+{
+	FMOD_RESULT result;
+	FMOD_VECTOR fmod_p = {p.x, p.y, 0};
+	FMOD_VECTOR fmod_v = {v.x/60.0, v.y/60.0, 0};
+	whitgl_fvec forward = whitgl_angle_to_fvec(-angle+whitgl_pi/2);
+    FMOD_VECTOR fmod_forward = { forward.x, forward.y, 0.0f };
+    FMOD_VECTOR fmod_up = { 0.0f, 0.0f, 1.0f };
+	result = FMOD_System_Set3DListenerAttributes(fmodSystem, 0, &fmod_p, &fmod_v, &fmod_forward, &fmod_up);
+	_whitgl_sound_errcheck("FMOD_System_Set3DListenerAttributes", result);
+}
+void whitgl_loop_set_position(int id, whitgl_fvec p, whitgl_fvec v)
+{
+	int index = _whitgl_get_index(id);
+	FMOD_RESULT result;
+	FMOD_VECTOR fmod_p = {p.x, p.y, 0};
+	FMOD_VECTOR fmod_v = {v.x/60.0, v.y/60.0, 0};
+	result = FMOD_Channel_Set3DAttributes(sounds[index].channel, &fmod_p, &fmod_v, NULL);
+	_whitgl_sound_errcheck("FMOD_Channel_Set3DAttributes", result);
 }
