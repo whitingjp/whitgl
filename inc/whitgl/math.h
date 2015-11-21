@@ -87,17 +87,19 @@ whitgl_iaabb whitgl_iaabb_sub(whitgl_iaabb a, whitgl_ivec b);
 whitgl_iaabb whitgl_iaabb_scale(whitgl_iaabb a, whitgl_ivec s);
 whitgl_iaabb whitgl_iaabb_divide(whitgl_iaabb a, whitgl_ivec s);
 whitgl_iaabb whitgl_iaabb_intersection(whitgl_iaabb a, whitgl_iaabb b);
-bool whitgl_iaabb_intersects(whitgl_iaabb a, whitgl_iaabb b);
+whitgl_bool whitgl_iaabb_intersects(whitgl_iaabb a, whitgl_iaabb b);
+whitgl_int whitgl_iaabb_area(whitgl_iaabb a);
 
 whitgl_faabb whitgl_faabb_add(whitgl_faabb a, whitgl_fvec b);
 whitgl_faabb whitgl_faabb_sub(whitgl_faabb a, whitgl_fvec b);
 whitgl_faabb whitgl_faabb_scale(whitgl_faabb a, whitgl_fvec s);
 whitgl_faabb whitgl_faabb_divide(whitgl_faabb a, whitgl_fvec s);
 whitgl_faabb whitgl_faabb_intersection(whitgl_faabb a, whitgl_faabb b);
-bool whitgl_faabb_intersects(whitgl_faabb a, whitgl_faabb b);
+whitgl_bool whitgl_faabb_intersects(whitgl_faabb a, whitgl_faabb b);
+whitgl_float whitgl_faabb_area(whitgl_faabb a);
 
-bool whitgl_ivec_point_in_rect(whitgl_ivec p, whitgl_iaabb rect);
-bool whitgl_fvec_point_in_rect(whitgl_fvec p, whitgl_faabb rect);
+whitgl_bool whitgl_ivec_point_in_rect(whitgl_ivec p, whitgl_iaabb rect);
+whitgl_bool whitgl_fvec_point_in_rect(whitgl_fvec p, whitgl_faabb rect);
 
 whitgl_fvec whitgl_ivec_to_fvec(whitgl_ivec in);
 whitgl_ivec whitgl_fvec_to_ivec(whitgl_fvec in);

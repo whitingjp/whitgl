@@ -300,6 +300,10 @@ bool whitgl_iaabb_intersects(whitgl_iaabb a, whitgl_iaabb b)
 	if(b.a.y >= a.b.y) return false;
 	return true;
 }
+whitgl_int whitgl_iaabb_area(whitgl_iaabb r)
+{
+	return (r.b.x-r.a.x)*(r.b.y-r.a.y);
+}
 
 whitgl_faabb whitgl_faabb_add(whitgl_faabb a, whitgl_fvec b)
 {
@@ -342,7 +346,7 @@ whitgl_faabb whitgl_faabb_intersection(whitgl_faabb a, whitgl_faabb b)
 	out.b.y = whitgl_fmin(whitgl_fmax(a.a.y, a.b.y), whitgl_fmax(b.a.y, b.b.y));
 	return out;
 }
-bool whitgl_faabb_intersects(whitgl_faabb a, whitgl_faabb b)
+whitgl_bool whitgl_faabb_intersects(whitgl_faabb a, whitgl_faabb b)
 {
 	if(a.a.x >= b.b.x) return false;
 	if(b.a.x >= a.b.x) return false;
@@ -350,8 +354,12 @@ bool whitgl_faabb_intersects(whitgl_faabb a, whitgl_faabb b)
 	if(b.a.y >= a.b.y) return false;
 	return true;
 }
+whitgl_float whitgl_faabb_area(whitgl_faabb r)
+{
+	return (r.b.x-r.a.x)*(r.b.y-r.a.y);
+}
 
-bool whitgl_ivec_point_in_rect(whitgl_ivec p, whitgl_iaabb r)
+whitgl_bool whitgl_ivec_point_in_rect(whitgl_ivec p, whitgl_iaabb r)
 {
 	if(p.x < r.a.x) return false;
 	if(p.x >= r.b.x) return false;
@@ -359,7 +367,7 @@ bool whitgl_ivec_point_in_rect(whitgl_ivec p, whitgl_iaabb r)
 	if(p.y >= r.b.y) return false;
 	return true;
 }
-bool whitgl_fvec_point_in_rect(whitgl_fvec p, whitgl_faabb r)
+whitgl_bool whitgl_fvec_point_in_rect(whitgl_fvec p, whitgl_faabb r)
 {
 	if(p.x < r.a.x) return false;
 	if(p.x >= r.b.x) return false;
