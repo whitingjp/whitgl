@@ -559,7 +559,28 @@ void whitgl_sys_draw_hollow_iaabb(whitgl_iaabb rect, whitgl_int width, whitgl_sy
 	whitgl_sys_draw_iaabb(s, col);
 	whitgl_sys_draw_iaabb(w, col);
 }
+void whitgl_sys_draw_line(whitgl_iaabb l, whitgl_sys_color col)
+{
+	_whitgl_sys_flush_tex_iaabb();
+	float vertices[2*2];
+	vertices[0] = l.a.x; vertices[1] = l.a.y; vertices[2] = l.b.x; vertices[3] = l.b.y;
 
+	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, vbo ) );
+	GL_CHECK( glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW ) );
+
+	GLuint shaderProgram = shaders[WHITGL_SHADER_FLAT].program;
+	GL_CHECK( glUseProgram( shaderProgram ) );
+	GL_CHECK( glUniform4f( glGetUniformLocation( shaderProgram, "sColor" ), (float)col.r/255.0, (float)col.g/255.0, (float)col.b/255.0, (float)col.a/255.0 ) );
+	_whitgl_load_uniforms(WHITGL_SHADER_FLAT);
+	_whitgl_sys_orthographic(shaderProgram, 0, _setup.size.x, 0, _setup.size.y);
+
+	#define BUFFER_OFFSET(i) ((void*)(i))
+	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
+	GL_CHECK( glVertexAttribPointer( posAttrib, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), 0 ) );
+	GL_CHECK( glEnableVertexAttribArray( posAttrib ) );
+
+	GL_CHECK( glDrawArrays( GL_LINES, 0, 2 ) );
+}
 void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
 {
 	_whitgl_sys_flush_tex_iaabb();
