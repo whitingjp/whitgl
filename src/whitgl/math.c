@@ -528,3 +528,15 @@ whitgl_fvec whitgl_rotate_point_around_point(whitgl_fvec src, whitgl_fvec pivot,
 	whitgl_fvec rotated = {mp.x*c - mp.y*s, mp.x*s + mp.y*c};
 	return whitgl_fvec_add(pivot, rotated);
 }
+whitgl_float whitgl_angle_lerp(whitgl_float a, whitgl_float b, whitgl_float amount)
+{
+	if(b-a > whitgl_pi || b-a < -whitgl_pi)
+	{
+		if(b > a)
+			a += whitgl_pi*2;
+		else
+			b += whitgl_pi*2;
+	}
+	whitgl_float out = a*(1-amount) + b*amount;
+	return whitgl_fwrap(out, 0, whitgl_pi*2);
+}

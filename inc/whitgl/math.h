@@ -122,6 +122,8 @@ whitgl_int whitgl_fvec_to_facing(whitgl_fvec vec);
 bool whitgl_ray_circle_intersect(whitgl_fcircle circ, whitgl_fvec start, whitgl_fvec speed, whitgl_float* t1, whitgl_float* t2);
 whitgl_fvec whitgl_rotate_point_around_point(whitgl_fvec src, whitgl_fvec pivot, whitgl_float angle);
 
+whitgl_float whitgl_angle_lerp(whitgl_float a, whitgl_float b, whitgl_float amount);
+
 void whitgl_randseed(whitgl_int seed);
 whitgl_int whitgl_randint(whitgl_int size);
 whitgl_float whitgl_randfloat();
