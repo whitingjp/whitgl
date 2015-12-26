@@ -14,18 +14,18 @@ const char* post_src = "\
 in vec2 Texturepos;\
 out vec4 outColor;\
 uniform sampler2D tex;\
+uniform sampler2D extra;\
 uniform float spread;\
 void main()\
 {\
 	vec2 offset = vec2(0.1*spread);\
 	outColor = vec4(texture( tex, Texturepos-offset ).r, texture( tex, Texturepos ).g, texture( tex, Texturepos+offset ).ba);\
+	outColor = outColor + texture(extra, Texturepos);\
 }\
 ";
 
-void draw(whitgl_ivec size)
+void draw()
 {
-	whitgl_sprite full = {1, {0,0}, size};
-	whitgl_sys_draw_sprite(full, whitgl_ivec_zero, whitgl_ivec_zero);
 	whitgl_sprite sprite = {0, {0,0},{16,16}};
 	whitgl_ivec frametr = {1, 0};
 	whitgl_ivec pos = {16,0};
@@ -51,6 +51,8 @@ int main()
 	post_shader.fragment_src = post_src;
 	post_shader.num_uniforms = 1;
 	post_shader.uniforms[0] = "spread";
+	post_shader.num_images = 1;
+	post_shader.images[0] = "extra";
 	if(!whitgl_change_shader(WHITGL_SHADER_POST, post_shader))
 		return 1;
 
@@ -100,8 +102,9 @@ int main()
 		whitgl_sys_update_image_from_data(1, setup.size, data_texture);
 
 		whitgl_sys_draw_init();
-		draw(setup.size);
+		draw();
 		whitgl_set_shader_uniform(WHITGL_SHADER_POST, 0, uniform);
+		whitgl_set_shader_image(WHITGL_SHADER_POST, 0, 1);
 		whitgl_sys_draw_finish();
 	}
 
