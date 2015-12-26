@@ -899,7 +899,6 @@ bool whitgl_sys_save_png(const char *name, whitgl_int width, whitgl_int height, 
 
 void whitgl_sys_add_image_from_data(int id, whitgl_ivec size, unsigned char* data)
 {
-	WHITGL_LOG("Adding image from data");
 	if(num_images >= WHITGL_IMAGE_MAX)
 	{
 		WHITGL_PANIC("ERR Too many images");
@@ -963,6 +962,7 @@ void whitgl_sys_add_image(int id, const char* filename)
 {
 	GLubyte *textureImage;
 	whitgl_ivec size;
+	WHITGL_LOG("Adding image: %s", filename);
 	bool success = whitgl_sys_load_png(filename, &size.x, &size.y, &textureImage);
 	if(!success)
 	{
