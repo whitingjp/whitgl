@@ -24,17 +24,6 @@ void main()\
 }\
 ";
 
-void draw()
-{
-	whitgl_sprite sprite = {0, {0,0},{16,16}};
-	whitgl_ivec frametr = {1, 0};
-	whitgl_ivec pos = {16,0};
-	whitgl_sys_draw_sprite(sprite, frametr, pos);
-	whitgl_ivec framebr = {1, 1};
-	pos.x = 0; pos.y = 16;
-	whitgl_sys_draw_sprite(sprite, framebr, pos);
-}
-
 int main()
 {
 	WHITGL_LOG("Starting main.");
@@ -102,7 +91,15 @@ int main()
 		whitgl_sys_update_image_from_data(1, setup.size, data_texture);
 
 		whitgl_sys_draw_init();
-		draw();
+
+		whitgl_sprite sprite = {0, {0,0},{16,16}};
+		whitgl_ivec frametr = {1, 0};
+		whitgl_ivec pos = {16,0};
+		whitgl_sys_draw_sprite(sprite, frametr, pos);
+		whitgl_ivec framebr = {1, 1};
+		pos.x = 0; pos.y = 16;
+		whitgl_sys_draw_sprite(sprite, framebr, pos);
+
 		whitgl_set_shader_uniform(WHITGL_SHADER_POST, 0, uniform);
 		whitgl_set_shader_image(WHITGL_SHADER_POST, 0, 1);
 		whitgl_sys_draw_finish();
