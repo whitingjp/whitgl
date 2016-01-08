@@ -20,8 +20,8 @@ if plat == 'Windows':
   cflags += ' -Iinput/glfw/include -Iinput/libpng/include -Iinput/zlib/include -Iinput/glew/include -Iinput/fmod/win/inc '
   ldflags += ' -Linput/glfw/lib-mingw -Linput/glew/lib -Linput/libpng/lib -Linput/fmod/win/lib input/glfw/lib-mingw/glfw3dll.a -lglu32 -lopengl32 -lglew32 -lfmod -lpng input/zlib/lib/zdll.lib -mwindows'
 elif plat == 'Darwin':
-  cflags += ' -mmacosx-version-min=10.6 -isystem input/fmod/inc -Iinput/glfw/include -Iinput/glew/include -Iinput/libpng/'
-  ldflags += ' -mmacosx-version-min=10.6 -Linput/fmod/lib -Linput/glfw/build/src -Linput/libpng -Linput/zlib -Linput/glew/lib -framework OpenGL -framework Cocoa -framework IOKit -framework ForceFeedback -framework Carbon -framework CoreAudio -framework CoreVideo -framework AudioUnit -lpng -lfmod -lglfw3 -lGLEW -lz'
+  cflags += ' -mmacosx-version-min=10.6 -isystem input/fmod/inc -Iinput/glfw/include -Iinput/glew/include -Iinput/libpng -Iinput/TinyMT'
+  ldflags += ' -mmacosx-version-min=10.6 -Linput/fmod/lib -Linput/glfw/build/src -Linput/libpng -Linput/zlib -Linput/glew/lib -framework OpenGL -framework Cocoa -framework IOKit -framework ForceFeedback -framework Carbon -framework CoreAudio -framework CoreVideo -framework AudioUnit -lpng -lfmod -lglfw3 -lGLEW -lz input/TinyMT/tinymt/tinymt64.o'
 else:
   cflags += ' -isystem input/fmod/api/lowlevel/inc -Iinput/glfw/include '
   ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/api/lowlevel/lib/%s -Linput/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lm -lfmod -lX11 -lXxf86vm -lpthread -lXrandr -lXi -lpng' % fmoddir
