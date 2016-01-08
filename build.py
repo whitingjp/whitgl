@@ -23,8 +23,8 @@ elif plat == 'Darwin':
   cflags += ' -mmacosx-version-min=10.6 -isystem input/fmod/inc -Iinput/glfw/include -Iinput/glew/include -Iinput/libpng -Iinput/TinyMT'
   ldflags += ' -mmacosx-version-min=10.6 -Linput/fmod/lib -Linput/glfw/build/src -Linput/libpng -Linput/zlib -Linput/glew/lib -framework OpenGL -framework Cocoa -framework IOKit -framework ForceFeedback -framework Carbon -framework CoreAudio -framework CoreVideo -framework AudioUnit -lpng -lfmod -lglfw3 -lGLEW -lz input/TinyMT/tinymt/tinymt64.o'
 else:
-  cflags += ' -isystem input/fmod/api/lowlevel/inc -Iinput/glfw/include '
-  ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/api/lowlevel/lib/%s -Linput/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lm -lfmod -lX11 -lXxf86vm -lpthread -lXrandr -lXi -lpng' % fmoddir
+  cflags += ' -isystem input/fmod/api/lowlevel/inc -Iinput/glfw/include -Iinput/TinyMT'
+  ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/api/lowlevel/lib/%s -Linput/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lm -lfmod -lX11 -lXxf86vm -lpthread -lXrandr -lXi -lpng input/TinyMT/tinymt/tinymt64.o' % fmoddir
 
 def rules(n, cflags, ldflags):
   n.variable('cflags', cflags)

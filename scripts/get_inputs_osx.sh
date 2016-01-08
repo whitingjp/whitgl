@@ -37,5 +37,5 @@ make
 popd
 git clone --depth=1 https://github.com/MersenneTwister-Lab/TinyMT
 pushd TinyMT/tinymt
-make DDEBUG=-mmacosx-version-min=10.6
+make
 popd
