@@ -124,10 +124,6 @@ whitgl_fvec whitgl_rotate_point_around_point(whitgl_fvec src, whitgl_fvec pivot,
 
 whitgl_float whitgl_angle_lerp(whitgl_float a, whitgl_float b, whitgl_float amount);
 
-void whitgl_randseed(whitgl_int seed);
-whitgl_int whitgl_randint(whitgl_int size);
-whitgl_float whitgl_randfloat();
-
 whitgl_ivec whitgl_camera(whitgl_ivec pos, whitgl_ivec world_size, whitgl_ivec screen_size);
 
 static const whitgl_float whitgl_pi = 3.14159;

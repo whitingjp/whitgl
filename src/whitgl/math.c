@@ -491,18 +491,6 @@ bool whitgl_ray_circle_intersect(whitgl_fcircle circ, whitgl_fvec start, whitgl_
 	return false;
 }
 
-void whitgl_randseed(whitgl_int seed)
-{
-	srand(seed);
-}
-whitgl_int whitgl_randint(whitgl_int size)
-{
-	return rand() % size;
-}
-whitgl_float whitgl_randfloat()
-{
-	return rand() / (whitgl_float)RAND_MAX;
-}
 whitgl_ivec whitgl_camera(whitgl_ivec pos, whitgl_ivec world_size, whitgl_ivec screen_size)
 {
 	whitgl_ivec out = whitgl_ivec_inverse(pos);

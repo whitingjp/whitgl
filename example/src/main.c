@@ -4,6 +4,7 @@
 #include <whitgl/input.h>
 #include <whitgl/logging.h>
 #include <whitgl/math.h>
+#include <whitgl/random.h>
 #include <whitgl/sound.h>
 #include <whitgl/sys.h>
 #include <whitgl/timer.h>
@@ -52,6 +53,7 @@ int main()
 	whitgl_sound_play(0, 1);
 
 	whitgl_sys_add_image(0, "data/sprites.png");
+	whitgl_random_seed seed = whitgl_random_seed_init(0);
 	unsigned char data_texture[setup.size.x*setup.size.y*4];
 	whitgl_int i;
 	for(i=0; i<setup.size.x*setup.size.y*4; i+=4)
@@ -59,7 +61,7 @@ int main()
 		whitgl_int pixel = i/4;
 		data_texture[i] = (pixel%32)*8;
 		data_texture[i+1] = (pixel/32)*8;
-		data_texture[i+2] = whitgl_randint(32)+128;
+		data_texture[i+2] = whitgl_random_int(&seed, 32)+128;
 		data_texture[i+3] = 255;
 	}
 	whitgl_sys_add_image_from_data(1, setup.size, data_texture);
@@ -86,7 +88,7 @@ int main()
 		}
 
 		for(i=0; i<setup.size.x*setup.size.y*4; i+=4)
-			data_texture[i+2] = whitgl_randint(32)+128;
+			data_texture[i+2] = whitgl_random_int(&seed, 32)+128;
 
 		whitgl_sys_update_image_from_data(1, setup.size, data_texture);
 
