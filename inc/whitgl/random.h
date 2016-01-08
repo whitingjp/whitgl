@@ -2,6 +2,7 @@
 #define WHITGL_RANDOM_H_
 
 #include <tinymt/tinymt64.h>
+#include <whitgl/math.h>
 
 typedef tinymt64_t whitgl_random_seed;
 #define whitgl_random_seed_zero {{},0,0,0}
