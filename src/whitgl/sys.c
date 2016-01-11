@@ -254,6 +254,7 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_FOCUSED, setup->start_focused);
 	// glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
 
 	const GLFWvidmode * mode = glfwGetVideoMode(glfwGetPrimaryMonitor());

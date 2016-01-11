@@ -18,11 +18,13 @@ typedef struct
 	const char* name;
 	whitgl_ivec size;
 	int pixel_size;
-	bool fullscreen;
+	whitgl_bool fullscreen;
 	whitgl_sys_cursor_mode cursor;
-	bool vsync;
-	bool exact_size;
-	bool over_render;
+	whitgl_bool vsync;
+	whitgl_bool exact_size;
+	whitgl_bool over_render;
+	whitgl_bool start_focused;
+
 } whitgl_sys_setup;
 static const whitgl_sys_setup whitgl_sys_setup_zero =
 {
@@ -34,6 +36,7 @@ static const whitgl_sys_setup whitgl_sys_setup_zero =
 	true,
 	false,
 	false,
+	true,
 };
 
 typedef struct
