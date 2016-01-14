@@ -114,4 +114,6 @@ double whitgl_sys_get_time();
 whitgl_sys_color whitgl_sys_color_blend(whitgl_sys_color a, whitgl_sys_color b, whitgl_float factor);
 whitgl_sys_color whitgl_sys_color_multiply(whitgl_sys_color a, whitgl_sys_color b);
 
+whitgl_bool whitgl_sys_window_focused();
+
 #endif // WHITGL_SYS_H_

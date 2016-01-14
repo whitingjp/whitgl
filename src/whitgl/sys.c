@@ -11,9 +11,10 @@
 
 void _whitgl_sys_flush_tex_iaabb();
 
-bool _shouldClose;
+whitgl_bool _shouldClose;
 whitgl_ivec _window_size;
 GLFWwindow* _window;
+whitgl_bool _windowFocused;
 
 typedef struct
 {
@@ -24,8 +25,6 @@ typedef struct
 #define WHITGL_IMAGE_MAX (64)
 whitgl_image images[WHITGL_IMAGE_MAX];
 int num_images;
-
-
 
 const char* _vertex_src = "\
 #version 150\
@@ -113,13 +112,10 @@ void _whitgl_check_gl_error(const char* stmt, const char *file, int line)
 
 
 void _whitgl_sys_close_callback(GLFWwindow*);
+void _whitgl_sys_glfw_error_callback(int code, const char* error);
+void _whitgl_sys_window_focus_callback(GLFWwindow *window, int focused);
 
 whitgl_sys_setup _setup;
-
-void _whitgl_sys_glfw_error_callback(int code, const char* error)
-{
-	WHITGL_PANIC("glfw error %d '%s'", code, error);
-}
 
 void whitgl_sys_set_clear_color(whitgl_sys_color col)
 {
@@ -241,7 +237,7 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 
 	WHITGL_LOG("Initialize GLFW");
 
-	// glfwSetErrorCallback(&_whitgl_sys_glfw_error_callback);
+	glfwSetErrorCallback(&_whitgl_sys_glfw_error_callback);
 	result = glfwInit();
 	if(!result)
 	{
@@ -254,7 +250,8 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_FOCUSED, setup->start_focused);
+	_windowFocused = setup->start_focused;
+	glfwWindowHint(GLFW_FOCUSED, _windowFocused);
 	// glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
 
 	const GLFWvidmode * mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -268,7 +265,6 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	if(setup->fullscreen)
 	{
 		WHITGL_LOG("Opening fullscreen w%d h%d", mode->width, mode->height);
-		//_window = glfwCreateWindow(mode->width, mode->height, setup->name, glfwGetPrimaryMonitor(), NULL);
 		_window = glfwCreateWindow(mode->width, mode->height, setup->name, glfwGetPrimaryMonitor(), NULL);
 	} else
 	{
@@ -278,6 +274,12 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 		WHITGL_LOG("Opening windowed w%d h%d", window_size.x, window_size.y);
 		_window = glfwCreateWindow(window_size.x, window_size.y, setup->name, NULL, NULL);
 	}
+
+	if(!_window)
+		WHITGL_LOG("Failed to create window.");
+
+	 glfwSetWindowFocusCallback (_window, _whitgl_sys_window_focus_callback);
+
 
 	// Retrieve actual size of window in pixels, don't make an assumption
 	// (because of retina screens etc.
@@ -397,6 +399,17 @@ void _whitgl_sys_close_callback(GLFWwindow* window)
 {
 	(void)window;
 	_shouldClose = true;
+}
+
+void _whitgl_sys_glfw_error_callback(int code, const char* error)
+{
+	WHITGL_PANIC("glfw error %d '%s'", code, error);
+}
+
+void _whitgl_sys_window_focus_callback(GLFWwindow *window, int focused)
+{
+	(void)window;
+	_windowFocused = focused;
 }
 
 bool whitgl_sys_should_close()
@@ -998,4 +1011,9 @@ whitgl_sys_color whitgl_sys_color_multiply(whitgl_sys_color a, whitgl_sys_color 
 	out.a = (((whitgl_int)a.a)*((whitgl_int)b.a))>>8;
 
 	return out;
+}
+
+whitgl_bool whitgl_sys_window_focused()
+{
+	return _windowFocused;
 }
