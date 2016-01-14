@@ -462,6 +462,18 @@ whitgl_fvec whitgl_facing_to_fvec(whitgl_int facing)
 	whitgl_ivec i = whitgl_facing_to_ivec(facing);
 	return whitgl_ivec_to_fvec(i);
 }
+whitgl_float whitgl_facing_to_angle(whitgl_int facing)
+{
+	whitgl_float ang = 0;
+	switch(facing)
+	{
+		case 0: ang = whitgl_pi*0.0; break;
+		case 1: ang = whitgl_pi*0.5; break;
+		case 2: ang = whitgl_pi*1.0; break;
+		case 3: ang = whitgl_pi*1.5; break;
+	}
+	return ang;
+}
 whitgl_int whitgl_ivec_to_facing(whitgl_ivec vec)
 {
 	return whitgl_fvec_to_facing(whitgl_ivec_to_fvec(vec));
@@ -472,6 +484,17 @@ whitgl_int whitgl_fvec_to_facing(whitgl_fvec vec)
 		return vec.x > 0 ? 1 : 3;
 	else
 		return vec.y > 0 ? 2 : 0;
+}
+whitgl_int whitgl_angle_to_facing(whitgl_float angle)
+{
+	angle = whitgl_fwrap(angle, -whitgl_pi*0.25, whitgl_pi*2-whitgl_pi*0.25) + whitgl_pi*0.25;
+	if(angle < whitgl_pi*0.5)
+		return 0;
+	if(angle < whitgl_pi*1.0)
+		return 1;
+	if(angle < whitgl_pi*1.5)
+		return 2;
+	return 3;
 }
 
 bool whitgl_ray_circle_intersect(whitgl_fcircle circ, whitgl_fvec start, whitgl_fvec speed, whitgl_float* t1, whitgl_float* t2)
@@ -527,4 +550,13 @@ whitgl_float whitgl_angle_lerp(whitgl_float a, whitgl_float b, whitgl_float amou
 	}
 	whitgl_float out = a*(1-amount) + b*amount;
 	return whitgl_fwrap(out, 0, whitgl_pi*2);
+}
+whitgl_float whitgl_angle_diff(whitgl_float a, whitgl_float b)
+{
+	whitgl_float ab = whitgl_fwrap(a-b, 0, whitgl_pi*2);
+	whitgl_float ba = whitgl_fwrap(b-a, 0, whitgl_pi*2);
+	if(ab < ba)
+		return -ab;
+	else
+		return ba;
 }

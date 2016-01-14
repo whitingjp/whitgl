@@ -116,13 +116,16 @@ whitgl_float whitgl_fvec_to_angle(whitgl_fvec in);
 
 whitgl_ivec whitgl_facing_to_ivec(whitgl_int facing);
 whitgl_fvec whitgl_facing_to_fvec(whitgl_int facing);
+whitgl_float whitgl_facing_to_angle(whitgl_int facing);
 whitgl_int whitgl_ivec_to_facing(whitgl_ivec vec);
 whitgl_int whitgl_fvec_to_facing(whitgl_fvec vec);
+whitgl_int whitgl_angle_to_facing(whitgl_float angle);
 
 bool whitgl_ray_circle_intersect(whitgl_fcircle circ, whitgl_fvec start, whitgl_fvec speed, whitgl_float* t1, whitgl_float* t2);
 whitgl_fvec whitgl_rotate_point_around_point(whitgl_fvec src, whitgl_fvec pivot, whitgl_float angle);
 
 whitgl_float whitgl_angle_lerp(whitgl_float a, whitgl_float b, whitgl_float amount);
+whitgl_float whitgl_angle_diff(whitgl_float a, whitgl_float b);
 
 whitgl_ivec whitgl_camera(whitgl_ivec pos, whitgl_ivec world_size, whitgl_ivec screen_size);
 
