@@ -120,6 +120,10 @@ whitgl_float whitgl_fpow(whitgl_float a, whitgl_float b)
 {
 	return pow(a,b);
 }
+whitgl_float whitgl_finterpolate(whitgl_float a, whitgl_float b, whitgl_float ratio)
+{
+	return a*(1-ratio) + b*ratio;
+}
 
 whitgl_ivec whitgl_ivec_val(whitgl_int a)
 {
