@@ -1,9 +1,12 @@
 #include <whitgl/math.h>
 #include <whitgl/random.h>
 
+#include <string.h>
+
 whitgl_random_seed whitgl_random_seed_init(whitgl_int data)
 {
 	whitgl_random_seed seed;
+	memset(&seed, 0, sizeof(whitgl_random_seed));
 	tinymt64_init(&seed, data);
 	return seed;
 }
