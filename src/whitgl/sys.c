@@ -438,7 +438,8 @@ void whitgl_sys_draw_init()
 	GL_CHECK( glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA) );
 	GL_CHECK( glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer) );
 	GL_CHECK( glViewport( 0, 0, _setup.size.x, _setup.size.y ) );
-	GL_CHECK( glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) );
+	if(_setup.clear_buffer)
+		GL_CHECK( glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) );
 }
 
 void _whitgl_populate_vertices(float* vertices, whitgl_iaabb s, whitgl_iaabb d, whitgl_ivec image_size)

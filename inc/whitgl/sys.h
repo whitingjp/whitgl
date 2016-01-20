@@ -24,7 +24,7 @@ typedef struct
 	whitgl_bool exact_size;
 	whitgl_bool over_render;
 	whitgl_bool start_focused;
-
+	whitgl_bool clear_buffer;
 } whitgl_sys_setup;
 static const whitgl_sys_setup whitgl_sys_setup_zero =
 {
@@ -36,6 +36,7 @@ static const whitgl_sys_setup whitgl_sys_setup_zero =
 	true,
 	false,
 	false,
+	true,
 	true,
 };
 
