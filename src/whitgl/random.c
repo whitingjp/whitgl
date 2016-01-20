@@ -13,6 +13,7 @@ whitgl_random_seed whitgl_random_seed_init(whitgl_int data)
 whitgl_random_seed whitgl_random_seed_init_from_seed(whitgl_random_seed* in)
 {
 	whitgl_random_seed out;
+	memset(&out, 0, sizeof(whitgl_random_seed));
 	tinymt64_init(&out, tinymt64_generate_uint64(in));
 	return out;
 }
