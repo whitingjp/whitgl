@@ -14,17 +14,21 @@ if(bit64):
 else:
   fmoddir = 'x86'
 
-cflags = '-Iinc -Wall -Wextra -Werror -g'
-ldflags = ''
-if plat == 'Windows':
-  cflags += ' -Iinput/glfw/include -Iinput/libpng/include -Iinput/zlib/include -Iinput/glew/include -Iinput/fmod/win/inc -Iinput/TinyMT '
-  ldflags += ' -Linput/glfw/lib-mingw -Linput/glew/lib -Linput/libpng/lib -Linput/fmod/win/lib input/glfw/lib-mingw/glfw3dll.a -lglu32 -lopengl32 -lglew32 -lfmod -lpng input/zlib/lib/zdll.lib -mwindows input/TinyMT/tinymt/tinymt64.o'
-elif plat == 'Darwin':
-  cflags += ' -mmacosx-version-min=10.6 -isystem input/fmod/inc -Iinput/glfw/include -Iinput/glew/include -Iinput/libpng -Iinput/TinyMT'
-  ldflags += ' -mmacosx-version-min=10.6 -Linput/fmod/lib -Linput/glfw/build/src -Linput/libpng -Linput/zlib -Linput/glew/lib -framework OpenGL -framework Cocoa -framework IOKit -framework ForceFeedback -framework Carbon -framework CoreAudio -framework CoreVideo -framework AudioUnit -lpng -lfmod -lglfw3 -lGLEW -lz input/TinyMT/tinymt/tinymt64.o'
-else:
-  cflags += ' -isystem input/fmod/api/lowlevel/inc -Iinput/glfw/include -Iinput/TinyMT'
-  ldflags += ' -Wl,-rpath=.,--enable-new-dtags -Linput/fmod/api/lowlevel/lib/%s -Linput/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lm -lfmod -lX11 -lXxf86vm -lpthread -lXrandr -lXi -lpng input/TinyMT/tinymt/tinymt64.o' % fmoddir
+def flags(input_dir):
+  cflags = '-Iinc -Wall -Wextra -Werror -g'
+  ldflags = ''
+  if plat == 'Windows':
+    cflags += ' -I_INPUT_/glfw/include -I_INPUT_/libpng/include -I_INPUT_/zlib/include -I_INPUT_/glew/include -I_INPUT_/fmod/win/inc -I_INPUT_/TinyMT '
+    ldflags += ' -L_INPUT_/glfw/lib-mingw -L_INPUT_/glew/lib -L_INPUT_/libpng/lib -L_INPUT_/fmod/win/lib _INPUT_/glfw/lib-mingw/glfw3dll.a -lglu32 -lopengl32 -lglew32 -lfmod -lpng _INPUT_/zlib/lib/zdll.lib -mwindows _INPUT_/TinyMT/tinymt/tinymt64.o'
+  elif plat == 'Darwin':
+    cflags += ' -mmacosx-version-min=10.6 -isystem _INPUT_/fmod/inc -I_INPUT_/glfw/include -I_INPUT_/glew/include -I_INPUT_/libpng -I_INPUT_/TinyMT'
+    ldflags += ' -mmacosx-version-min=10.6 -L_INPUT_/fmod/lib -L_INPUT_/glfw/build/src -L_INPUT_/libpng -L_INPUT_/zlib -L_INPUT_/glew/lib -framework OpenGL -framework Cocoa -framework IOKit -framework ForceFeedback -framework Carbon -framework CoreAudio -framework CoreVideo -framework AudioUnit -lpng -lfmod -lglfw3 -lGLEW -lz _INPUT_/TinyMT/tinymt/tinymt64.o'
+  else:
+    cflags += ' -isystem _INPUT_/fmod/api/lowlevel/inc -I_INPUT_/glfw/include -I_INPUT_/TinyMT'
+    ldflags += ' -Wl,-rpath=.,--enable-new-dtags -L_INPUT_/fmod/api/lowlevel/lib/%s -L_INPUT_/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lm -lfmod -lX11 -lXxf86vm -lpthread -lXrandr -lXi -lpng _INPUT_/TinyMT/tinymt/tinymt64.o' % fmoddir
+  cflags = cflags.replace('_INPUT_', input_dir)
+  ldflags = ldflags.replace('_INPUT_', input_dir)
+  return (cflags, ldflags)
 
 def rules(n, cflags, ldflags):
   n.variable('cflags', cflags)
@@ -108,6 +112,7 @@ def main():
   BUILD_FILENAME = 'build.ninja'
   buildfile = open(BUILD_FILENAME, 'w')
   n = ninja_syntax.Writer(buildfile)
+  cflags, ldflags = flags('input')
   rules(n, cflags, ldflags)
   # Library
   obj = walk_src(n, srcdir, objdir)
