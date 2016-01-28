@@ -98,6 +98,36 @@ def copy_libs(n, inputs, outdir):
   n.newline()
   return targets
 
+def do_game(target, extra_cflags, data_types):
+  srcdir = 'src'
+  inputdir = joinp('whitgl', 'input')
+  builddir = 'build'
+  targetdir = joinp(builddir, 'out')
+  objdir = joinp(builddir, 'obj')
+  libdir = joinp(builddir, 'lib')
+  data_in =  'data'
+  data_out = joinp(targetdir, 'data')
+  buildfile = open('build.ninja', 'w')
+  n = ninja_syntax.Writer(buildfile)
+  cflags, ldflags = flags(inputdir)
+  cflags = cflags + ' -Iwhitgl/inc -Isrc ' + extra_cflags
+  rules(n, cflags, ldflags)
+  obj = walk_src(n, srcdir, objdir)
+  whitgl = [joinp('whitgl','build','lib','whitgl.a')]
+  targets = []
+  targets += n.build(joinp(targetdir, target), 'link', obj+whitgl)
+  n.newline()
+
+  data = walk_data(n, data_in, data_out, data_types)
+
+  targets += n.build('data', 'phony', data)
+  n.newline()
+
+  targets += copy_libs(n, inputdir, targetdir)
+
+  n.build('all', 'phony', targets)
+  n.default('all')
+
 def main():
   target = 'whitgl.a'
   srcdir = 'src'
