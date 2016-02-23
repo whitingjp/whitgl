@@ -19,7 +19,7 @@ def flags(input_dir):
   ldflags = ''
   if plat == 'Windows':
     cflags += ' -I_INPUT_/glfw/include -I_INPUT_/libpng/include -I_INPUT_/zlib/include -I_INPUT_/glew/include -I_INPUT_/fmod/win/inc -I_INPUT_/TinyMT '
-    ldflags += ' -L_INPUT_/glfw/lib-mingw -L_INPUT_/glew/lib -L_INPUT_/libpng/lib -L_INPUT_/fmod/win/lib _INPUT_/glfw/lib-mingw/glfw3dll.a -lglu32 -lopengl32 -lglew32 -lfmod -lpng _INPUT_/zlib/lib/zdll.lib -mwindows _INPUT_/TinyMT/tinymt/tinymt64.o'
+    ldflags += ' -Wl,--stack,4194304 -L_INPUT_/glfw/lib-mingw -L_INPUT_/glew/lib -L_INPUT_/libpng/lib -L_INPUT_/fmod/win/lib _INPUT_/glfw/lib-mingw/glfw3dll.a -lglu32 -lopengl32 -lglew32 -lfmod -lpng _INPUT_/zlib/lib/zdll.lib -mwindows _INPUT_/TinyMT/tinymt/tinymt64.o'
   elif plat == 'Darwin':
     cflags += ' -mmacosx-version-min=10.6 -isystem _INPUT_/fmod/inc -I_INPUT_/glfw/include -I_INPUT_/glew/include -I_INPUT_/libpng -I_INPUT_/TinyMT'
     ldflags += ' -mmacosx-version-min=10.6 -L_INPUT_/fmod/lib -L_INPUT_/glfw/build/src -L_INPUT_/libpng -L_INPUT_/zlib -L_INPUT_/glew/lib -framework OpenGL -framework Cocoa -framework IOKit -framework ForceFeedback -framework Carbon -framework CoreAudio -framework CoreVideo -framework AudioUnit -lpng -lfmod -lglfw3 -lGLEW -lz _INPUT_/TinyMT/tinymt/tinymt64.o'
