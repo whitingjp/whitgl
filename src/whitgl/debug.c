@@ -41,9 +41,9 @@ whitgl_debug_menu whitgl_debug_menu_update(whitgl_debug_menu debug)
 		debug.selected = -1;
 	if(mouse_pos.x < 0 || mouse_pos.x > debug.text_sprite.size.x*11)
 		debug.selected = -1;
-	if(debug.selected == -1)
-		return debug;
 	if(debug.entries[debug.selected].type != WHITGL_DEBUG_BUTTON)
+		debug.selected = -1;
+	if(debug.selected == -1)
 		return debug;
 	if(!whitgl_input_pressed(WHITGL_INPUT_MOUSE_LEFT))
 		return debug;
