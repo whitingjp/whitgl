@@ -23,6 +23,7 @@ static const whitgl_debug_menu_entry whitgl_debug_menu_entry_zero = {WHITGL_DEBU
 #define WHITGL_DEBUG_MAX_ENTRIES (8)
 typedef struct
 {
+	whitgl_bool active;
 	int num_entries;
 	whitgl_debug_menu_entry entries[WHITGL_DEBUG_MAX_ENTRIES];
 	whitgl_ivec pos;

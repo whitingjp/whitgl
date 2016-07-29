@@ -8,6 +8,7 @@
 whitgl_debug_menu whitgl_debug_menu_zero(whitgl_ivec pos, whitgl_sprite text_sprite, whitgl_int pixel_size)
 {
 	whitgl_debug_menu debug;
+	debug.active = false;
 	whitgl_int i;
 	for(i=0; i<WHITGL_DEBUG_MAX_ENTRIES; i++)
 	{
@@ -24,6 +25,10 @@ whitgl_debug_menu whitgl_debug_menu_zero(whitgl_ivec pos, whitgl_sprite text_spr
 whitgl_debug_menu whitgl_debug_menu_update(whitgl_debug_menu debug)
 {
 	whitgl_int i;
+	if(whitgl_input_pressed(WHITGL_INPUT_DEBUG))
+		debug.active = !debug.active;
+	if(!debug.active)
+		return debug;
 	for(i=0; i<WHITGL_DEBUG_MAX_ENTRIES; i++)
 	{
 		if(debug.entries[i].type == WHITGL_DEBUG_BUTTON)
@@ -83,6 +88,8 @@ whitgl_debug_menu whitgl_debug_menu_add_button(whitgl_debug_menu debug, const ch
 
 void whitgl_debug_menu_draw(whitgl_debug_menu debug)
 {
+	if(!debug.active)
+		return;
 	whitgl_ivec draw_pos = debug.pos;
 	whitgl_int i;
 	for(i=0; i<debug.num_entries; i++)
