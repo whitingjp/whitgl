@@ -740,6 +740,48 @@ void whitgl_sys_draw_sprite_sized(whitgl_sprite sprite, whitgl_ivec frame, whitg
 	whitgl_sys_draw_tex_iaabb(sprite.image, src, dest);
 }
 
+void whitgl_sys_draw_text(whitgl_sprite sprite, const char* string, whitgl_ivec pos)
+{
+	whitgl_ivec draw_pos = pos;
+	while(*string)
+	{
+		int index = -1;
+		if(*string >= 'a' && *string <= 'z')
+			index = *string-'a';
+		if(*string >= 'A' && *string <= 'Z')
+			index = *string-'A';
+		if(*string >= '0' && *string <= '9')
+			index = *string-'0'+26;
+		if(*string == ',')
+			index = 36;
+		if(*string == '.')
+			index = 37;
+		if(*string == ':')
+			index = 38;
+		if(*string == '$')
+			index = 39;
+		if(*string == '!')
+			index = 40;
+		if(*string == '\'')
+			index = 41;
+		if(*string == '?')
+			index = 42;
+		if(*string == '-')
+			index = 43;
+		if(*string == '<')
+			index = 44;
+		if(*string == '>')
+			index = 45;
+		if(index != -1)
+		{
+			whitgl_ivec frame = {index%6, index/6};
+			whitgl_sys_draw_sprite(sprite, frame, draw_pos);
+			draw_pos.x += sprite.size.x;
+		}
+		string++;
+	}
+}
+
 bool whitgl_sys_load_png(const char *name, whitgl_int *width, whitgl_int *height, unsigned char **data)
 {
 	png_structp png_ptr;
