@@ -25,7 +25,7 @@ def flags(input_dir):
     ldflags += ' -mmacosx-version-min=10.6 -L_INPUT_/fmod/lib -L_INPUT_/glfw/build/src -L_INPUT_/libpng -L_INPUT_/zlib -L_INPUT_/glew/lib -framework OpenGL -framework Cocoa -framework IOKit -framework ForceFeedback -framework Carbon -framework CoreAudio -framework CoreVideo -framework AudioUnit -lpng -lfmod -lglfw3 -lGLEW -lz _INPUT_/TinyMT/tinymt/tinymt64.o'
   else:
     cflags += ' -isystem _INPUT_/fmod/api/lowlevel/inc -I_INPUT_/glfw/include -I_INPUT_/TinyMT'
-    ldflags += ' -Wl,-rpath=.,--enable-new-dtags -L_INPUT_/fmod/api/lowlevel/lib/%s -L_INPUT_/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lm -lfmod -lX11 -lXxf86vm -lpthread -lXrandr -lXinerama -lXcursor -lXi -lpng -ldl _INPUT_/TinyMT/tinymt/tinymt64.o' % fmoddir
+    ldflags += ' -Wl,-rpath=.,--enable-new-dtags -L_INPUT_/fmod/api/lowlevel/lib/%s -L_INPUT_/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lm -lfmod -lX11 -lXxf86vm -lpthread -lXrandr -lXinerama -lXcursor -lXi -lpng -ldl _INPUT_/TinyMT/tinymt/tinymt64.o -lz' % fmoddir
   cflags = cflags.replace('_INPUT_', input_dir)
   ldflags = ldflags.replace('_INPUT_', input_dir)
   return (cflags, ldflags)

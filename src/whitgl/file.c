@@ -73,7 +73,7 @@ bool whitgl_file_load(const char* fileName, int size, void* data)
 
 bool whitgl_file_save_z(const char* fileName, int size, const void* data)
 {
-	gzFile *dest;
+	gzFile dest;
 	int written;
 	dest = gzopen(fileName, "wb");
 	if (dest == NULL)
@@ -104,7 +104,7 @@ bool whitgl_file_save_z(const char* fileName, int size, const void* data)
 
 bool whitgl_file_load_z(const char* fileName, int size, void* data)
 {
-	gzFile *src;
+	gzFile src;
 	int read;
 	int readSize;
 	src = gzopen(fileName, "rb");
