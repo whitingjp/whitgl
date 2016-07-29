@@ -772,6 +772,8 @@ void whitgl_sys_draw_text(whitgl_sprite sprite, const char* string, whitgl_ivec 
 			index = 44;
 		if(*string == '>')
 			index = 45;
+		if(*string == ' ')
+			draw_pos.x += sprite.size.x;
 		if(index != -1)
 		{
 			whitgl_ivec frame = {index%6, index/6};
