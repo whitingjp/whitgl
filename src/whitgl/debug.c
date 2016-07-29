@@ -15,6 +15,17 @@ whitgl_debug_menu whitgl_debug_menu_zero()
 	debug.num_entries = 0;
 	return debug;
 }
+whitgl_debug_menu whitgl_debug_menu_add_int(whitgl_debug_menu debug, const char* name, const whitgl_int* val)
+{
+	if(debug.num_entries >= WHITGL_DEBUG_MAX_ENTRIES)
+		WHITGL_PANIC("run out of debug entries");
+	whitgl_int index = debug.num_entries;
+	debug.entries[index].type = WHITGL_DEBUG_INT;
+	debug.entries[index].name = name;
+	debug.entries[index].int_val = val;
+	debug.num_entries++;
+	return debug;
+}
 whitgl_debug_menu whitgl_debug_menu_add_float(whitgl_debug_menu debug, const char* name, const whitgl_float* val)
 {
 	if(debug.num_entries >= WHITGL_DEBUG_MAX_ENTRIES)
@@ -26,6 +37,8 @@ whitgl_debug_menu whitgl_debug_menu_add_float(whitgl_debug_menu debug, const cha
 	debug.num_entries++;
 	return debug;
 }
+
+
 void whitgl_debug_menu_draw(whitgl_debug_menu debug, whitgl_sprite text_sprite, whitgl_ivec draw_pos)
 {
 	whitgl_int i;
@@ -35,9 +48,14 @@ void whitgl_debug_menu_draw(whitgl_debug_menu debug, whitgl_sprite text_sprite, 
 		buffer[0] = '\0';
 		switch(debug.entries[i].type)
 		{
+			case WHITGL_DEBUG_INT:
+			{
+				snprintf(buffer, sizeof(buffer), "%5s %5d", debug.entries[i].name, (int)*debug.entries[i].int_val);
+				break;
+			}
 			case WHITGL_DEBUG_FLOAT:
 			{
-     			snprintf(buffer, sizeof(buffer), "%5s %5.1f", debug.entries[i].name, *debug.entries[i].float_val);
+				snprintf(buffer, sizeof(buffer), "%5s %5.1f", debug.entries[i].name, *debug.entries[i].float_val);
 				break;
 			}
 		}
