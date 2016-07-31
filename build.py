@@ -15,7 +15,7 @@ else:
   fmoddir = 'x86'
 
 def flags(input_dir):
-  cflags = '-Iinc -Wall -Wextra -Werror -g'
+  cflags = '-Iinc -Wall -Wextra -Werror -fstack-protector-strong -g'
   ldflags = ''
   if plat == 'Windows':
     cflags += ' -I_INPUT_/glfw/include -I_INPUT_/libpng/include -I_INPUT_/zlib/include -I_INPUT_/glew/include -I_INPUT_/fmod/win/inc -I_INPUT_/TinyMT '
