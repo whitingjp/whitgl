@@ -9,6 +9,7 @@ bool _heldInputs[WHITGL_INPUT_MAX];
 bool _pressedInputs[WHITGL_INPUT_MAX];
 whitgl_fvec _joystick;
 whitgl_fvec _joystick2;
+whitgl_fvec _joystick3;
 whitgl_float _scroll;
 
 extern GLFWwindow* _window;
@@ -69,6 +70,10 @@ whitgl_fvec whitgl_input_joystick()
 whitgl_fvec whitgl_input_joystick2()
 {
 	return _joystick2;
+}
+whitgl_fvec whitgl_input_joystick3()
+{
+	return _joystick3;
 }
 
 bool _press(int key)
@@ -152,7 +157,7 @@ void whitgl_input_update()
 		}
 		if(count >= 4)
 		{
-			if(strncmp(joyname, "Microsoft PC-joystick driver", 28)==0)
+			if(count >= 5 && strncmp(joyname, "Microsoft PC-joystick driver", 28)==0)
 			{
 				_joystick2.x = _deadzone(axes[4]);
 				_joystick2.y = _deadzone(axes[3]);
@@ -160,6 +165,17 @@ void whitgl_input_update()
 			{
 				_joystick2.x = _deadzone(axes[2]);
 				_joystick2.y = _deadzone(axes[3]);
+			}
+		}
+		if(count >= 6)
+		{
+			if(strncmp(joyname, "Microsoft PC-joystick driver", 28)==0)
+			{
+				WHITGL_LOG("Don't know how to handle this");
+			} else
+			{
+				_joystick3.x = _deadzone(axes[4]);
+				_joystick3.y = _deadzone(axes[5]);
 			}
 		}
 		const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1,&count);
