@@ -505,6 +505,11 @@ whitgl_int whitgl_angle_to_facing(whitgl_float angle)
 	return 3;
 }
 
+whitgl_fvec whitgl_facing8_to_fvec(whitgl_int dir8)
+{
+	return whitgl_angle_to_fvec(whitgl_fwrap(((dir8-2)*whitgl_pi*2)/8,-whitgl_pi,whitgl_pi));
+}
+
 bool whitgl_ray_circle_intersect(whitgl_fcircle circ, whitgl_fvec start, whitgl_fvec speed, whitgl_float* t1, whitgl_float* t2)
 {
 	whitgl_float a = speed.x*speed.x + speed.y*speed.y;
