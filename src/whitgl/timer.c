@@ -46,6 +46,10 @@ bool whitgl_timer_should_do_frame(whitgl_float fps)
 	_whitgl_timer_elapsed_time -= 1.0/fps;
 	return true;
 }
+whitgl_float whitgl_timer_frame_completage(whitgl_float fps)
+{
+	return 1+_whitgl_timer_elapsed_time/(1.0/fps);
+}
 whitgl_int whitgl_timer_fps()
 {
 	return _whitgl_timer_fps;
