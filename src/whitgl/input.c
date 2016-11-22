@@ -174,8 +174,8 @@ void whitgl_input_update()
 				WHITGL_LOG("Don't know how to handle this");
 			} else
 			{
-				_joystick3.x = 1+axes[4];
-				_joystick3.y = 1+axes[5];
+				_joystick3.x = (1+axes[4])/2.0;
+				_joystick3.y = (1+axes[5])/2.0;
 			}
 		}
 		const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1,&count);
