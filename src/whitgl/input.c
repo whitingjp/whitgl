@@ -147,7 +147,6 @@ void whitgl_input_update()
 	if(glfwJoystickPresent(GLFW_JOYSTICK_1))
 	{
 		const char* joyname = glfwGetJoystickName(GLFW_JOYSTICK_1);
-		// WHITGL_LOG("joyname %s", joyname);
 		int count;
 		const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
 		if(count >= 2)
@@ -167,12 +166,15 @@ void whitgl_input_update()
 				_joystick2.y = _deadzone(axes[3]);
 			}
 		}
-		if(count >= 6)
+		if(count >= 5)
 		{
 			if(strncmp(joyname, "Microsoft PC-joystick driver", 28)==0)
 			{
-				WHITGL_LOG("Don't know how to handle this");
-			} else
+				if(axes[2] > 0)
+					_joystick3.x = axes[2];
+				else
+					_joystick3.y = -axes[2];
+			} else if(count >= 6)
 			{
 				_joystick3.x = (1+axes[4])/2.0;
 				_joystick3.y = (1+axes[5])/2.0;
