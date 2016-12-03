@@ -43,12 +43,18 @@ const char* _vertex_src = "\
 \
 in vec3 position;\
 in vec2 texturepos;\
+in vec3 vertexColorA;\
+in vec3 vertexColorB;\
 out vec2 Texturepos;\
+out vec3 fragmentColorA;\
+out vec3 fragmentColorB;\
 uniform mat4 sLocalToProjMatrix;\
 void main()\
 {\
 	gl_Position = sLocalToProjMatrix * vec4( position, 1.0 );\
 	Texturepos = texturepos;\
+	fragmentColorA = vertexColorA;\
+	fragmentColorB = vertexColorB;\
 }\
 ";
 
@@ -68,10 +74,22 @@ const char* _flat_src = "\
 #version 150\
 \n\
 uniform vec4 sColor;\
+in vec3 fragmentColorA;\
 out vec4 outColor;\
 void main()\
 {\
 	outColor = sColor;\
+}\
+";
+
+const char* _model_src = "\
+#version 150\
+\n\
+in vec3 fragmentColorA;\
+out vec4 outColor;\
+void main()\
+{\
+	outColor = vec4(fragmentColorA,1);\
 }\
 ";
 
@@ -346,6 +364,10 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	if(!whitgl_change_shader( WHITGL_SHADER_TEXTURE, texture_shader))
 		return false;
 	if(!whitgl_change_shader( WHITGL_SHADER_POST, texture_shader))
+		return false;
+	whitgl_shader model_shader = whitgl_shader_zero;
+	model_shader.fragment_src = _model_src;
+	if(!whitgl_change_shader( WHITGL_SHADER_MODEL, model_shader))
 		return false;
 
 	WHITGL_LOG("Creating framebuffer");
@@ -697,16 +719,24 @@ void whitgl_sys_draw_model(whitgl_int id, whitgl_fmat matrix)
 
 	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, models[index].vbo ) );
 
-	GLuint shaderProgram = shaders[WHITGL_SHADER_FLAT].program;
+	GLuint shaderProgram = shaders[WHITGL_SHADER_MODEL].program;
 	GL_CHECK( glUseProgram( shaderProgram ) );
-	GL_CHECK( glUniform4f( glGetUniformLocation( shaderProgram, "sColor" ), 255.0, 255.0, 255.0, 255.0 ) );
-	_whitgl_load_uniforms(WHITGL_SHADER_FLAT);
+	GL_CHECK( glUniform4f( glGetUniformLocation( shaderProgram, "sColor" ), 1.0, 1.0, 1.0, 1.0 ) );
+	_whitgl_load_uniforms(WHITGL_SHADER_MODEL);
 	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "sLocalToProjMatrix"), 1, GL_FALSE, matrix.mat);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
 	GL_CHECK( glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), 0 ) );
 	GL_CHECK( glEnableVertexAttribArray( posAttrib ) );
+
+	GLint colorAttribA = glGetAttribLocation( shaderProgram, "vertexColorA" );
+	GL_CHECK( glVertexAttribPointer( colorAttribA, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), BUFFER_OFFSET(sizeof(float)*3) ) );
+	GL_CHECK( glEnableVertexAttribArray( colorAttribA ) );
+
+	GLint colorAttribB = glGetAttribLocation( shaderProgram, "vertexColorB" );
+	GL_CHECK( glVertexAttribPointer( colorAttribB, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), BUFFER_OFFSET(sizeof(float)*6) ) );
+	GL_CHECK( glEnableVertexAttribArray( colorAttribB ) );
 
 	GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, models[index].num_vertices ) );
 }
