@@ -100,7 +100,7 @@ int main()
 		whitgl_sys_draw_init();
 
 		whitgl_float fov = whitgl_pi/2;
-		whitgl_fmat perspective = whitgl_fmat_perspective(fov, setup.size.x/setup.size.y, 0.1f, 1000.0f);
+		whitgl_fmat perspective = whitgl_fmat_perspective(fov, setup.size.x/setup.size.y, 0.1f, 10.0f);
 		whitgl_fvec3 up = {0,1,0};
 		whitgl_fvec3 camera_pos = {0,0,-2};
 		whitgl_fvec3 camera_to = {0,0,0};

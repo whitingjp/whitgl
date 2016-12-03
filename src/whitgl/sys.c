@@ -43,18 +43,18 @@ const char* _vertex_src = "\
 \
 in vec3 position;\
 in vec2 texturepos;\
-in vec3 vertexColorA;\
-in vec3 vertexColorB;\
+in vec3 vertexColor;\
+in vec3 vertexNormal;\
 out vec2 Texturepos;\
-out vec3 fragmentColorA;\
-out vec3 fragmentColorB;\
+out vec3 fragmentColor;\
+out vec3 fragmentNormal;\
 uniform mat4 sLocalToProjMatrix;\
 void main()\
 {\
 	gl_Position = sLocalToProjMatrix * vec4( position, 1.0 );\
 	Texturepos = texturepos;\
-	fragmentColorA = vertexColorA;\
-	fragmentColorB = vertexColorB;\
+	fragmentColor = vertexColor;\
+	fragmentNormal = vertexNormal;\
 }\
 ";
 
@@ -74,7 +74,7 @@ const char* _flat_src = "\
 #version 150\
 \n\
 uniform vec4 sColor;\
-in vec3 fragmentColorA;\
+in vec3 fragmentColor;\
 out vec4 outColor;\
 void main()\
 {\
@@ -85,11 +85,13 @@ void main()\
 const char* _model_src = "\
 #version 150\
 \n\
-in vec3 fragmentColorA;\
+in vec3 fragmentColor;\
+in vec3 fragmentNormal;\
 out vec4 outColor;\
 void main()\
 {\
-	outColor = vec4(fragmentColorA,1);\
+	vec3 col = fragmentColor+vec3(fragmentNormal.g)/4;\
+	outColor = vec4(col,1);\
 }\
 ";
 
@@ -717,6 +719,11 @@ void whitgl_sys_draw_model(whitgl_int id, whitgl_fmat matrix)
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
+	// Enable depth test
+	glEnable(GL_DEPTH_TEST);
+	// Accept fragment if it closer to the camera than the former one
+	glDepthFunc(GL_LESS);
+
 	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, models[index].vbo ) );
 
 	GLuint shaderProgram = shaders[WHITGL_SHADER_MODEL].program;
@@ -730,11 +737,11 @@ void whitgl_sys_draw_model(whitgl_int id, whitgl_fmat matrix)
 	GL_CHECK( glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), 0 ) );
 	GL_CHECK( glEnableVertexAttribArray( posAttrib ) );
 
-	GLint colorAttribA = glGetAttribLocation( shaderProgram, "vertexColorA" );
+	GLint colorAttribA = glGetAttribLocation( shaderProgram, "vertexColor" );
 	GL_CHECK( glVertexAttribPointer( colorAttribA, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), BUFFER_OFFSET(sizeof(float)*3) ) );
 	GL_CHECK( glEnableVertexAttribArray( colorAttribA ) );
 
-	GLint colorAttribB = glGetAttribLocation( shaderProgram, "vertexColorB" );
+	GLint colorAttribB = glGetAttribLocation( shaderProgram, "vertexNormal" );
 	GL_CHECK( glVertexAttribPointer( colorAttribB, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), BUFFER_OFFSET(sizeof(float)*6) ) );
 	GL_CHECK( glEnableVertexAttribArray( colorAttribB ) );
 
