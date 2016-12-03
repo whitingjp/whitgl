@@ -31,13 +31,13 @@ const char* _vertex_src = "\
 #version 150\
 \n\
 \
-in vec2 position;\
+in vec3 position;\
 in vec2 texturepos;\
 out vec2 Texturepos;\
 uniform mat4 sLocalToProjMatrix;\
 void main()\
 {\
-	gl_Position = sLocalToProjMatrix * vec4( position, 0.0, 1.0 );\
+	gl_Position = sLocalToProjMatrix * vec4( position, 1.0 );\
 	Texturepos = texturepos;\
 }\
 ";
@@ -449,13 +449,14 @@ void _whitgl_populate_vertices(float* vertices, whitgl_iaabb s, whitgl_iaabb d, 
 	// cpu optimisation for "whitgl_faabb sf = whitgl_faabb_divide(whitgl_iaabb_to_faabb(s), whitgl_ivec_to_fvec(image_size));"
 	whitgl_faabb sf = {{((float)s.a.x)/((float)image_size.x),((float)s.a.y)/((float)image_size.y)},
                        {((float)s.b.x)/((float)image_size.x),((float)s.b.y)/((float)image_size.y)}};
-	vertices[ 0] = d.a.x; vertices[ 1] = d.b.y; vertices[ 2] = sf.a.x; vertices[ 3] = sf.b.y;
-	vertices[ 4] = d.b.x; vertices[ 5] = d.a.y; vertices[ 6] = sf.b.x; vertices[ 7] = sf.a.y;
-	vertices[ 8] = d.a.x; vertices[ 9] = d.a.y; vertices[10] = sf.a.x; vertices[11] = sf.a.y;
+	whitgl_int i = 0;
+	vertices[i++] = d.a.x; vertices[i++] = d.b.y; vertices[i++] = 0; vertices[i++] = sf.a.x; vertices[i++] = sf.b.y;
+	vertices[i++] = d.b.x; vertices[i++] = d.a.y; vertices[i++] = 0; vertices[i++] = sf.b.x; vertices[i++] = sf.a.y;
+	vertices[i++] = d.a.x; vertices[i++] = d.a.y; vertices[i++] = 0; vertices[i++] = sf.a.x; vertices[i++] = sf.a.y;
 
-	vertices[12] = d.a.x; vertices[13] = d.b.y; vertices[14] = sf.a.x; vertices[15] = sf.b.y;
-	vertices[16] = d.b.x; vertices[17] = d.b.y; vertices[18] = sf.b.x; vertices[19] = sf.b.y;
-	vertices[20] = d.b.x; vertices[21] = d.a.y; vertices[22] = sf.b.x; vertices[23] = sf.a.y;
+	vertices[i++] = d.a.x; vertices[i++] = d.b.y; vertices[i++] = 0; vertices[i++] = sf.a.x; vertices[i++] = sf.b.y;
+	vertices[i++] = d.b.x; vertices[i++] = d.b.y; vertices[i++] = 0; vertices[i++] = sf.b.x; vertices[i++] = sf.b.y;
+	vertices[i++] = d.b.x; vertices[i++] = d.a.y; vertices[i++] = 0; vertices[i++] = sf.b.x; vertices[i++] = sf.a.y;
 }
 
 void _whitgl_sys_orthographic(GLuint program, float left, float right, float top, float bottom)
@@ -500,7 +501,7 @@ void whitgl_sys_draw_finish()
 	GL_CHECK( glActiveTexture( GL_TEXTURE0 ) );
 	GL_CHECK( glBindTexture( GL_TEXTURE_2D, intermediateTexture ) );
 
-	float vertices[6*4];
+	float vertices[6*5];
 	whitgl_iaabb src = whitgl_iaabb_zero;
 	whitgl_iaabb dest = whitgl_iaabb_zero;
 	src.b.x = _setup.size.x;
@@ -529,11 +530,11 @@ void whitgl_sys_draw_finish()
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
-	GL_CHECK( glVertexAttribPointer( posAttrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0 ) );
+	GL_CHECK( glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), 0 ) );
 	GL_CHECK( glEnableVertexAttribArray( posAttrib ) );
 
 	GLint texturePosAttrib = glGetAttribLocation( shaderProgram, "texturepos" );
-	GL_CHECK( glVertexAttribPointer( texturePosAttrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), BUFFER_OFFSET(sizeof(float)*2) ) );
+	GL_CHECK( glVertexAttribPointer( texturePosAttrib, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), BUFFER_OFFSET(sizeof(float)*3) ) );
 	GL_CHECK( glEnableVertexAttribArray( texturePosAttrib ) );
 
 	GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, 6 ) );
@@ -555,7 +556,7 @@ void whitgl_sys_draw_finish()
 void whitgl_sys_draw_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 {
 	_whitgl_sys_flush_tex_iaabb();
-	float vertices[6*4];
+	float vertices[6*5];
 	_whitgl_populate_vertices(vertices, whitgl_iaabb_zero, rect, whitgl_ivec_zero);
 
 	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, vbo ) );
@@ -569,7 +570,7 @@ void whitgl_sys_draw_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
-	GL_CHECK( glVertexAttribPointer( posAttrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0 ) );
+	GL_CHECK( glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), 0 ) );
 	GL_CHECK( glEnableVertexAttribArray( posAttrib ) );
 
 	GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, 6 ) );
@@ -589,8 +590,10 @@ void whitgl_sys_draw_hollow_iaabb(whitgl_iaabb rect, whitgl_int width, whitgl_sy
 void whitgl_sys_draw_line(whitgl_iaabb l, whitgl_sys_color col)
 {
 	_whitgl_sys_flush_tex_iaabb();
-	float vertices[2*2];
-	vertices[0] = l.a.x; vertices[1] = l.a.y; vertices[2] = l.b.x; vertices[3] = l.b.y;
+	float vertices[2*3];
+	whitgl_int i = 0;
+	vertices[i++] = l.a.x; vertices[i++] = l.a.y; vertices[i++] = 0;
+	vertices[i++] = l.b.x; vertices[i++] = l.b.y; vertices[i++] = 0;
 
 	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, vbo ) );
 	GL_CHECK( glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW ) );
@@ -603,7 +606,7 @@ void whitgl_sys_draw_line(whitgl_iaabb l, whitgl_sys_color col)
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
-	GL_CHECK( glVertexAttribPointer( posAttrib, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), 0 ) );
+	GL_CHECK( glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), 0 ) );
 	GL_CHECK( glEnableVertexAttribArray( posAttrib ) );
 
 	GL_CHECK( glDrawArrays( GL_LINES, 0, 2 ) );
@@ -611,7 +614,7 @@ void whitgl_sys_draw_line(whitgl_iaabb l, whitgl_sys_color col)
 void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
 {
 	_whitgl_sys_flush_tex_iaabb();
-	int num_vertices = tris*3*2;
+	int num_vertices = tris*3*3;
 	whitgl_fvec scale = {c.size, c.size};
 	float *vertices = malloc(sizeof(float)*num_vertices);
 	int i;
@@ -619,16 +622,16 @@ void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
 	{
 		whitgl_float dir;
 		whitgl_fvec off;
-		int vertex_offset = 6*i;
-		vertices[vertex_offset+0] = c.pos.x; vertices[vertex_offset+1] = c.pos.y;
+		int vertex_offset = 3*3*i;
+		vertices[vertex_offset++] = c.pos.x; vertices[vertex_offset++] = c.pos.y; vertices[vertex_offset++] = 0;
 
 		dir = ((whitgl_float)i)/tris * whitgl_pi * 2 ;
 		off = whitgl_fvec_scale(whitgl_angle_to_fvec(dir), scale);
-		vertices[vertex_offset+2] = c.pos.x+off.x; vertices[vertex_offset+3] = c.pos.y+off.y;
+		vertices[vertex_offset++] = c.pos.x+off.x; vertices[vertex_offset++] = c.pos.y+off.y; vertices[vertex_offset++] = 0;
 
 		dir = ((whitgl_float)(i+1))/tris * whitgl_pi * 2;
 		off = whitgl_fvec_scale(whitgl_angle_to_fvec(dir), scale);
-		vertices[vertex_offset+4] = c.pos.x+off.x; vertices[vertex_offset+5] = c.pos.y+off.y;
+		vertices[vertex_offset++] = c.pos.x+off.x; vertices[vertex_offset++] = c.pos.y+off.y; vertices[vertex_offset++] = 0;
 	}
 
 	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, vbo ) );
@@ -642,7 +645,7 @@ void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
-	GL_CHECK( glVertexAttribPointer( posAttrib, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), 0 ) );
+	GL_CHECK( glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), 0 ) );
 	GL_CHECK( glEnableVertexAttribArray( posAttrib ) );
 
 	GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, tris*3 ) );
@@ -651,7 +654,7 @@ void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
 
 whitgl_int buffer_curindex = -1;
 static const whitgl_int buffer_num_quads = 128;
-float buffer_vertices[128*6*4];
+float buffer_vertices[128*6*5];
 whitgl_int buffer_index = 0;
 void _whitgl_sys_flush_tex_iaabb()
 {
@@ -661,7 +664,7 @@ void _whitgl_sys_flush_tex_iaabb()
 	GL_CHECK( glBindTexture( GL_TEXTURE_2D, images[buffer_curindex].gluint ) );
 
 	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, vbo ) );
-	GL_CHECK( glBufferData( GL_ARRAY_BUFFER, sizeof(float)*buffer_index*6*4, buffer_vertices, GL_DYNAMIC_DRAW ) );
+	GL_CHECK( glBufferData( GL_ARRAY_BUFFER, sizeof(float)*buffer_index*6*5, buffer_vertices, GL_DYNAMIC_DRAW ) );
 
 	GLuint shaderProgram = shaders[WHITGL_SHADER_TEXTURE].program;
 	GL_CHECK( glUseProgram( shaderProgram ) );
@@ -671,11 +674,11 @@ void _whitgl_sys_flush_tex_iaabb()
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
-	GL_CHECK( glVertexAttribPointer( posAttrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0 ) );
+	GL_CHECK( glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), 0 ) );
 	GL_CHECK( glEnableVertexAttribArray( posAttrib ) );
 
 	GLint texturePosAttrib = glGetAttribLocation( shaderProgram, "texturepos" );
-	GL_CHECK( glVertexAttribPointer( texturePosAttrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), BUFFER_OFFSET(sizeof(float)*2) ) );
+	GL_CHECK( glVertexAttribPointer( texturePosAttrib, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), BUFFER_OFFSET(sizeof(float)*3) ) );
 	GL_CHECK( glEnableVertexAttribArray( texturePosAttrib ) );
 
 	GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, buffer_index*6 ) );
@@ -705,7 +708,7 @@ void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb src, whitgl_iaabb dest)
 			_whitgl_sys_flush_tex_iaabb();
 		buffer_curindex = index;
 	}
-	_whitgl_populate_vertices(&buffer_vertices[buffer_index*6*4], src, dest, images[index].size);
+	_whitgl_populate_vertices(&buffer_vertices[buffer_index*6*5], src, dest, images[index].size);
 	buffer_index++;
 }
 

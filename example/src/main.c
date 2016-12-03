@@ -102,6 +102,12 @@ int main()
 		pos.x = 0; pos.y = 16;
 		whitgl_sys_draw_sprite(sprite, framebr, pos);
 
+		whitgl_iaabb line = {{1,1},{15,15}};
+		whitgl_sys_draw_line(line, whitgl_sys_color_white);
+
+		whitgl_fcircle circle = {{24,24},6};
+		whitgl_sys_draw_fcircle(circle, whitgl_sys_color_white, 8);
+
 		whitgl_set_shader_uniform(WHITGL_SHADER_POST, 0, uniform);
 		whitgl_set_shader_image(WHITGL_SHADER_POST, 0, 1);
 		whitgl_sys_draw_finish();
