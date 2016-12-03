@@ -105,12 +105,12 @@ int main()
 		whitgl_fvec3 camera_pos = {0,0,-2};
 		whitgl_fvec3 camera_to = {0,0,0};
 		whitgl_fmat view = whitgl_fmat_lookAt(camera_pos, camera_to, up);
-		whitgl_fmat camera_matrix = whitgl_fmat_multiply(perspective, view);
 
 		whitgl_fmat model_matrix = whitgl_fmat_rot_y(time);
-		model_matrix = whitgl_fmat_multiply(model_matrix, whitgl_fmat_rot_z(time*3));
+		//model_matrix = whitgl_fmat_multiply(model_matrix, whitgl_fmat_rot_z(time*3));
 
-		whitgl_sys_draw_model(0, whitgl_fmat_multiply(camera_matrix,model_matrix));
+		whitgl_sys_draw_model(0, model_matrix, view, perspective);
+
 
 		whitgl_sprite sprite = {0, {0,0},{16,16}};
 		whitgl_ivec frametr = {1, 0};

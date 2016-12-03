@@ -45,10 +45,15 @@ def process_obj(filename):
 			normal = (float(tokens[0]),float(tokens[1]),float(tokens[2]));
 			normals.append(normal)
 		if(ident == 'f'):
-			face = (int(tokens[0].split('/')[0]),int(tokens[1].split('/')[0]),int(tokens[2].split('/')[0]),current_material)
+			face = {}
+			face['vertices'] = (int(tokens[0].split('/')[0]),int(tokens[1].split('/')[0]),int(tokens[2].split('/')[0]))
+			face['normals'] = (int(tokens[0].split('/')[2]),int(tokens[1].split('/')[2]),int(tokens[2].split('/')[2]))
+			face['material'] = current_material
 			faces.append(face)
 			if len(tokens) == 4:
-				face = (int(tokens[2].split('/')[0]),int(tokens[3].split('/')[0]),int(tokens[0].split('/')[0]),current_material)
+				face['vertices'] = (int(tokens[2].split('/')[0]),int(tokens[3].split('/')[0]),int(tokens[0].split('/')[0]))
+				face['normals'] = (int(tokens[2].split('/')[2]),int(tokens[3].split('/')[2]),int(tokens[0].split('/')[2]))
+				face['material'] = current_material
 				faces.append(face)
 		if(ident == 'mtllib'):
 			path = os.path.join(os.path.dirname(filename), tokens[0])
@@ -79,10 +84,10 @@ def main():
 	out = open(args.dst, 'wb')
 	out.write(struct.pack('i', size))
 	for face in faces:
-		m = materials[face[3]]
-		for index in face[:3]:
-			vertex = vertices[index-1]
-			normal = normals[index-1]
+		m = materials[face['material']]
+		for i in range(3):
+			vertex = vertices[face['vertices'][i]-1]
+			normal = normals[face['normals'][i]-1]
 			for f in vertex:
 				out.write(struct.pack('f', f))
 			for c in m['color']:

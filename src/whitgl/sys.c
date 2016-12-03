@@ -48,13 +48,15 @@ in vec3 vertexNormal;\
 out vec2 Texturepos;\
 out vec3 fragmentColor;\
 out vec3 fragmentNormal;\
-uniform mat4 sLocalToProjMatrix;\
+uniform mat4 m_model;\
+uniform mat4 m_view;\
+uniform mat4 m_perspective;\
 void main()\
 {\
-	gl_Position = sLocalToProjMatrix * vec4( position, 1.0 );\
+	gl_Position = m_perspective * m_view * m_model * vec4( position, 1.0 );\
 	Texturepos = texturepos;\
 	fragmentColor = vertexColor;\
-	fragmentNormal = vertexNormal;\
+	fragmentNormal = normalize(mat3(m_model) * vertexNormal);\
 }\
 ";
 
@@ -90,7 +92,7 @@ in vec3 fragmentNormal;\
 out vec4 outColor;\
 void main()\
 {\
-	vec3 col = fragmentColor+vec3(fragmentNormal.g)/4;\
+	vec3 col = vec3(fragmentNormal)/2+0.5;\
 	outColor = vec4(col,1);\
 }\
 ";
@@ -505,7 +507,9 @@ void _whitgl_populate_vertices(float* vertices, whitgl_iaabb s, whitgl_iaabb d, 
 void _whitgl_sys_orthographic(GLuint program, float left, float right, float top, float bottom)
 {
 	whitgl_fmat m = whitgl_fmat_orthographic(left, right, top, bottom, 0, 100);
-	glUniformMatrix4fv( glGetUniformLocation( program, "sLocalToProjMatrix"), 1, GL_FALSE, m.mat);
+	glUniformMatrix4fv( glGetUniformLocation( program, "m_model"), 1, GL_FALSE, whitgl_fmat_identity.mat);
+	glUniformMatrix4fv( glGetUniformLocation( program, "m_view"), 1, GL_FALSE, whitgl_fmat_identity.mat);
+	glUniformMatrix4fv( glGetUniformLocation( program, "m_perspective"), 1, GL_FALSE, m.mat);
 	GL_CHECK( return );
 }
 
@@ -695,7 +699,7 @@ void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
 	free(vertices);
 }
 
-void whitgl_sys_draw_model(whitgl_int id, whitgl_fmat matrix)
+void whitgl_sys_draw_model(whitgl_int id, whitgl_fmat m_model, whitgl_fmat m_view, whitgl_fmat m_perspective)
 {
 	_whitgl_sys_flush_tex_iaabb();
 
@@ -730,7 +734,10 @@ void whitgl_sys_draw_model(whitgl_int id, whitgl_fmat matrix)
 	GL_CHECK( glUseProgram( shaderProgram ) );
 	GL_CHECK( glUniform4f( glGetUniformLocation( shaderProgram, "sColor" ), 1.0, 1.0, 1.0, 1.0 ) );
 	_whitgl_load_uniforms(WHITGL_SHADER_MODEL);
-	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "sLocalToProjMatrix"), 1, GL_FALSE, matrix.mat);
+	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "m_model"), 1, GL_FALSE, m_model.mat);
+	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "m_view"), 1, GL_FALSE, m_view.mat);
+	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "m_perspective"), 1, GL_FALSE, m_perspective.mat);
+
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
