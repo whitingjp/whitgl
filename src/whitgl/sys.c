@@ -671,7 +671,7 @@ void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
 	free(vertices);
 }
 
-void whitgl_sys_draw_3d(whitgl_int id, whitgl_fmat matrix)
+void whitgl_sys_draw_model(whitgl_int id, whitgl_fmat matrix)
 {
 	_whitgl_sys_flush_tex_iaabb();
 
