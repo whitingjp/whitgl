@@ -18,13 +18,24 @@ whitgl_bool _windowFocused;
 
 typedef struct
 {
-	int id;
+	whitgl_int id;
 	GLuint gluint;
 	whitgl_ivec size;
 } whitgl_image;
 #define WHITGL_IMAGE_MAX (64)
 whitgl_image images[WHITGL_IMAGE_MAX];
 int num_images;
+
+typedef struct
+{
+	whitgl_int id;
+	GLuint vbo;
+	whitgl_int num_vertices;
+} whitgl_model;
+#define WHITGL_MODEL_MAX (8)
+whitgl_model models[WHITGL_MODEL_MAX];
+int num_models;
+
 
 const char* _vertex_src = "\
 #version 150\
@@ -392,6 +403,9 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	for(i=0; i<WHITGL_IMAGE_MAX; i++)
 		images[i].id = -1;
 	num_images = 0;
+	for(i=0; i<WHITGL_MODEL_MAX; i++)
+		models[i].id = -1;
+	num_models = 0;
 
 	_setup = *setup;
 
@@ -657,21 +671,31 @@ void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
 	free(vertices);
 }
 
-void whitgl_sys_draw_3d(whitgl_fmat matrix)
+void whitgl_sys_draw_3d(whitgl_int id, whitgl_fmat matrix)
 {
-	(void)matrix;
 	_whitgl_sys_flush_tex_iaabb();
-	float vertices[6*5];
-	whitgl_iaabb draw_rect = {{-1,-1},{1,1}};
+
+	int index = -1;
+	int i;
+	for(i=0; i<num_models; i++)
+	{
+		if(models[i].id == id)
+		{
+			index = i;
+			break;
+		}
+	}
+	if(index == -1)
+	{
+		WHITGL_PANIC("ERR Cannot find model %d", id);
+		return;
+	}
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
-	_whitgl_populate_vertices(vertices, whitgl_iaabb_zero, draw_rect, whitgl_ivec_zero);
-
-	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, vbo ) );
-	GL_CHECK( glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW ) );
+	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, models[index].vbo ) );
 
 	GLuint shaderProgram = shaders[WHITGL_SHADER_FLAT].program;
 	GL_CHECK( glUseProgram( shaderProgram ) );
@@ -681,10 +705,10 @@ void whitgl_sys_draw_3d(whitgl_fmat matrix)
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
-	GL_CHECK( glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), 0 ) );
+	GL_CHECK( glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), 0 ) );
 	GL_CHECK( glEnableVertexAttribArray( posAttrib ) );
 
-	GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, 6 ) );
+	GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, models[index].num_vertices ) );
 }
 
 whitgl_int buffer_curindex = -1;
@@ -1054,6 +1078,56 @@ void whitgl_sys_add_image(int id, const char* filename)
 	}
 	whitgl_sys_add_image_from_data(id, size, textureImage);
 	free(textureImage);
+}
+
+whitgl_bool whitgl_load_model(whitgl_int id, const char* filename)
+{
+	if(num_models >= WHITGL_IMAGE_MAX)
+	{
+		WHITGL_PANIC("ERR Too many models");
+		return false;
+	}
+
+	GL_CHECK( glGenBuffers( 1, &models[num_models].vbo ) ); // Generate 1 buffer
+
+	FILE *src;
+	int read;
+	int readSize;
+	src = fopen(filename, "rb");
+	if (src == NULL)
+	{
+		WHITGL_LOG("Failed to open %s for load.", filename);
+		return false;
+	}
+	read = fread( &readSize, 1, sizeof(readSize), src );
+	if(read != sizeof(readSize))
+	{
+		WHITGL_LOG("Failed to read size from %s", filename);
+		fclose(src);
+		return false;
+	}
+	GLfloat* data = (GLfloat*)malloc(readSize);
+	read = fread( data, 1, readSize, src );
+	if(read != readSize)
+	{
+		WHITGL_LOG("Failed to read object from %s", filename);
+		fclose(src);
+		return false;
+	}
+	WHITGL_LOG("Loaded data from %s", filename);
+	fclose(src);
+
+	whitgl_int num_vertices = ((readSize/sizeof(GLfloat))/3)/3;
+
+	models[num_models].num_vertices = num_vertices;
+	models[num_models].id = id;
+
+	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, models[num_models].vbo ) );
+	GL_CHECK( glBufferData( GL_ARRAY_BUFFER, 4*9*num_vertices, data, GL_DYNAMIC_DRAW ) );
+
+	num_models++;
+
+	return true;
 }
 
 double whitgl_sys_get_time()

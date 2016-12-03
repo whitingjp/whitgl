@@ -66,6 +66,8 @@ int main()
 	}
 	whitgl_sys_add_image_from_data(1, setup.size, data_texture);
 
+	whitgl_load_model(0, "data/cursor.wmd");
+
 	whitgl_timer_init();
 	whitgl_float uniform = 0;
 
@@ -100,13 +102,13 @@ int main()
 		whitgl_float fov = whitgl_pi/2;
 		whitgl_fmat perspective = whitgl_fmat_perspective(fov, setup.size.x/setup.size.y, 0.1f, 1000.0f);
 		whitgl_fvec3 up = {0,1,0};
-		whitgl_fvec3 camera_pos = {0,0,-3};
+		whitgl_fvec3 camera_pos = {0,0,-8};
 		whitgl_fvec3 camera_to = {0,0,0};
 		whitgl_fmat view = whitgl_fmat_lookAt(camera_pos, camera_to, up);
 		whitgl_fmat camera_matrix = whitgl_fmat_multiply(perspective, view);
 
-		whitgl_fmat model = whitgl_fmat_rot_y(time*2);
-		whitgl_sys_draw_3d(whitgl_fmat_multiply(camera_matrix,model));
+		whitgl_fmat model_matrix = whitgl_fmat_rot_y(time*2);
+		whitgl_sys_draw_3d(0, whitgl_fmat_multiply(camera_matrix,model_matrix));
 
 		whitgl_sprite sprite = {0, {0,0},{16,16}};
 		whitgl_ivec frametr = {1, 0};
