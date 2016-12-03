@@ -69,6 +69,8 @@ int main()
 	whitgl_timer_init();
 	whitgl_float uniform = 0;
 
+	whitgl_float time = 0;
+
 	bool running = true;
 	while(running)
 	{
@@ -77,6 +79,7 @@ int main()
 		whitgl_timer_tick();
 		while(whitgl_timer_should_do_frame(60))
 		{
+			time += 1/60.0f;
 			whitgl_input_update();
 			whitgl_ivec mousepos = whitgl_input_mouse_pos(setup.pixel_size);
 			uniform = ((float)mousepos.x-setup.size.x/2)/30;
@@ -94,6 +97,17 @@ int main()
 
 		whitgl_sys_draw_init();
 
+		whitgl_float fov = whitgl_pi/2;
+		whitgl_fmat perspective = whitgl_fmat_perspective(fov, setup.size.x/setup.size.y, 0.1f, 1000.0f);
+		whitgl_fvec3 up = {0,1,0};
+		whitgl_fvec3 camera_pos = {0,0,-3};
+		whitgl_fvec3 camera_to = {0,0,0};
+		whitgl_fmat view = whitgl_fmat_lookAt(camera_pos, camera_to, up);
+		whitgl_fmat camera_matrix = whitgl_fmat_multiply(perspective, view);
+
+		whitgl_fmat model = whitgl_fmat_rot_y(time*2);
+		whitgl_sys_draw_3d(whitgl_fmat_multiply(camera_matrix,model));
+
 		whitgl_sprite sprite = {0, {0,0},{16,16}};
 		whitgl_ivec frametr = {1, 0};
 		whitgl_ivec pos = {16,0};
@@ -107,6 +121,7 @@ int main()
 
 		whitgl_fcircle circle = {{24,24},6};
 		whitgl_sys_draw_fcircle(circle, whitgl_sys_color_white, 8);
+
 
 		whitgl_set_shader_uniform(WHITGL_SHADER_POST, 0, uniform);
 		whitgl_set_shader_image(WHITGL_SHADER_POST, 0, 1);

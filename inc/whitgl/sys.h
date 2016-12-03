@@ -5,6 +5,7 @@
 #include <stddef.h>
 
 #include <whitgl/math.h>
+#include <whitgl/math3d.h>
 
 typedef enum
 {
@@ -110,7 +111,7 @@ void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb src, whitgl_iaabb dest);
 void whitgl_sys_draw_sprite(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec pos);
 void whitgl_sys_draw_sprite_sized(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec pos, whitgl_ivec dest_size);
 void whitgl_sys_draw_text(whitgl_sprite sprite, const char* string, whitgl_ivec pos);
-
+void whitgl_sys_draw_3d(whitgl_fmat matrix);
 
 double whitgl_sys_get_time();
 

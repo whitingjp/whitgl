@@ -7,7 +7,6 @@
 #include <png.h>
 
 #include <whitgl/logging.h>
-#include <whitgl/math3d.h>
 #include <whitgl/sys.h>
 
 void _whitgl_sys_flush_tex_iaabb();
@@ -650,6 +649,36 @@ void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
 
 	GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, tris*3 ) );
 	free(vertices);
+}
+
+void whitgl_sys_draw_3d(whitgl_fmat matrix)
+{
+	(void)matrix;
+	_whitgl_sys_flush_tex_iaabb();
+	float vertices[6*5];
+	whitgl_iaabb draw_rect = {{-1,-1},{1,1}};
+
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+
+	_whitgl_populate_vertices(vertices, whitgl_iaabb_zero, draw_rect, whitgl_ivec_zero);
+
+	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, vbo ) );
+	GL_CHECK( glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW ) );
+
+	GLuint shaderProgram = shaders[WHITGL_SHADER_FLAT].program;
+	GL_CHECK( glUseProgram( shaderProgram ) );
+	GL_CHECK( glUniform4f( glGetUniformLocation( shaderProgram, "sColor" ), 255.0, 255.0, 255.0, 255.0 ) );
+	_whitgl_load_uniforms(WHITGL_SHADER_FLAT);
+	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "sLocalToProjMatrix"), 1, GL_FALSE, matrix.mat);
+
+	#define BUFFER_OFFSET(i) ((void*)(i))
+	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
+	GL_CHECK( glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), 0 ) );
+	GL_CHECK( glEnableVertexAttribArray( posAttrib ) );
+
+	GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, 6 ) );
 }
 
 whitgl_int buffer_curindex = -1;
