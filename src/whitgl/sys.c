@@ -449,13 +449,13 @@ void _whitgl_populate_vertices(float* vertices, whitgl_iaabb s, whitgl_iaabb d, 
 	whitgl_faabb sf = {{((float)s.a.x)/((float)image_size.x),((float)s.a.y)/((float)image_size.y)},
                        {((float)s.b.x)/((float)image_size.x),((float)s.b.y)/((float)image_size.y)}};
 	whitgl_int i = 0;
-	vertices[i++] = d.a.x; vertices[i++] = d.b.y; vertices[i++] = 0; vertices[i++] = sf.a.x; vertices[i++] = sf.b.y;
-	vertices[i++] = d.b.x; vertices[i++] = d.a.y; vertices[i++] = 0; vertices[i++] = sf.b.x; vertices[i++] = sf.a.y;
-	vertices[i++] = d.a.x; vertices[i++] = d.a.y; vertices[i++] = 0; vertices[i++] = sf.a.x; vertices[i++] = sf.a.y;
+	vertices[i++] = d.a.x; vertices[i++] = d.b.y; vertices[i++] = 1; vertices[i++] = sf.a.x; vertices[i++] = sf.b.y;
+	vertices[i++] = d.b.x; vertices[i++] = d.a.y; vertices[i++] = 1; vertices[i++] = sf.b.x; vertices[i++] = sf.a.y;
+	vertices[i++] = d.a.x; vertices[i++] = d.a.y; vertices[i++] = 1; vertices[i++] = sf.a.x; vertices[i++] = sf.a.y;
 
-	vertices[i++] = d.a.x; vertices[i++] = d.b.y; vertices[i++] = 0; vertices[i++] = sf.a.x; vertices[i++] = sf.b.y;
-	vertices[i++] = d.b.x; vertices[i++] = d.b.y; vertices[i++] = 0; vertices[i++] = sf.b.x; vertices[i++] = sf.b.y;
-	vertices[i++] = d.b.x; vertices[i++] = d.a.y; vertices[i++] = 0; vertices[i++] = sf.b.x; vertices[i++] = sf.a.y;
+	vertices[i++] = d.a.x; vertices[i++] = d.b.y; vertices[i++] = 1; vertices[i++] = sf.a.x; vertices[i++] = sf.b.y;
+	vertices[i++] = d.b.x; vertices[i++] = d.b.y; vertices[i++] = 1; vertices[i++] = sf.b.x; vertices[i++] = sf.b.y;
+	vertices[i++] = d.b.x; vertices[i++] = d.a.y; vertices[i++] = 1; vertices[i++] = sf.b.x; vertices[i++] = sf.a.y;
 }
 
 void _whitgl_sys_orthographic(GLuint program, float left, float right, float top, float bottom)
@@ -624,11 +624,11 @@ void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
 		int vertex_offset = 3*3*i;
 		vertices[vertex_offset++] = c.pos.x; vertices[vertex_offset++] = c.pos.y; vertices[vertex_offset++] = 0;
 
-		dir = ((whitgl_float)i)/tris * whitgl_pi * 2 ;
+		dir = ((whitgl_float)(i+1))/tris * whitgl_pi * 2;
 		off = whitgl_fvec_scale(whitgl_angle_to_fvec(dir), scale);
 		vertices[vertex_offset++] = c.pos.x+off.x; vertices[vertex_offset++] = c.pos.y+off.y; vertices[vertex_offset++] = 0;
 
-		dir = ((whitgl_float)(i+1))/tris * whitgl_pi * 2;
+		dir = ((whitgl_float)i)/tris * whitgl_pi * 2 ;
 		off = whitgl_fvec_scale(whitgl_angle_to_fvec(dir), scale);
 		vertices[vertex_offset++] = c.pos.x+off.x; vertices[vertex_offset++] = c.pos.y+off.y; vertices[vertex_offset++] = 0;
 	}
