@@ -1126,11 +1126,6 @@ void whitgl_sys_add_image(int id, const char* filename)
 
 whitgl_bool whitgl_load_model(whitgl_int id, const char* filename)
 {
-	if(num_models >= WHITGL_IMAGE_MAX)
-	{
-		WHITGL_PANIC("ERR Too many models");
-		return false;
-	}
 
 	GL_CHECK( glGenBuffers( 1, &models[num_models].vbo ) ); // Generate 1 buffer
 
@@ -1162,6 +1157,17 @@ whitgl_bool whitgl_load_model(whitgl_int id, const char* filename)
 	fclose(src);
 
 	whitgl_int num_vertices = ((readSize/sizeof(GLfloat))/3)/3;
+
+	return whitgl_add_model_from_data(id, num_vertices, (char*)data);
+}
+
+whitgl_bool whitgl_add_model_from_data(whitgl_int id, whitgl_int num_vertices, const char* data)
+{
+	if(num_models >= WHITGL_IMAGE_MAX)
+	{
+		WHITGL_PANIC("ERR Too many models");
+		return false;
+	}
 
 	models[num_models].num_vertices = num_vertices;
 	models[num_models].id = id;

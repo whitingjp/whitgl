@@ -43,8 +43,11 @@ int main()
 	post_shader.uniforms[0] = "spread";
 	post_shader.num_images = 1;
 	post_shader.images[0] = "extra";
+
+	// whitgl_sys_color bg = {0xc7,0xb2,0xf6,0xff};
+	// whitgl_sys_set_clear_color(bg);
 	if(!whitgl_change_shader(WHITGL_SHADER_POST, post_shader))
-		return 1;
+	 	return 1;
 
 	whitgl_sound_init();
 	whitgl_input_init();
@@ -103,7 +106,7 @@ int main()
 		whitgl_sys_draw_init();
 
 		whitgl_float fov = whitgl_pi/2;
-		whitgl_fmat perspective = whitgl_fmat_perspective(fov, setup.size.x/setup.size.y, 0.1f, 10.0f);
+		whitgl_fmat perspective = whitgl_fmat_perspective(fov, (float)setup.size.x/(float)setup.size.y, 0.1f, 10.0f);
 		whitgl_fvec3 up = {0,1,0};
 		whitgl_fvec3 camera_pos = {0,0,-2};
 		whitgl_fvec3 camera_to = {0,0,0};
