@@ -56,7 +56,7 @@ void main()\
 	gl_Position = m_perspective * m_view * m_model * vec4( position, 1.0 );\
 	Texturepos = texturepos;\
 	fragmentColor = vertexColor;\
-	fragmentNormal = normalize(mat3(m_model) * vertexNormal);\
+	fragmentNormal = normalize(mat3(m_view*m_model) * vertexNormal);\
 }\
 ";
 
@@ -93,7 +93,7 @@ out vec4 outColor;\
 void main()\
 {\
 	vec3 col = vec3(fragmentNormal)/2+0.5;\
-	outColor = vec4(col,1);\
+	outColor = vec4((col+fragmentColor)*0.5,1);\
 }\
 ";
 

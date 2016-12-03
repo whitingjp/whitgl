@@ -67,11 +67,13 @@ int main()
 	whitgl_sys_add_image_from_data(1, setup.size, data_texture);
 
 	whitgl_load_model(0, "data/torus.wmd");
+	whitgl_load_model(1, "data/cube.wmd");
 
 	whitgl_timer_init();
 	whitgl_float uniform = 0;
 
 	whitgl_float time = 0;
+	whitgl_int shape = 0;
 
 	bool running = true;
 	while(running)
@@ -85,7 +87,8 @@ int main()
 			whitgl_input_update();
 			whitgl_ivec mousepos = whitgl_input_mouse_pos(setup.pixel_size);
 			uniform = ((float)mousepos.x-setup.size.x/2)/30;
-
+			if(whitgl_input_pressed(WHITGL_INPUT_A))
+				shape = (shape+1)%2;
 			if(whitgl_input_pressed(WHITGL_INPUT_ESC))
 				running = false;
 			if(whitgl_sys_should_close())
@@ -107,10 +110,9 @@ int main()
 		whitgl_fmat view = whitgl_fmat_lookAt(camera_pos, camera_to, up);
 
 		whitgl_fmat model_matrix = whitgl_fmat_rot_y(time);
-		//model_matrix = whitgl_fmat_multiply(model_matrix, whitgl_fmat_rot_z(time*3));
+		model_matrix = whitgl_fmat_multiply(model_matrix, whitgl_fmat_rot_z(time*3));
 
-		whitgl_sys_draw_model(0, model_matrix, view, perspective);
-
+		whitgl_sys_draw_model(shape, model_matrix, view, perspective);
 
 		whitgl_sprite sprite = {0, {0,0},{16,16}};
 		whitgl_ivec frametr = {1, 0};
