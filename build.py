@@ -30,7 +30,7 @@ def flags(input_dir):
   ldflags = ldflags.replace('_INPUT_', input_dir)
   return (cflags, ldflags)
 
-def rules(n, cflags, ldflags):
+def rules(n, cflags, ldflags, scripts):
   n.variable('cflags', cflags)
   n.variable('ldflags', ldflags)
   n.newline()
@@ -52,6 +52,9 @@ def rules(n, cflags, ldflags):
   n.rule('cp',
     command='cp $in $out',
     description='COPY $in $out')
+  n.rule('model',
+    command='%s $in $out' % joinp(scripts,'process_model.py'),
+    description='MODEL $in $out')
   n.newline()
 
 def walk_src(n, path, objdir):
@@ -66,7 +69,7 @@ def walk_src(n, path, objdir):
   n.newline()
   return obj
 
-def walk_data(n, data_in, data_out, validext=['png','ogg','wmd']):
+def walk_data(n, data_in, data_out, validext=['png','ogg','obj']):
   data = []
   for (dirpath, dirnames, filenames) in os.walk(data_in):
     for f in filenames:
@@ -78,7 +81,13 @@ def walk_data(n, data_in, data_out, validext=['png','ogg','wmd']):
       if not valid:
         continue
       s = os.path.relpath(joinp(dirpath, f), data_in)
-      data += n.build(joinp(data_out, s), 'cp', joinp(data_in, s))
+      src = joinp(data_in, s)
+      dst = joinp(data_out, s)
+      rule = 'cp'
+      if ext == 'obj':
+        rule = 'model'
+        dst = dst[:-3]+'wmd'
+      data += n.build(dst, rule, src)
   n.newline()
   return data
 
@@ -134,6 +143,7 @@ def main():
   examplesrcdir = 'example'
   inputdir = 'input'
   builddir = 'build'
+  scriptsdir = 'scripts'
   exampledir = joinp(builddir, 'example')
   objdir = joinp(builddir, 'obj')
   libdir = joinp(builddir, 'lib')
@@ -143,7 +153,7 @@ def main():
   buildfile = open(BUILD_FILENAME, 'w')
   n = ninja_syntax.Writer(buildfile)
   cflags, ldflags = flags('input')
-  rules(n, cflags, ldflags)
+  rules(n, cflags, ldflags, scriptsdir)
   # Library
   obj = walk_src(n, srcdir, objdir)
   staticlib = n.build(joinp(libdir, target), 'static', obj)
