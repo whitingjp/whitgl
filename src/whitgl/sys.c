@@ -349,6 +349,12 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	GL_CHECK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE) );
 	GL_CHECK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST) );
 	GL_CHECK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST) );
+	// The depth buffer
+	GLuint depthrenderbuffer;
+	GL_CHECK( glGenRenderbuffers(1, &depthrenderbuffer) );
+	GL_CHECK( glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer) );
+	GL_CHECK( glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, setup->size.x, setup->size.y) );
+	GL_CHECK( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer) );
 	GL_CHECK( glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, intermediateTexture, 0) );
 	GLenum drawBuffers[1] = {GL_COLOR_ATTACHMENT0};
 	GL_CHECK( glDrawBuffers(1, drawBuffers) ); // "1" is the size of drawBuffers
