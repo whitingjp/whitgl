@@ -7,6 +7,7 @@
 #include <png.h>
 
 #include <whitgl/logging.h>
+#include <whitgl/math3d.h>
 #include <whitgl/sys.h>
 
 void _whitgl_sys_flush_tex_iaabb();
@@ -457,25 +458,10 @@ void _whitgl_populate_vertices(float* vertices, whitgl_iaabb s, whitgl_iaabb d, 
 	vertices[20] = d.b.x; vertices[21] = d.a.y; vertices[22] = sf.b.x; vertices[23] = sf.a.y;
 }
 
-
 void _whitgl_sys_orthographic(GLuint program, float left, float right, float top, float bottom)
 {
-	float sumX = right + left;
-	float invX = 1.0f / (right - left);
-	float sumY = top + bottom;
-	float invY = 1.0f / (top - bottom);
-	float nearDepth = 0;
-	float farDepth = 100;
-	float sumZ = farDepth + nearDepth;
-	float invZ = 1.0f / (farDepth - nearDepth);
-
-	GLfloat matrix[4*4];
-	matrix[0] = 2*invX; matrix[1] = 0; matrix[2] = 0; matrix[3] = 0;
-	matrix[4] = 0; matrix[5] = 2 * invY; matrix[6] = 0; matrix[7] = 0;
-	matrix[8] = 0; matrix[9] = 0; matrix[10] = 2 * invZ; matrix[11] = 0;
-	matrix[12] = -sumX * invX; matrix[13] = -sumY * invY; matrix[14] = -sumZ * invZ; matrix[15] = 1;
-
-	glUniformMatrix4fv( glGetUniformLocation( program, "sLocalToProjMatrix"), 1, GL_FALSE, matrix);
+	whitgl_fmat m = whitgl_fmat_orthographic(left, right, top, bottom, 0, 100);
+	glUniformMatrix4fv( glGetUniformLocation( program, "sLocalToProjMatrix"), 1, GL_FALSE, m.mat);
 	GL_CHECK( return );
 }
 
