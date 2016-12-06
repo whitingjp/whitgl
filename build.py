@@ -53,7 +53,7 @@ def rules(n, cflags, ldflags, scripts):
     command='cp $in $out',
     description='COPY $in $out')
   n.rule('model',
-    command='%s $in $out' % joinp(scripts,'process_model.py'),
+    command='python %s $in $out' % joinp(scripts,'process_model.py'),
     description='MODEL $in $out')
   n.newline()
 
