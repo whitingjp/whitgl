@@ -610,7 +610,7 @@ void whitgl_sys_draw_finish()
 	GL_CHECK( glDisable(GL_BLEND) );
 }
 
-void whitgl_sys_draw_buffer_pane(whitgl_int id, whitgl_fmat m_model, whitgl_fmat m_view, whitgl_fmat m_perspective)
+void whitgl_sys_draw_buffer_pane(whitgl_int id, whitgl_fvec3 v[4], whitgl_fmat m_model, whitgl_fmat m_view, whitgl_fmat m_perspective)
 {
 	_whitgl_sys_flush_tex_iaabb();
 	whitgl_iaabb src = whitgl_iaabb_zero;
@@ -629,13 +629,16 @@ void whitgl_sys_draw_buffer_pane(whitgl_int id, whitgl_fmat m_model, whitgl_fmat
 	// glDisable(GL_DEPTH_TEST);
 
 	float vertices[6*5];
-	_whitgl_populate_vertices(vertices, src, dest, src.b);
-	vertices[3] = 1;
-	vertices[3+5] = 0;
-	vertices[3+10] = 1;
-	vertices[3+15] = 1;
-	vertices[3+20] = 0;
-	vertices[3+25] = 0;
+	whitgl_int i=0;
+	vertices[i++] = v[3].x; vertices[i++] = v[3].y; vertices[i++] = v[3].z; vertices[i++] = 1; vertices[i++] = 1;
+	vertices[i++] = v[0].x; vertices[i++] = v[0].y; vertices[i++] = v[0].z; vertices[i++] = 0; vertices[i++] = 0;
+	vertices[i++] = v[1].x; vertices[i++] = v[1].y; vertices[i++] = v[1].z; vertices[i++] = 1; vertices[i++] = 0;
+
+	vertices[i++] = v[3].x; vertices[i++] = v[3].y; vertices[i++] = v[3].z; vertices[i++] = 1; vertices[i++] = 1;
+	vertices[i++] = v[2].x; vertices[i++] = v[2].y; vertices[i++] = v[2].z; vertices[i++] = 0; vertices[i++] = 1;
+	vertices[i++] = v[0].x; vertices[i++] = v[0].y; vertices[i++] = v[0].z; vertices[i++] = 0; vertices[i++] = 0;
+	// _whitgl_populate_vertices(vertices, src, dest, src.b);
+
 	// whitgl_int i;
 	// for(i=0; i<6; i++)
 	// 	vertices[3+i*5] = -vertices[3+i*5];
