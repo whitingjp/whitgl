@@ -50,6 +50,14 @@ whitgl_float whitgl_fvec3_dot(whitgl_fvec3 a, whitgl_fvec3 b)
 {
 	return a.x*b.x + a.y*b.y + a.z*b.z;
 }
+whitgl_fvec3 whitgl_fvec3_interpolate(whitgl_fvec3 a, whitgl_fvec3 b, whitgl_float ratio)
+{
+	whitgl_fvec3 out = whitgl_fvec3_zero;
+	out.x = a.x*(1-ratio) + b.x*ratio;
+	out.y = a.y*(1-ratio) + b.y*ratio;
+	out.z = a.z*(1-ratio) + b.z*ratio;
+	return out;
+}
 
 whitgl_fmat whitgl_fmat_multiply(whitgl_fmat a, whitgl_fmat b)
 {
