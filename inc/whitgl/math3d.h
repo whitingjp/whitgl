@@ -14,15 +14,6 @@ typedef struct
 {
 	GLfloat mat[16];
 } whitgl_fmat;
-static const whitgl_fmat whitgl_fmat_zero =
-{
-{
-	0,0,0,0,
-	0,0,0,0,
-	0,0,0,0,
-	0,0,0,0
-}
-};
 static const whitgl_fmat whitgl_fmat_identity =
 {
 {

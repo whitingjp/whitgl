@@ -94,7 +94,7 @@ void whitgl_set_shader_uniform(whitgl_shader_slot type, int uniform, float value
 void whitgl_set_shader_color(whitgl_shader_slot type, whitgl_int color, whitgl_sys_color value);
 void whitgl_set_shader_image(whitgl_shader_slot type, whitgl_int image, whitgl_int index);
 
-void whitgl_sys_draw_init();
+void whitgl_sys_draw_init(whitgl_int framebuffer_id);
 void whitgl_sys_draw_finish();
 
 void whitgl_sys_add_image_from_data(int id, whitgl_ivec size, unsigned char* data);
@@ -112,6 +112,8 @@ void whitgl_sys_draw_tex_iaabb(int id, whitgl_iaabb src, whitgl_iaabb dest);
 void whitgl_sys_draw_sprite(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec pos);
 void whitgl_sys_draw_sprite_sized(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec pos, whitgl_ivec dest_size);
 void whitgl_sys_draw_text(whitgl_sprite sprite, const char* string, whitgl_ivec pos);
+void whitgl_sys_draw_buffer_pane(whitgl_int id, whitgl_fmat m_model, whitgl_fmat m_view, whitgl_fmat m_perspective);
+
 
 void whitgl_sys_draw_model(whitgl_int id, whitgl_fmat m_model, whitgl_fmat m_view, whitgl_fmat m_perspective);
 whitgl_bool whitgl_load_model(whitgl_int id, const char* filename);

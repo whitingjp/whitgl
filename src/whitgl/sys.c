@@ -37,6 +37,14 @@ whitgl_model models[WHITGL_MODEL_MAX];
 int num_models;
 
 
+typedef struct
+{
+	GLuint buffer;
+	GLuint texture;
+} whitgl_framebuffer;
+#define WHITGL_FRAMEBUFFER_MAX (4)
+whitgl_framebuffer framebuffers[WHITGL_MODEL_MAX];
+
 const char* _vertex_src = "\
 #version 150\
 \n\
@@ -59,6 +67,7 @@ void main()\
 	fragmentNormal = normalize(mat3(m_model) * vertexNormal);\
 }\
 ";
+
 
 const char* _fragment_src = "\
 #version 150\
@@ -115,8 +124,6 @@ static const whitgl_frame_capture whitgl_frame_capture_zero = {false, {'\0'}};
 
 GLuint vbo;
 whitgl_shader_data shaders[WHITGL_SHADER_MAX];
-GLuint frameBuffer;
-GLuint intermediateTexture;
 whitgl_frame_capture capture;
 
 void _whitgl_check_gl_error(const char* stmt, const char *file, int line)
@@ -374,30 +381,34 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	if(!whitgl_change_shader( WHITGL_SHADER_MODEL, model_shader))
 		return false;
 
-	WHITGL_LOG("Creating framebuffer");
-	// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
-	GL_CHECK( glGenFramebuffers(1, &frameBuffer) );
-	GL_CHECK( glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer) );
-	GL_CHECK( glGenTextures(1, &intermediateTexture) );
-	GL_CHECK( glBindTexture(GL_TEXTURE_2D, intermediateTexture) );
-	WHITGL_LOG("Creating framebuffer glTexImage2D");
-	GL_CHECK( glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, setup->size.x, setup->size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0) );
-	GL_CHECK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE) );
-	GL_CHECK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE) );
-	GL_CHECK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST) );
-	GL_CHECK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST) );
-	// The depth buffer
-	GLuint depthrenderbuffer;
-	GL_CHECK( glGenRenderbuffers(1, &depthrenderbuffer) );
-	GL_CHECK( glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer) );
-	GL_CHECK( glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, setup->size.x, setup->size.y) );
-	GL_CHECK( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer) );
-	GL_CHECK( glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, intermediateTexture, 0) );
-	GLenum drawBuffers[1] = {GL_COLOR_ATTACHMENT0};
-	GL_CHECK( glDrawBuffers(1, drawBuffers) ); // "1" is the size of drawBuffers
-	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		WHITGL_LOG("Problem setting up intermediate render target");
-	GL_CHECK( glBindFramebuffer(GL_FRAMEBUFFER, 0) );
+	WHITGL_LOG("Creating framebuffers");
+	whitgl_int i;
+	for(i=0; i<WHITGL_FRAMEBUFFER_MAX; i++)
+	{
+		// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
+		GL_CHECK( glGenFramebuffers(1, &framebuffers[i].buffer) );
+		GL_CHECK( glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[i].buffer) );
+		GL_CHECK( glGenTextures(1, &framebuffers[i].texture) );
+		GL_CHECK( glBindTexture(GL_TEXTURE_2D, framebuffers[i].texture) );
+		WHITGL_LOG("Creating framebuffer glTexImage2D");
+		GL_CHECK( glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, setup->size.x, setup->size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0) );
+		GL_CHECK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE) );
+		GL_CHECK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE) );
+		GL_CHECK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST) );
+		GL_CHECK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST) );
+		// The depth buffer
+		GLuint depthrenderbuffer;
+		GL_CHECK( glGenRenderbuffers(1, &depthrenderbuffer) );
+		GL_CHECK( glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer) );
+		GL_CHECK( glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, setup->size.x, setup->size.y) );
+		GL_CHECK( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer) );
+		GL_CHECK( glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, framebuffers[i].texture, 0) );
+		GLenum drawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+		GL_CHECK( glDrawBuffers(1, drawBuffers) ); // "1" is the size of drawBuffers
+		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			WHITGL_LOG("Problem setting up intermediate render target");
+		GL_CHECK( glBindFramebuffer(GL_FRAMEBUFFER, 0) );
+	}
 
 	if(setup->vsync)
 	{
@@ -425,7 +436,6 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	}
 	glfwSetInputMode (_window, GLFW_CURSOR, glfw_mode);
 
-	int i;
 	for(i=0; i<WHITGL_IMAGE_MAX; i++)
 		images[i].id = -1;
 	num_images = 0;
@@ -474,7 +484,7 @@ double whitgl_sys_getTime()
 	return glfwGetTime();
 }
 
-void whitgl_sys_draw_init()
+void whitgl_sys_draw_init(whitgl_int framebuffer_id)
 {
 	int w, h;
 	glfwGetFramebufferSize(_window, &w, &h);
@@ -483,7 +493,7 @@ void whitgl_sys_draw_init()
 
 	GL_CHECK( glEnable(GL_BLEND) );
 	GL_CHECK( glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA) );
-	GL_CHECK( glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer) );
+	GL_CHECK( glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[framebuffer_id].buffer) );
 	GL_CHECK( glViewport( 0, 0, _setup.size.x, _setup.size.y ) );
 	if(_setup.clear_buffer)
 		GL_CHECK( glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) );
@@ -546,7 +556,7 @@ void whitgl_sys_draw_finish()
 	GL_CHECK( glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) );
 	GL_CHECK( glViewport( 0, 0, _window_size.x, _window_size.y ) );
 	GL_CHECK( glActiveTexture( GL_TEXTURE0 ) );
-	GL_CHECK( glBindTexture( GL_TEXTURE_2D, intermediateTexture ) );
+	GL_CHECK( glBindTexture( GL_TEXTURE_2D, framebuffers[0].texture ) );
 
 	float vertices[6*5];
 	whitgl_iaabb src = whitgl_iaabb_zero;
@@ -598,6 +608,73 @@ void whitgl_sys_draw_finish()
 	glfwSwapBuffers(_window);
 	glfwPollEvents();
 	GL_CHECK( glDisable(GL_BLEND) );
+}
+
+void whitgl_sys_draw_buffer_pane(whitgl_int id, whitgl_fmat m_model, whitgl_fmat m_view, whitgl_fmat m_perspective)
+{
+	_whitgl_sys_flush_tex_iaabb();
+	whitgl_iaabb src = whitgl_iaabb_zero;
+	whitgl_iaabb dest = whitgl_iaabb_zero;
+	src.b.x = _setup.size.x;
+	src.b.y = _setup.size.y;
+	dest.a.x = 0;
+	dest.a.y = 1;
+	dest.b.x = 16/4.0;
+	dest.b.y = 1+9/4.0;
+
+	GL_CHECK( glActiveTexture( GL_TEXTURE0 ) );
+	GL_CHECK( glBindTexture( GL_TEXTURE_2D, framebuffers[id].texture ) );
+
+	// glDisable(GL_CULL_FACE);
+	// glDisable(GL_DEPTH_TEST);
+
+	float vertices[6*5];
+	_whitgl_populate_vertices(vertices, src, dest, src.b);
+	vertices[3] = 1;
+	vertices[3+5] = 0;
+	vertices[3+10] = 1;
+	vertices[3+15] = 1;
+	vertices[3+20] = 0;
+	vertices[3+25] = 0;
+	// whitgl_int i;
+	// for(i=0; i<6; i++)
+	// 	vertices[3+i*5] = -vertices[3+i*5];
+
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+
+	// Enable depth test
+	glEnable(GL_DEPTH_TEST);
+	// Accept fragment if it closer to the camera than the former one
+	glDepthFunc(GL_LESS);
+
+	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, vbo ) );
+	GL_CHECK( glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW ) );
+
+	GLuint shaderProgram = shaders[WHITGL_SHADER_TEXTURE].program;
+	GL_CHECK( glUseProgram( shaderProgram ) );
+	GL_CHECK( glUniform1i( glGetUniformLocation( shaderProgram, "tex" ), 0 ) );
+	GL_CHECK( glUniform4f( glGetUniformLocation( shaderProgram, "sColor" ), 1, 0, 1, 1 ) );
+
+	_whitgl_load_uniforms(WHITGL_SHADER_TEXTURE);
+	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "m_model"), 1, GL_FALSE, m_model.mat);
+	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "m_view"), 1, GL_FALSE, m_view.mat);
+	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "m_perspective"), 1, GL_FALSE, m_perspective.mat);
+	// _whitgl_sys_orthographic(shaderProgram, 0, _setup.size.x, 0, _setup.size.y);
+
+
+	#define BUFFER_OFFSET(i) ((void*)(i))
+	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
+	GL_CHECK( glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), 0 ) );
+	GL_CHECK( glEnableVertexAttribArray( posAttrib ) );
+
+
+	GLint texturePosAttrib = glGetAttribLocation( shaderProgram, "texturepos" );
+	GL_CHECK( glVertexAttribPointer( texturePosAttrib, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), BUFFER_OFFSET(sizeof(float)*3) ) );
+	GL_CHECK( glEnableVertexAttribArray( texturePosAttrib ) );
+
+	GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, 6 ) );
 }
 
 void whitgl_sys_draw_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
@@ -732,7 +809,7 @@ void whitgl_sys_draw_model(whitgl_int id, whitgl_fmat m_model, whitgl_fmat m_vie
 
 	GLuint shaderProgram = shaders[WHITGL_SHADER_MODEL].program;
 	GL_CHECK( glUseProgram( shaderProgram ) );
-	GL_CHECK( glUniform4f( glGetUniformLocation( shaderProgram, "sColor" ), 1.0, 1.0, 1.0, 1.0 ) );
+	GL_CHECK( glUniform4f( glGetUniformLocation( shaderProgram, "sColor" ), 1, 0.5, 1, 1 ) );
 	_whitgl_load_uniforms(WHITGL_SHADER_MODEL);
 	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "m_model"), 1, GL_FALSE, m_model.mat);
 	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "m_view"), 1, GL_FALSE, m_view.mat);
