@@ -42,7 +42,7 @@ typedef struct
 	GLuint buffer;
 	GLuint texture;
 } whitgl_framebuffer;
-#define WHITGL_FRAMEBUFFER_MAX (16)
+#define WHITGL_FRAMEBUFFER_MAX (8)
 whitgl_framebuffer framebuffers[WHITGL_MODEL_MAX];
 
 const char* _vertex_src = "\
