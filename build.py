@@ -69,7 +69,7 @@ def walk_src(n, path, objdir):
   n.newline()
   return obj
 
-def walk_data(n, data_in, data_out, validext=['png','ogg','obj']):
+def walk_data(n, data_in, data_out, validext=['png','ogg','obj','wav']):
   data = []
   for (dirpath, dirnames, filenames) in os.walk(data_in):
     for f in filenames:

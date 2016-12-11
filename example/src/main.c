@@ -53,7 +53,7 @@ int main()
 	whitgl_input_init();
 
 	whitgl_sound_add(0, "data/beam.ogg");
-	whitgl_sound_play(0, 1);
+	whitgl_sound_play(0, 1, 1);
 
 	whitgl_sys_add_image(0, "data/sprites.png");
 	whitgl_random_seed seed = whitgl_random_seed_init(0);
