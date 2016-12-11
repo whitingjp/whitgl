@@ -625,8 +625,6 @@ void whitgl_sys_draw_buffer_pane(whitgl_int id, whitgl_fvec3 v[4], whitgl_fmat m
 	GL_CHECK( glActiveTexture( GL_TEXTURE0 ) );
 	GL_CHECK( glBindTexture( GL_TEXTURE_2D, framebuffers[id].texture ) );
 
-	// glDisable(GL_CULL_FACE);
-	// glDisable(GL_DEPTH_TEST);
 
 	float vertices[6*5];
 	whitgl_int i=0;
@@ -637,20 +635,12 @@ void whitgl_sys_draw_buffer_pane(whitgl_int id, whitgl_fvec3 v[4], whitgl_fmat m
 	vertices[i++] = v[3].x; vertices[i++] = v[3].y; vertices[i++] = v[3].z; vertices[i++] = 1; vertices[i++] = 1;
 	vertices[i++] = v[2].x; vertices[i++] = v[2].y; vertices[i++] = v[2].z; vertices[i++] = 0; vertices[i++] = 1;
 	vertices[i++] = v[0].x; vertices[i++] = v[0].y; vertices[i++] = v[0].z; vertices[i++] = 0; vertices[i++] = 0;
-	// _whitgl_populate_vertices(vertices, src, dest, src.b);
 
-	// whitgl_int i;
-	// for(i=0; i<6; i++)
-	// 	vertices[3+i*5] = -vertices[3+i*5];
-
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
-
-	// Enable depth test
-	glEnable(GL_DEPTH_TEST);
-	// Accept fragment if it closer to the camera than the former one
-	glDepthFunc(GL_LESS);
+	// glEnable(GL_CULL_FACE);
+	// glCullFace(GL_BACK);
+	// glFrontFace(GL_CCW);
+	// glEnable(GL_DEPTH_TEST);
+	// glDepthFunc(GL_LESS);
 
 	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, vbo ) );
 	GL_CHECK( glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW ) );
@@ -664,8 +654,6 @@ void whitgl_sys_draw_buffer_pane(whitgl_int id, whitgl_fvec3 v[4], whitgl_fmat m
 	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "m_model"), 1, GL_FALSE, m_model.mat);
 	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "m_view"), 1, GL_FALSE, m_view.mat);
 	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "m_perspective"), 1, GL_FALSE, m_perspective.mat);
-	// _whitgl_sys_orthographic(shaderProgram, 0, _setup.size.x, 0, _setup.size.y);
-
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
