@@ -613,14 +613,6 @@ void whitgl_sys_draw_finish()
 void whitgl_sys_draw_buffer_pane(whitgl_int id, whitgl_fvec3 v[4], whitgl_fmat m_model, whitgl_fmat m_view, whitgl_fmat m_perspective)
 {
 	_whitgl_sys_flush_tex_iaabb();
-	whitgl_iaabb src = whitgl_iaabb_zero;
-	whitgl_iaabb dest = whitgl_iaabb_zero;
-	src.b.x = _setup.size.x;
-	src.b.y = _setup.size.y;
-	dest.a.x = 0;
-	dest.a.y = 1;
-	dest.b.x = 16/4.0;
-	dest.b.y = 1+9/4.0;
 
 	GL_CHECK( glActiveTexture( GL_TEXTURE0 ) );
 	GL_CHECK( glBindTexture( GL_TEXTURE_2D, framebuffers[id].texture ) );
