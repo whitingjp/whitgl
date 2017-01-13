@@ -271,6 +271,7 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	WHITGL_LOG("Initialize GLFW");
 
 	glfwSetErrorCallback(&_whitgl_sys_glfw_error_callback);
+	WHITGL_LOG("glfwInit");
 	result = glfwInit();
 	if(!result)
 	{
@@ -1206,7 +1207,6 @@ whitgl_sys_color whitgl_sys_color_multiply(whitgl_sys_color a, whitgl_sys_color 
 
 	return out;
 }
-
 whitgl_bool whitgl_sys_window_focused()
 {
 	return _windowFocused;

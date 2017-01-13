@@ -120,7 +120,7 @@ def do_game(target, extra_cflags, data_types):
   n = ninja_syntax.Writer(buildfile)
   cflags, ldflags = flags(inputdir)
   cflags = cflags + ' -Iwhitgl/inc -Isrc ' + extra_cflags
-  rules(n, cflags, ldflags)
+  rules(n, cflags, ldflags, 'scripts')
   obj = walk_src(n, srcdir, objdir)
   whitgl = [joinp('whitgl','build','lib','whitgl.a')]
   targets = []
