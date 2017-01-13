@@ -103,7 +103,7 @@ int _whitgl_get_index(int id)
 		WHITGL_PANIC("ERR Cannot find sound %d", id);
 	return index;
 }
-void whitgl_sound_play(int id, float adjust)
+void whitgl_sound_play(int id, float volume, float pitch)
 {
 	FMOD_RESULT result;
 	int index = _whitgl_get_index(id);
@@ -113,7 +113,9 @@ void whitgl_sound_play(int id, float adjust)
 	float defaultFrequency;
 	result = FMOD_Sound_GetDefaults(sounds[index].sound, &defaultFrequency, NULL);
 	_whitgl_sound_errcheck("FMOD_Sound_GetDefaults", result);
-	result = FMOD_Channel_SetFrequency(sounds[index].channel, defaultFrequency*adjust);
+	result = FMOD_Channel_SetVolume(sounds[index].channel, volume);
+	_whitgl_sound_errcheck("FMOD_Channel_SetVolume", result);
+	result = FMOD_Channel_SetFrequency(sounds[index].channel, defaultFrequency*pitch);
 	_whitgl_sound_errcheck("FMOD_Channel_SetFrequency", result);
 	result = FMOD_Channel_SetPaused(sounds[index].channel, false);
 	_whitgl_sound_errcheck("FMOD_Channel_SetPaused", result);

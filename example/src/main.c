@@ -53,7 +53,7 @@ int main()
 	whitgl_input_init();
 
 	whitgl_sound_add(0, "data/beam.ogg");
-	whitgl_sound_play(0, 1);
+	whitgl_sound_play(0, 1, 1);
 
 	whitgl_sys_add_image(0, "data/sprites.png");
 	whitgl_random_seed seed = whitgl_random_seed_init(0);
@@ -103,7 +103,7 @@ int main()
 
 		whitgl_sys_update_image_from_data(1, setup.size, data_texture);
 
-		whitgl_sys_draw_init();
+		whitgl_sys_draw_init(0);
 
 		whitgl_float fov = whitgl_pi/2;
 		whitgl_fmat perspective = whitgl_fmat_perspective(fov, (float)setup.size.x/(float)setup.size.y, 0.1f, 10.0f);

@@ -14,15 +14,6 @@ typedef struct
 {
 	GLfloat mat[16];
 } whitgl_fmat;
-static const whitgl_fmat whitgl_fmat_zero =
-{
-{
-	0,0,0,0,
-	0,0,0,0,
-	0,0,0,0,
-	0,0,0,0
-}
-};
 static const whitgl_fmat whitgl_fmat_identity =
 {
 {
@@ -43,6 +34,7 @@ whitgl_float whitgl_fvec3_magnitude(whitgl_fvec3 a);
 whitgl_fvec3 whitgl_fvec3_normalize(whitgl_fvec3 a);
 whitgl_fvec3 whitgl_fvec3_cross(whitgl_fvec3 a, whitgl_fvec3 b);
 whitgl_float whitgl_fvec3_dot(whitgl_fvec3 a, whitgl_fvec3 b);
+whitgl_fvec3 whitgl_fvec3_interpolate(whitgl_fvec3 a, whitgl_fvec3 b, whitgl_float ratio);
 
 whitgl_fmat whitgl_fmat_multiply(whitgl_fmat a, whitgl_fmat b);
 whitgl_fmat whitgl_fmat_orthographic(float left, float right, float top, float bottom, whitgl_float near, whitgl_float far);

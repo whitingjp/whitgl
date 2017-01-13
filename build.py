@@ -53,7 +53,7 @@ def rules(n, cflags, ldflags, scripts):
     command='cp $in $out',
     description='COPY $in $out')
   n.rule('model',
-    command='%s $in $out' % joinp(scripts,'process_model.py'),
+    command='python %s $in $out' % joinp(scripts,'process_model.py'),
     description='MODEL $in $out')
   n.newline()
 
@@ -69,7 +69,7 @@ def walk_src(n, path, objdir):
   n.newline()
   return obj
 
-def walk_data(n, data_in, data_out, validext=['png','ogg','obj']):
+def walk_data(n, data_in, data_out, validext=['png','ogg','obj','wav']):
   data = []
   for (dirpath, dirnames, filenames) in os.walk(data_in):
     for f in filenames:
