@@ -1241,6 +1241,27 @@ whitgl_bool whitgl_add_model_from_data(whitgl_int id, whitgl_int num_vertices, c
 	return true;
 }
 
+void whitgl_sys_update_model_from_data(int id, whitgl_int num_vertices, const char* data)
+{
+	int index = -1;
+	int i;
+	for(i=0; i<num_models; i++)
+	{
+		if(models[i].id == id)
+		{
+			index = i;
+			break;
+		}
+	}
+	if(index == -1)
+	{
+		WHITGL_PANIC("ERR Cannot find model %d", id);
+		return;
+	}
+	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, models[index].vbo ) );
+	GL_CHECK( glBufferData( GL_ARRAY_BUFFER, 4*9*num_vertices, data, GL_DYNAMIC_DRAW ) );
+}
+
 double whitgl_sys_get_time()
 {
 	return glfwGetTime();
