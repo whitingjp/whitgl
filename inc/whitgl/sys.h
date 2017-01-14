@@ -126,4 +126,6 @@ whitgl_sys_color whitgl_sys_color_multiply(whitgl_sys_color a, whitgl_sys_color 
 
 whitgl_bool whitgl_sys_window_focused();
 
+void whitgl_sys_enable_depth(whitgl_bool enable);
+
 #endif // WHITGL_SYS_H_

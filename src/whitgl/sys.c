@@ -448,6 +448,12 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 
 	capture = whitgl_frame_capture_zero;
 
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+	glDepthFunc(GL_LESS);
+	glDisable(GL_DEPTH_TEST);
+
 	WHITGL_LOG("Sys initiated");
 
 	return true;
@@ -629,12 +635,6 @@ void whitgl_sys_draw_buffer_pane(whitgl_int id, whitgl_fvec3 v[4], whitgl_fmat m
 	vertices[i++] = v[2].x; vertices[i++] = v[2].y; vertices[i++] = v[2].z; vertices[i++] = 0; vertices[i++] = 1;
 	vertices[i++] = v[0].x; vertices[i++] = v[0].y; vertices[i++] = v[0].z; vertices[i++] = 0; vertices[i++] = 0;
 
-	// glEnable(GL_CULL_FACE);
-	// glCullFace(GL_BACK);
-	// glFrontFace(GL_CCW);
-	// glEnable(GL_DEPTH_TEST);
-	// glDepthFunc(GL_LESS);
-
 	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, vbo ) );
 	GL_CHECK( glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW ) );
 
@@ -780,15 +780,6 @@ void whitgl_sys_draw_model(whitgl_int id, whitgl_fmat m_model, whitgl_fmat m_vie
 		return;
 	}
 
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
-
-	// Enable depth test
-	glEnable(GL_DEPTH_TEST);
-	// Accept fragment if it closer to the camera than the former one
-	glDepthFunc(GL_LESS);
-
 	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, models[index].vbo ) );
 
 	GLuint shaderProgram = shaders[WHITGL_SHADER_MODEL].program;
@@ -805,15 +796,18 @@ void whitgl_sys_draw_model(whitgl_int id, whitgl_fmat m_model, whitgl_fmat m_vie
 	GL_CHECK( glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), 0 ) );
 	GL_CHECK( glEnableVertexAttribArray( posAttrib ) );
 
-	GLint colorAttribA = glGetAttribLocation( shaderProgram, "vertexColor" );
-	GL_CHECK( glVertexAttribPointer( colorAttribA, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), BUFFER_OFFSET(sizeof(float)*3) ) );
-	GL_CHECK( glEnableVertexAttribArray( colorAttribA ) );
+	GLint vertexColor = glGetAttribLocation( shaderProgram, "vertexColor" );
+	GL_CHECK( glVertexAttribPointer( vertexColor, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), BUFFER_OFFSET(sizeof(float)*3) ) );
+	GL_CHECK( glEnableVertexAttribArray( vertexColor ) );
 
-	GLint colorAttribB = glGetAttribLocation( shaderProgram, "vertexNormal" );
-	GL_CHECK( glVertexAttribPointer( colorAttribB, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), BUFFER_OFFSET(sizeof(float)*6) ) );
-	GL_CHECK( glEnableVertexAttribArray( colorAttribB ) );
+	GLint vertexNormal = glGetAttribLocation( shaderProgram, "vertexNormal" );
+	GL_CHECK( glVertexAttribPointer( vertexNormal, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), BUFFER_OFFSET(sizeof(float)*6) ) );
+	GL_CHECK( glEnableVertexAttribArray( vertexNormal ) );
 
 	GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, models[index].num_vertices ) );
+
+	GL_CHECK( glDisableVertexAttribArray(vertexColor) );
+	GL_CHECK( glDisableVertexAttribArray(vertexNormal) );
 }
 
 whitgl_int buffer_curindex = -1;
@@ -1187,9 +1181,6 @@ void whitgl_sys_add_image(int id, const char* filename)
 
 whitgl_bool whitgl_load_model(whitgl_int id, const char* filename)
 {
-
-	GL_CHECK( glGenBuffers( 1, &models[num_models].vbo ) ); // Generate 1 buffer
-
 	FILE *src;
 	int read;
 	int readSize;
@@ -1230,6 +1221,8 @@ whitgl_bool whitgl_add_model_from_data(whitgl_int id, whitgl_int num_vertices, c
 		return false;
 	}
 
+	GL_CHECK( glGenBuffers( 1, &models[num_models].vbo ) ); // Generate 1 buffer
+
 	models[num_models].num_vertices = num_vertices;
 	models[num_models].id = id;
 
@@ -1258,6 +1251,15 @@ void whitgl_sys_update_model_from_data(int id, whitgl_int num_vertices, const ch
 		WHITGL_PANIC("ERR Cannot find model %d", id);
 		return;
 	}
+
+	if(num_vertices != models[index].num_vertices)
+	{
+		GL_CHECK( glDeleteBuffers(1, &models[index].vbo) );
+		models[index].num_vertices = num_vertices;
+		GL_CHECK( glGenBuffers( 1, &models[index].vbo ) ); // Generate 1 buffer
+	}
+
+
 	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, models[index].vbo ) );
 	GL_CHECK( glBufferData( GL_ARRAY_BUFFER, 4*9*num_vertices, data, GL_DYNAMIC_DRAW ) );
 }
@@ -1291,4 +1293,11 @@ whitgl_sys_color whitgl_sys_color_multiply(whitgl_sys_color a, whitgl_sys_color 
 whitgl_bool whitgl_sys_window_focused()
 {
 	return _windowFocused;
+}
+void whitgl_sys_enable_depth(whitgl_bool enable)
+{
+	if(enable)
+		glEnable(GL_DEPTH_TEST);
+	else
+		glDisable(GL_DEPTH_TEST);
 }
