@@ -119,6 +119,8 @@ whitgl_bool whitgl_add_model_from_data(whitgl_int id, whitgl_int num_vertices, c
 void whitgl_sys_update_model_from_data(int id, whitgl_int num_vertices, const char* data);
 whitgl_bool whitgl_load_model(whitgl_int id, const char* filename);
 
+whitgl_ivec whitgl_sys_get_image_size(whitgl_int id);
+
 double whitgl_sys_get_time();
 
 whitgl_sys_color whitgl_sys_color_blend(whitgl_sys_color a, whitgl_sys_color b, whitgl_float factor);

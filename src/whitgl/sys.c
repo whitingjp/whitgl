@@ -1264,6 +1264,26 @@ void whitgl_sys_update_model_from_data(int id, whitgl_int num_vertices, const ch
 	GL_CHECK( glBufferData( GL_ARRAY_BUFFER, 4*9*num_vertices, data, GL_DYNAMIC_DRAW ) );
 }
 
+whitgl_ivec whitgl_sys_get_image_size(whitgl_int id)
+{
+	int index = -1;
+	int i;
+	for(i=0; i<num_images; i++)
+	{
+		if(images[i].id == id)
+		{
+			index = i;
+			break;
+		}
+	}
+	if(index == -1)
+	{
+		WHITGL_PANIC("ERR Cannot find image %d", id);
+		return whitgl_ivec_zero;
+	}
+	return images[index].size;
+}
+
 double whitgl_sys_get_time()
 {
 	return glfwGetTime();
