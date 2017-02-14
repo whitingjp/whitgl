@@ -128,6 +128,10 @@ whitgl_float whitgl_fabs(whitgl_float a)
 {
 	return fabs(a);
 }
+whitgl_float whitgl_fmod(whitgl_float a, whitgl_float b)
+{
+	return fmod(a, b);
+}
 
 whitgl_ivec whitgl_ivec_val(whitgl_int a)
 {
