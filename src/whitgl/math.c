@@ -132,6 +132,10 @@ whitgl_float whitgl_fmod(whitgl_float a, whitgl_float b)
 {
 	return fmod(a, b);
 }
+whitgl_float whitgl_fnearest(whitgl_float a, whitgl_float b)
+{
+	return floor(a/b+0.5)*b;
+}
 
 whitgl_ivec whitgl_ivec_val(whitgl_int a)
 {
