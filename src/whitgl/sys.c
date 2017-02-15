@@ -32,6 +32,7 @@ typedef struct
 	GLuint vbo;
 	whitgl_int num_vertices;
 } whitgl_model;
+static const whitgl_model whitgl_model_zero = {-1, 0, -1};
 #define WHITGL_MODEL_MAX (8)
 whitgl_model models[WHITGL_MODEL_MAX];
 int num_models;
@@ -441,7 +442,7 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 		images[i].id = -1;
 	num_images = 0;
 	for(i=0; i<WHITGL_MODEL_MAX; i++)
-		models[i].id = -1;
+		models[i] = whitgl_model_zero;
 	num_models = 0;
 
 	_setup = *setup;
@@ -1210,32 +1211,14 @@ whitgl_bool whitgl_load_model(whitgl_int id, const char* filename)
 
 	whitgl_int num_vertices = ((readSize/sizeof(GLfloat))/3)/3;
 
-	return whitgl_add_model_from_data(id, num_vertices, (char*)data);
-}
-
-whitgl_bool whitgl_add_model_from_data(whitgl_int id, whitgl_int num_vertices, const char* data)
-{
-	if(num_models >= WHITGL_IMAGE_MAX)
-	{
-		WHITGL_PANIC("ERR Too many models");
-		return false;
-	}
-
-	GL_CHECK( glGenBuffers( 1, &models[num_models].vbo ) ); // Generate 1 buffer
-
-	models[num_models].num_vertices = num_vertices;
-	models[num_models].id = id;
-
-	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, models[num_models].vbo ) );
-	GL_CHECK( glBufferData( GL_ARRAY_BUFFER, 4*9*num_vertices, data, GL_DYNAMIC_DRAW ) );
-
-	num_models++;
-
+	whitgl_sys_update_model_from_data(id, num_vertices, (char*)data);
 	return true;
 }
 
 void whitgl_sys_update_model_from_data(int id, whitgl_int num_vertices, const char* data)
 {
+	if(num_vertices < 0)
+		WHITGL_PANIC("invalid num_vertices");
 	int index = -1;
 	int i;
 	for(i=0; i<num_models; i++)
@@ -1248,8 +1231,14 @@ void whitgl_sys_update_model_from_data(int id, whitgl_int num_vertices, const ch
 	}
 	if(index == -1)
 	{
-		WHITGL_PANIC("ERR Cannot find model %d", id);
-		return;
+		// not added yet, add now
+		if(num_models >= WHITGL_MODEL_MAX)
+			WHITGL_PANIC("ERR Too many models");
+		models[num_models] = whitgl_model_zero;
+		models[num_models].id = id;
+		index = num_models;
+		GL_CHECK( glGenBuffers( 1, &models[num_models].vbo ) ); // Generate 1 buffer
+		num_models++;
 	}
 
 	if(num_vertices != models[index].num_vertices)

@@ -115,7 +115,6 @@ void whitgl_sys_draw_text(whitgl_sprite sprite, const char* string, whitgl_ivec 
 void whitgl_sys_draw_buffer_pane(whitgl_int id, whitgl_fvec3 verts[4], whitgl_fmat m_model, whitgl_fmat m_view, whitgl_fmat m_perspective);
 
 void whitgl_sys_draw_model(whitgl_int id, whitgl_fmat m_model, whitgl_fmat m_view, whitgl_fmat m_perspective);
-whitgl_bool whitgl_add_model_from_data(whitgl_int id, whitgl_int num_vertices, const char* data);
 void whitgl_sys_update_model_from_data(int id, whitgl_int num_vertices, const char* data);
 whitgl_bool whitgl_load_model(whitgl_int id, const char* filename);
 
