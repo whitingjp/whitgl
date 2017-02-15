@@ -31,8 +31,9 @@ typedef struct
 	whitgl_int id;
 	GLuint vbo;
 	whitgl_int num_vertices;
+	whitgl_int max_vertices;
 } whitgl_model;
-static const whitgl_model whitgl_model_zero = {-1, 0, -1};
+static const whitgl_model whitgl_model_zero = {-1, 0, -1, -1};
 #define WHITGL_MODEL_MAX (8)
 whitgl_model models[WHITGL_MODEL_MAX];
 int num_models;
@@ -1241,12 +1242,13 @@ void whitgl_sys_update_model_from_data(int id, whitgl_int num_vertices, const ch
 		num_models++;
 	}
 
-	if(num_vertices != models[index].num_vertices)
+	if(num_vertices > models[index].max_vertices)
 	{
 		GL_CHECK( glDeleteBuffers(1, &models[index].vbo) );
-		models[index].num_vertices = num_vertices;
 		GL_CHECK( glGenBuffers( 1, &models[index].vbo ) ); // Generate 1 buffer
+		models[index].max_vertices = num_vertices;
 	}
+	models[index].num_vertices = num_vertices;
 
 
 	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, models[index].vbo ) );
