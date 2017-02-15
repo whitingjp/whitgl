@@ -210,3 +210,11 @@ whitgl_fmat whitgl_fmat_translate(whitgl_fvec3 off)
 	o.mat[14] = off.z;
 	return o;
 }
+whitgl_bool whitgl_fmat_eq(whitgl_fmat a, whitgl_fmat b)
+{
+	whitgl_int i = 0;
+	for(i=0; i<16; i++)
+		if(a.mat[i] != b.mat[i])
+			return false;
+	return true;
+}
