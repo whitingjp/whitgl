@@ -100,17 +100,17 @@ void whitgl_debug_menu_draw(whitgl_debug_menu debug)
 		{
 			case WHITGL_DEBUG_INT:
 			{
-				snprintf(buffer, sizeof(buffer), "%5s %5d", debug.entries[i].name, (int)*debug.entries[i].int_val);
+				snprintf(buffer, sizeof(buffer), "%8s %5d", debug.entries[i].name, (int)*debug.entries[i].int_val);
 				break;
 			}
 			case WHITGL_DEBUG_FLOAT:
 			{
-				snprintf(buffer, sizeof(buffer), "%5s %5.1f", debug.entries[i].name, *debug.entries[i].float_val);
+				snprintf(buffer, sizeof(buffer), "%8s %5.1f", debug.entries[i].name, *debug.entries[i].float_val);
 				break;
 			}
 			case WHITGL_DEBUG_BUTTON:
 			{
-				snprintf(buffer, sizeof(buffer), "%11s", debug.entries[i].name);
+				snprintf(buffer, sizeof(buffer), "%14s", debug.entries[i].name);
 				break;
 			}
 		}
