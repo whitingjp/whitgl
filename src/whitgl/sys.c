@@ -145,6 +145,7 @@ void _whitgl_check_gl_error(const char* stmt, const char *file, int line)
 		case GL_STACK_OVERFLOW: error = "GL_STACK_OVERFLOW"; break;
 	}
 	whitgl_logit(file, line, "%s in %s", error, stmt);
+	__builtin_trap();
 }
 
 #define GL_CHECK(stmt) do { \
@@ -293,6 +294,7 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_SAMPLES, 4);
 	_windowFocused = setup->start_focused;
 	if(!_windowFocused)
 		glfwWindowHint(GLFW_FOCUSED, GL_FALSE);
@@ -392,9 +394,11 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 		GL_CHECK( glGenFramebuffers(1, &framebuffers[i].buffer) );
 		GL_CHECK( glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[i].buffer) );
 		GL_CHECK( glGenTextures(1, &framebuffers[i].texture) );
-		GL_CHECK( glBindTexture(GL_TEXTURE_2D, framebuffers[i].texture) );
+		GL_CHECK( glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, framebuffers[i].texture) );
 		WHITGL_LOG("Creating framebuffer glTexImage2D");
-		GL_CHECK( glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, setup->size.x, setup->size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0) );
+		// GL_CHECK( glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, setup->size.x, setup->size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0) );
+		GL_CHECK( glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA, setup->size.x, setup->size.y, GL_TRUE) );
+
 		GL_CHECK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE) );
 		GL_CHECK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE) );
 		GL_CHECK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST) );
@@ -403,9 +407,9 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 		GLuint depthrenderbuffer;
 		GL_CHECK( glGenRenderbuffers(1, &depthrenderbuffer) );
 		GL_CHECK( glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer) );
-		GL_CHECK( glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, setup->size.x, setup->size.y) );
+		GL_CHECK( glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT, setup->size.x, setup->size.y) );
 		GL_CHECK( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer) );
-		GL_CHECK( glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, framebuffers[i].texture, 0) );
+		GL_CHECK( glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, framebuffers[i].texture, 0) );
 		GLenum drawBuffers[1] = {GL_COLOR_ATTACHMENT0};
 		GL_CHECK( glDrawBuffers(1, drawBuffers) ); // "1" is the size of drawBuffers
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -455,6 +459,7 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	glFrontFace(GL_CCW);
 	glDepthFunc(GL_LESS);
 	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_MULTISAMPLE);
 
 	WHITGL_LOG("Sys initiated");
 
@@ -560,59 +565,62 @@ void _whitgl_load_uniforms(whitgl_shader_slot slot)
 void whitgl_sys_draw_finish()
 {
 	_whitgl_sys_flush_tex_iaabb();
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	// glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffers[0].texture);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glBlitFramebuffer(0, 0, _window_size.x, _window_size.y, 0, 0, _window_size.x, _window_size.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
-	GL_CHECK( glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) );
-	GL_CHECK( glViewport( 0, 0, _window_size.x, _window_size.y ) );
-	GL_CHECK( glActiveTexture( GL_TEXTURE0 ) );
-	GL_CHECK( glBindTexture( GL_TEXTURE_2D, framebuffers[0].texture ) );
+	// GL_CHECK( glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) );
+	// GL_CHECK( glViewport( 0, 0, _window_size.x, _window_size.y ) );
+	// GL_CHECK( glActiveTexture( GL_TEXTURE0 ) );
+	// GL_CHECK( glBindTexture( GL_TEXTURE_2D_MULTISAMPLE, framebuffers[0].texture ) );
 
-	float vertices[6*5];
-	whitgl_iaabb src = whitgl_iaabb_zero;
-	whitgl_iaabb dest = whitgl_iaabb_zero;
-	src.b.x = _setup.size.x;
-	src.a.y = _setup.size.y;
-	if(_setup.exact_size)
-	{
-		dest.b = _window_size;
-	}
-	else
-	{
-		dest.a.x = (_window_size.x-_setup.size.x*_setup.pixel_size)/2;
-		dest.a.y = (_window_size.y-_setup.size.y*_setup.pixel_size)/2;
-		dest.b.x = dest.a.x+_setup.size.x*_setup.pixel_size;
-		dest.b.y = dest.a.y+_setup.size.y*_setup.pixel_size;
-	}
+	// float vertices[6*5];
+	// whitgl_iaabb src = whitgl_iaabb_zero;
+	// whitgl_iaabb dest = whitgl_iaabb_zero;
+	// src.b.x = _setup.size.x;
+	// src.a.y = _setup.size.y;
+	// if(_setup.exact_size)
+	// {
+	// 	dest.b = _window_size;
+	// }
+	// else
+	// {
+	// 	dest.a.x = (_window_size.x-_setup.size.x*_setup.pixel_size)/2;
+	// 	dest.a.y = (_window_size.y-_setup.size.y*_setup.pixel_size)/2;
+	// 	dest.b.x = dest.a.x+_setup.size.x*_setup.pixel_size;
+	// 	dest.b.y = dest.a.y+_setup.size.y*_setup.pixel_size;
+	// }
 
-	_whitgl_populate_vertices(vertices, src, dest, _setup.size);
-	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, vbo ) );
-	GL_CHECK( glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW ) );
+	// _whitgl_populate_vertices(vertices, src, dest, _setup.size);
+	// GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, vbo ) );
+	// GL_CHECK( glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW ) );
 
-	GLuint shaderProgram = shaders[WHITGL_SHADER_POST].program;
-	GL_CHECK( glUseProgram( shaderProgram ) );
-	GL_CHECK( glUniform1i( glGetUniformLocation( shaderProgram, "tex" ), 0 ) );
-	_whitgl_load_uniforms(WHITGL_SHADER_POST);
-	_whitgl_sys_orthographic(shaderProgram, 0, _window_size.x, 0, _window_size.y);
+	// GLuint shaderProgram = shaders[WHITGL_SHADER_POST].program;
+	// GL_CHECK( glUseProgram( shaderProgram ) );
+	// GL_CHECK( glUniform1i( glGetUniformLocation( shaderProgram, "tex" ), 0 ) );
+	// _whitgl_load_uniforms(WHITGL_SHADER_POST);
+	// _whitgl_sys_orthographic(shaderProgram, 0, _window_size.x, 0, _window_size.y);
 
-	#define BUFFER_OFFSET(i) ((void*)(i))
-	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
-	GL_CHECK( glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), 0 ) );
-	GL_CHECK( glEnableVertexAttribArray( posAttrib ) );
+	// #define BUFFER_OFFSET(i) ((void*)(i))
+	// GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
+	// GL_CHECK( glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), 0 ) );
+	// GL_CHECK( glEnableVertexAttribArray( posAttrib ) );
 
-	GLint texturePosAttrib = glGetAttribLocation( shaderProgram, "texturepos" );
-	GL_CHECK( glVertexAttribPointer( texturePosAttrib, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), BUFFER_OFFSET(sizeof(float)*3) ) );
-	GL_CHECK( glEnableVertexAttribArray( texturePosAttrib ) );
+	// GLint texturePosAttrib = glGetAttribLocation( shaderProgram, "texturepos" );
+	// GL_CHECK( glVertexAttribPointer( texturePosAttrib, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), BUFFER_OFFSET(sizeof(float)*3) ) );
+	// GL_CHECK( glEnableVertexAttribArray( texturePosAttrib ) );
 
-	GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, 6 ) );
+	// GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, 6 ) );
 
-	if(capture.do_next)
-	{
-		unsigned char* buffer = malloc(_window_size.x*_window_size.y*4);
-		glReadPixels(0, 0, _window_size.x, _window_size.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-		whitgl_sys_save_png(capture.file, _window_size.x, _window_size.y, buffer);
-		free(buffer);
-		capture.do_next = false;
-	}
+	// if(capture.do_next)
+	// {
+	// 	unsigned char* buffer = malloc(_window_size.x*_window_size.y*4);
+	// 	glReadPixels(0, 0, _window_size.x, _window_size.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+	// 	whitgl_sys_save_png(capture.file, _window_size.x, _window_size.y, buffer);
+	// 	free(buffer);
+	// 	capture.do_next = false;
+	// }
 
 	glfwSwapBuffers(_window);
 	glfwPollEvents();
@@ -624,7 +632,7 @@ void whitgl_sys_draw_buffer_pane(whitgl_int id, whitgl_fvec3 v[4], whitgl_fmat m
 	_whitgl_sys_flush_tex_iaabb();
 
 	GL_CHECK( glActiveTexture( GL_TEXTURE0 ) );
-	GL_CHECK( glBindTexture( GL_TEXTURE_2D, framebuffers[id].texture ) );
+	GL_CHECK( glBindTexture( GL_TEXTURE_2D_MULTISAMPLE, framebuffers[id].texture ) );
 
 
 	float vertices[6*5];
