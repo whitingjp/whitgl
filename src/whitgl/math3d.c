@@ -193,12 +193,12 @@ whitgl_fmat whitgl_fmat_rot_z(whitgl_float f)
 	o.mat[5] = cos;
 	return o;
 }
-whitgl_fmat whitgl_fmat_scale(whitgl_float f)
+whitgl_fmat whitgl_fmat_scale(whitgl_fvec3 off)
 {
 	whitgl_fmat o = whitgl_fmat_identity;
-	o.mat[0] = f;
-	o.mat[5] = f;
-	o.mat[10] = f;
+	o.mat[0] = off.x;
+	o.mat[5] = off.y;
+	o.mat[10] = off.z;
 	o.mat[15] = 1;
 	return o;
 }
