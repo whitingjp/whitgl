@@ -66,6 +66,10 @@ def walk_src(n, path, objdir):
         s = os.path.relpath(joinp(dirpath, f), path)
         o = s.replace('.c', '.o')
         obj += n.build(joinp(objdir, o), 'cxx', joinp(path, s))
+      if ext == '.cpp':
+        s = os.path.relpath(joinp(dirpath, f), path)
+        o = s.replace('.cpp', '.o')
+        obj += n.build(joinp(objdir, o), 'cxx', joinp(path, s))
   n.newline()
   return obj
 
