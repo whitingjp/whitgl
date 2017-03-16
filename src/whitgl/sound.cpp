@@ -10,24 +10,6 @@ extern "C"
 }
 #include <whitgl/sound.h>
 
-
-// FMOD_SYSTEM *fmodSystem;
-// typedef struct
-// {
-// 	int id;
-// 	FMOD_SOUND* sound;
-// 	FMOD_CHANNEL* channel;
-// } whitgl_sound;
-// #define WHITGL_SOUND_MAX (64)
-// whitgl_sound sounds[WHITGL_SOUND_MAX];
-// int num_sounds;
-
-// void _whitgl_sound_errcheck(const char* location, FMOD_RESULT result)
-// {
-//     if (result != FMOD_OK)
-//     	WHITGL_LOG("FMOD error in %s! (%d) %s\n", location, result, FMOD_ErrorString(result));
-// }
-
 irrklang::ISoundEngine* irrklang_engine = NULL;
 typedef struct
 {
@@ -133,6 +115,7 @@ void whitgl_loop_add_positional(int id, const char* filename)
 
 	irrklang::vec3df pos = irrklang::vec3df(0,0,0);
 	loops[num_loops].sound = irrklang_engine->play3D(filename, pos, true, true);
+	num_loops++;
 }
 void whitgl_loop_volume(int id, float volume)
 {
