@@ -15,6 +15,7 @@ $UNZIP glfw-3.2.1.bin.WIN32.zip
 mv glfw-3.2.1.bin.WIN32 glfw
 $DOWNLOAD https://github.com/nigels-com/glew/releases/download/glew-2.0.0/glew-2.0.0-win32.zip glew-2.0.0-win32.zip
 $UNZIP glew-2.0.0-win32.zip
+mv glew-2.0.0 glew
 git clone --depth=1 https://github.com/madler/zlib
 pushd zlib
 make -f win32/Makefile.gcc

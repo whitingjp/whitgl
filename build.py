@@ -9,17 +9,12 @@ plat = platform.system()
 bit64 = platform.architecture()[0] == '64bit'
 joinp = os.path.join
 
-if(bit64):
-  fmoddir = 'x86_64'
-else:
-  fmoddir = 'x86'
-
 def flags(input_dir):
   cflags = '-Iinc -Wall -Wextra -Werror -g'
   ldflags = ''
   if plat == 'Windows':
-    cflags += ' -I_INPUT_/glfw/include -I_INPUT_/libpng/include -I_INPUT_/zlib/include -I_INPUT_/glew/include -I_INPUT_/fmod/win/inc -I_INPUT_/TinyMT '
-    ldflags += ' -Wl,--stack,4194304 -L_INPUT_/glfw/lib-mingw -L_INPUT_/glew/lib -L_INPUT_/libpng/lib -L_INPUT_/fmod/win/lib _INPUT_/glfw/lib-mingw/glfw3dll.a -lglu32 -lopengl32 -lglew32 -lfmod -lpng _INPUT_/zlib/lib/zdll.lib -mwindows _INPUT_/TinyMT/tinymt/tinymt64.o'
+    cflags += ' -I_INPUT_/glfw/include -I_INPUT_/libpng -I_INPUT_/zlib -I_INPUT_/glew/include  -I_INPUT_/irrklang/include -I_INPUT_/TinyMT'
+    ldflags += ' -Wl,--stack,4194304 -L_INPUT_/glfw/lib-mingw -L_INPUT_/glew/lib/Release/Win32 -L_INPUT_/libpng -L_INPUT_/zlib -L_INPUT_/irrklang/bin/win32-gcc _INPUT_/glfw/lib-mingw/libglfw3dll.a -lglew32s -lglu32 -lopengl32  -lirrKlang -lpng -lz -mwindows _INPUT_/TinyMT/tinymt/tinymt64.o -lstdc++'
   elif plat == 'Darwin':
     cflags += '  -fstack-protector-all -mmacosx-version-min=10.6 -isystem _INPUT_/irrklang/include -I_INPUT_/glfw/include -I_INPUT_/glew/include -I_INPUT_/libpng -I_INPUT_/TinyMT'
     ldflags += ' -mmacosx-version-min=10.6 -L_INPUT_/irrklang/bin/macosx-gcc -L_INPUT_/glfw/build/src -L_INPUT_/libpng -L_INPUT_/zlib -L_INPUT_/glew/lib -framework OpenGL -framework Cocoa -framework IOKit -framework ForceFeedback -framework Carbon -framework CoreAudio -framework CoreVideo -framework AudioUnit -lpng -lirrklang -lglfw3 -lGLEW -lz _INPUT_/TinyMT/tinymt/tinymt64.o'
@@ -98,10 +93,8 @@ def walk_data(n, data_in, data_out, validext=['png','ogg','obj','wav']):
 def copy_libs(n, inputs, outdir):
   targets = []
   if plat == 'Windows':
-    targets += n.build(joinp(outdir, 'fmod.dll'), 'cp', joinp(inputs, 'fmod', 'win', 'lib', 'fmod.dll'))
-    targets += n.build(joinp(outdir, 'glew32.dll'), 'cp', joinp(inputs, 'glew', 'lib', 'glew32.dll'))
+    targets += n.build(joinp(outdir, 'irrKlang.dll'), 'cp', joinp(inputs, 'irrklang', 'bin', 'win32-gcc', 'irrKlang.dll'))
     targets += n.build(joinp(outdir, 'glfw3.dll'), 'cp', joinp(inputs, 'glfw', 'lib-mingw', 'glfw3.dll'))
-    targets += n.build(joinp(outdir, 'libpng3.dll'), 'cp', joinp(inputs, 'libpng', 'bin', 'libpng3.dll'))
     targets += n.build(joinp(outdir, 'zlib1.dll'), 'cp', joinp(inputs, 'zlib', 'zlib1.dll'))
   elif plat == 'Darwin':
     targets += n.build(joinp(outdir, 'libirrklang.dylib'), 'cp', joinp(inputs, 'irrklang', 'bin', 'macosx-gcc', 'libirrklang.dylib'))
