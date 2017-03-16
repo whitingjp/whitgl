@@ -21,8 +21,8 @@ def flags(input_dir):
     cflags += ' -I_INPUT_/glfw/include -I_INPUT_/libpng/include -I_INPUT_/zlib/include -I_INPUT_/glew/include -I_INPUT_/fmod/win/inc -I_INPUT_/TinyMT '
     ldflags += ' -Wl,--stack,4194304 -L_INPUT_/glfw/lib-mingw -L_INPUT_/glew/lib -L_INPUT_/libpng/lib -L_INPUT_/fmod/win/lib _INPUT_/glfw/lib-mingw/glfw3dll.a -lglu32 -lopengl32 -lglew32 -lfmod -lpng _INPUT_/zlib/lib/zdll.lib -mwindows _INPUT_/TinyMT/tinymt/tinymt64.o'
   elif plat == 'Darwin':
-    cflags += '  -fstack-protector-all -mmacosx-version-min=10.6 -isystem _INPUT_/fmod/inc -I_INPUT_/glfw/include -I_INPUT_/glew/include -I_INPUT_/libpng -I_INPUT_/TinyMT'
-    ldflags += ' -mmacosx-version-min=10.6 -L_INPUT_/fmod/lib -L_INPUT_/glfw/build/src -L_INPUT_/libpng -L_INPUT_/zlib -L_INPUT_/glew/lib -framework OpenGL -framework Cocoa -framework IOKit -framework ForceFeedback -framework Carbon -framework CoreAudio -framework CoreVideo -framework AudioUnit -lpng -lfmod -lglfw3 -lGLEW -lz _INPUT_/TinyMT/tinymt/tinymt64.o'
+    cflags += '  -fstack-protector-all -mmacosx-version-min=10.6 -isystem _INPUT_/irrklang/include -I_INPUT_/glfw/include -I_INPUT_/glew/include -I_INPUT_/libpng -I_INPUT_/TinyMT'
+    ldflags += ' -mmacosx-version-min=10.6 -L_INPUT_/irrklang/bin/macosx-gcc -L_INPUT_/glfw/build/src -L_INPUT_/libpng -L_INPUT_/zlib -L_INPUT_/glew/lib -framework OpenGL -framework Cocoa -framework IOKit -framework ForceFeedback -framework Carbon -framework CoreAudio -framework CoreVideo -framework AudioUnit -lpng -lirrklang -lglfw3 -lGLEW -lz _INPUT_/TinyMT/tinymt/tinymt64.o'
   else:
     cflags += '  -fstack-protector-all -isystem _INPUT_/fmod/api/lowlevel/inc -I_INPUT_/glfw/include -I_INPUT_/TinyMT'
     ldflags += ' -Wl,-rpath=.,--enable-new-dtags -L_INPUT_/fmod/api/lowlevel/lib/%s -L_INPUT_/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lm -lfmod -lX11 -lXxf86vm -lpthread -lXrandr -lXinerama -lXcursor -lXi -lpng -ldl _INPUT_/TinyMT/tinymt/tinymt64.o -lz' % fmoddir
@@ -43,7 +43,7 @@ def rules(n, cflags, ldflags, scripts):
     command='ar rcs $out $in')
   if plat == 'Darwin':
     n.rule('link',
-      command='gcc $in $libs $ldflags -o $out && install_name_tool -change @rpath/libfmod.dylib @executable_path/libfmod.dylib $out && install_name_tool -change /usr/lib/libGLEW.1.13.0.dylib @executable_path/libGLEW.1.13.0.dylib $out',
+      command='gcc $in $libs $ldflags -o $out && install_name_tool -change /usr/local/lib/libirrklang.dylib @executable_path/libirrklang.dylib $out && install_name_tool -change /usr/lib/libGLEW.1.13.0.dylib @executable_path/libGLEW.1.13.0.dylib $out',
       description='LINK $out')
   else:
     n.rule('link',
@@ -104,7 +104,7 @@ def copy_libs(n, inputs, outdir):
     targets += n.build(joinp(outdir, 'libpng3.dll'), 'cp', joinp(inputs, 'libpng', 'bin', 'libpng3.dll'))
     targets += n.build(joinp(outdir, 'zlib1.dll'), 'cp', joinp(inputs, 'zlib', 'zlib1.dll'))
   elif plat == 'Darwin':
-    targets += n.build(joinp(outdir, 'libfmod.dylib'), 'cp', joinp(inputs, 'fmod', 'lib', 'libfmod.dylib'))
+    targets += n.build(joinp(outdir, 'libirrklang.dylib'), 'cp', joinp(inputs, 'irrklang', 'bin', 'macosx-gcc', 'libirrklang.dylib'))
     targets += n.build(joinp(outdir, 'libGLEW.1.13.0.dylib'), 'cp', joinp(inputs, 'glew', 'lib', 'libGLEW.1.13.0.dylib'))
   else:
     targets += n.build(joinp(outdir, 'libfmod.so.5'), 'cp', joinp(inputs, 'fmod', 'api', 'lowlevel', 'lib', fmoddir, 'libfmod.so'))

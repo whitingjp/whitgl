@@ -1,9 +1,14 @@
 
+#include <irrKlang.h>
 #include <stdbool.h>
 #include <stddef.h>
 
+extern "C"
+{
 #include <whitgl/logging.h>
+}
 #include <whitgl/sound.h>
+
 
 // FMOD_SYSTEM *fmodSystem;
 // typedef struct
@@ -22,13 +27,19 @@
 //     	WHITGL_LOG("FMOD error in %s! (%d) %s\n", location, result, FMOD_ErrorString(result));
 // }
 
+irrklang::ISoundEngine* irrklang_engine = NULL;
+
 void whitgl_sound_init()
 {
-
+	irrklang_engine = irrklang::createIrrKlangDevice();
+	if(!irrklang_engine)
+		WHITGL_PANIC("Could not startup irrklang engine\n");
 }
 void whitgl_sound_shutdown()
 {
-
+	if(!irrklang_engine)
+		WHITGL_PANIC("whitgl_sound_shutdown without whitgl_sound_init?");
+	irrklang_engine->drop();
 }
 void whitgl_sound_update()
 {
