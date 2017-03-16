@@ -52,8 +52,13 @@ int main()
 	whitgl_sound_init();
 	whitgl_input_init();
 
+	whitgl_loop_set_listener(whitgl_fvec_zero, whitgl_fvec_zero, 0);
+
 	whitgl_sound_add(0, "data/beam.ogg");
 	whitgl_sound_play(0, 1, 1);
+
+	whitgl_loop_add_positional(1, "data/loop.ogg");
+	whitgl_loop_set_paused(1, false);
 
 	whitgl_sys_add_image(0, "data/sprites.png");
 	whitgl_random_seed seed = whitgl_random_seed_init(0);
@@ -77,6 +82,7 @@ int main()
 
 	whitgl_float time = 0;
 	whitgl_int shape = 0;
+	whitgl_fvec old_sound_pos = whitgl_fvec_zero;
 
 	bool running = true;
 	while(running)
@@ -90,6 +96,11 @@ int main()
 			whitgl_input_update();
 			whitgl_ivec mousepos = whitgl_input_mouse_pos(setup.pixel_size);
 			uniform = ((float)mousepos.x-setup.size.x/2)/30;
+
+			whitgl_fvec sound_pos = whitgl_fvec_scale_val(whitgl_fvec_sub(whitgl_fvec_divide(whitgl_ivec_to_fvec(mousepos), whitgl_ivec_to_fvec(setup.size)), whitgl_fvec_val(0.5)),20);
+			whitgl_fvec sound_velocity = whitgl_fvec_sub(sound_pos, old_sound_pos);
+			old_sound_pos = sound_pos;
+			whitgl_loop_set_position(1, sound_pos, sound_velocity);
 			if(whitgl_input_pressed(WHITGL_INPUT_A))
 				shape = (shape+1)%2;
 			if(whitgl_input_pressed(WHITGL_INPUT_ESC))
