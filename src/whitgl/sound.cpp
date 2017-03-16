@@ -51,6 +51,7 @@ void whitgl_sound_init()
 	if(!irrklang_engine)
 		WHITGL_PANIC("Could not startup irrklang engine\n");
 	num_sounds = 0;
+	num_loops = 0;
 }
 void whitgl_sound_shutdown()
 {
@@ -103,7 +104,7 @@ int _whitgl_get_loop_index(int id)
 {
 	int index = -1;
 	int i;
-	for(i=0; i<num_sounds; i++)
+	for(i=0; i<num_loops; i++)
 	{
 		if(loops[i].id == id)
 		{
