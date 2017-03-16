@@ -5,6 +5,7 @@
 
 extern "C"
 {
+#include <whitgl/math.h>
 #include <whitgl/logging.h>
 }
 #include <whitgl/sound.h>
@@ -31,11 +32,18 @@ irrklang::ISoundEngine* irrklang_engine = NULL;
 typedef struct
 {
 	int id;
-	irrklang::ISoundSource* sound;
+	irrklang::ISoundSource* source;
 } whitgl_sound;
+typedef struct
+{
+	int id;
+	irrklang::ISound* sound;
+} whitgl_loop;
 #define WHITGL_SOUND_MAX (64)
 whitgl_sound sounds[WHITGL_SOUND_MAX];
+whitgl_loop loops[WHITGL_SOUND_MAX];
 int num_sounds;
+int num_loops;
 
 void whitgl_sound_init()
 {
@@ -63,10 +71,10 @@ void whitgl_sound_add(int id, const char* filename)
 		WHITGL_PANIC("ran out of sounds");
 	sounds[num_sounds].id = id;
 
-	sounds[num_sounds].sound = irrklang_engine->addSoundSourceFromFile(filename, irrklang::ESM_NO_STREAMING, true);
+	sounds[num_sounds].source = irrklang_engine->addSoundSourceFromFile(filename, irrklang::ESM_NO_STREAMING, true);
 	num_sounds++;
 }
-int _whitgl_get_index(int id)
+int _whitgl_get_sound_index(int id)
 {
 	int index = -1;
 	int i;
@@ -84,53 +92,83 @@ int _whitgl_get_index(int id)
 }
 void whitgl_sound_play(int id, float volume, float pitch)
 {
-	whitgl_int index = _whitgl_get_index(id);
-	irrklang::ISound* sound = irrklang_engine->play2D(sounds[index].sound, false, true);
+	whitgl_int index = _whitgl_get_sound_index(id);
+	irrklang::ISound* sound = irrklang_engine->play2D(sounds[index].source, false, true);
 	sound->setVolume(volume);
 	sound->setPlaybackSpeed(pitch);
 	sound->setIsPaused(false);
 	sound->drop();
 }
-
+int _whitgl_get_loop_index(int id)
+{
+	int index = -1;
+	int i;
+	for(i=0; i<num_sounds; i++)
+	{
+		if(loops[i].id == id)
+		{
+			index = i;
+			continue;
+		}
+	}
+	if(index == -1)
+		WHITGL_PANIC("ERR Cannot find loop %d", id);
+	return index;
+}
 void whitgl_loop_add(int id, const char* filename)
 {
-	(void)id;
-	(void)filename;
+	if(num_loops >= WHITGL_SOUND_MAX)
+		WHITGL_PANIC("ran out of loops");
+	loops[num_loops].id = id;
+
+	loops[num_loops].sound = irrklang_engine->play2D(filename, true, true);
+	num_loops++;
 }
 void whitgl_loop_add_positional(int id, const char* filename)
 {
-	(void)id;
-	(void)filename;
+	if(num_loops >= WHITGL_SOUND_MAX)
+		WHITGL_PANIC("ran out of loops");
+	loops[num_loops].id = id;
+
+	irrklang::vec3df pos = irrklang::vec3df(0,0,0);
+	loops[num_loops].sound = irrklang_engine->play3D(filename, pos, true, true);
 }
 void whitgl_loop_volume(int id, float volume)
 {
-	(void)id;
-	(void)volume;
+	whitgl_int index = _whitgl_get_loop_index(id);
+	loops[index].sound->setVolume(volume);
 }
 void whitgl_loop_set_paused(int id, bool paused)
 {
-	(void)id;
-	(void)paused;
+	whitgl_int index = _whitgl_get_loop_index(id);
+	loops[index].sound->setIsPaused(paused);
 }
 void whitgl_loop_seek(int id, float time)
 {
-	(void)id;
-	(void)time;
+	whitgl_int index = _whitgl_get_loop_index(id);
+	if(!loops[index].sound->setPlayPosition(time*1000))
+		WHITGL_PANIC("failed to seek");
 }
-void whitgl_loop_frequency(int id, float adjust)
+void whitgl_loop_frequency(int id, float pitch)
 {
-	(void)id;
-	(void)adjust;
+	whitgl_int index = _whitgl_get_loop_index(id);
+	loops[index].sound->setPlaybackSpeed(pitch);
 }
 void whitgl_loop_set_listener(whitgl_fvec p, whitgl_fvec v, whitgl_float angle)
 {
-	(void)p;
-	(void)v;
-	(void)angle;
+	irrklang::vec3df pos = irrklang::vec3df(p.x, p.y, 0);
+	irrklang::vec3df vel = irrklang::vec3df(v.x/60.0, v.y/60.0, 0);
+	whitgl_fvec forward = whitgl_angle_to_fvec(-angle+whitgl_pi/2);
+	irrklang::vec3df frw = irrklang::vec3df(forward.x, forward.y, 0.0f);
+	irrklang::vec3df up = irrklang::vec3df(0,0,1);
+
+	irrklang_engine->setListenerPosition(pos, frw, vel, up);
 }
 void whitgl_loop_set_position(int id, whitgl_fvec p, whitgl_fvec v)
 {
-	(void)id;
-	(void)p;
-	(void)v;
+	whitgl_int index = _whitgl_get_loop_index(id);
+	irrklang::vec3df pos = irrklang::vec3df(p.x,p.y,0);
+	irrklang::vec3df vel = irrklang::vec3df(v.x/60.0,v.y/60.0,0);
+	loops[index].sound->setPosition(pos);
+	loops[index].sound->setVelocity(vel);
 }
