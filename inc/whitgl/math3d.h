@@ -43,7 +43,7 @@ whitgl_fmat whitgl_fmat_lookAt(whitgl_fvec3 eye, whitgl_fvec3 center, whitgl_fve
 whitgl_fmat whitgl_fmat_rot_x(whitgl_float f);
 whitgl_fmat whitgl_fmat_rot_y(whitgl_float f);
 whitgl_fmat whitgl_fmat_rot_z(whitgl_float f);
-whitgl_fmat whitgl_fmat_scale(whitgl_float f);
+whitgl_fmat whitgl_fmat_scale(whitgl_fvec3 off);
 whitgl_fmat whitgl_fmat_translate(whitgl_fvec3 off);
 whitgl_bool whitgl_fmat_eq(whitgl_fmat a, whitgl_fmat b);
 

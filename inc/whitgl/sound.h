@@ -4,6 +4,11 @@
 #include <stdbool.h>
 #include <whitgl/math.h>
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 typedef enum
 {
 	WHITGL_SOUND_PAUSED,
@@ -25,5 +30,9 @@ void whitgl_loop_seek(int id, float time);
 void whitgl_loop_frequency(int id, float adjust);
 void whitgl_loop_set_listener(whitgl_fvec p, whitgl_fvec v, whitgl_float angle);
 void whitgl_loop_set_position(int id, whitgl_fvec p, whitgl_fvec v);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // WHITGL_SOUND_H_
