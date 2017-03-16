@@ -9,10 +9,9 @@ git checkout release
 ./configure.py --bootstrap
 popd
 curl -O https://raw.githubusercontent.com/martine/ninja/master/misc/ninja_syntax.py
-cp ../fmodstudioapi10510mac-installer.dmg .
-hdiutil mount fmodstudioapi10510mac-installer.dmg
-cp -r /Volumes/FMOD\ Programmers\ API\ Mac/FMOD\ Programmers\ API/api/lowlevel/ fmod
-hdiutil unmount /Volumes/FMOD\ Programmers\ API\ Mac/
+curl -O http://www.ambiera.at/downloads/irrKlang-64bit-1.5.0.zip
+unzip irrKlang-64bit-1.5.0.zip
+ln -s irrKlang-64bit-1.5.0 irrklang
 git clone --depth=1 https://github.com/glfw/glfw.git
 mkdir glfw/build
 pushd glfw/build
@@ -24,9 +23,7 @@ pushd glew
 make extensions
 make
 popd
-curl -O ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng12/libpng-1.2.53.tar.gz
-tar -xzf libpng-1.2.53.tar.gz
-ln -s libpng-1.2.53 libpng
+git clone --depth=1 git@github.com:glennrp/libpng.git
 pushd libpng
 make -f scripts/makefile.darwin
 popd

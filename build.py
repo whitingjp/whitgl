@@ -43,7 +43,7 @@ def rules(n, cflags, ldflags, scripts):
     command='ar rcs $out $in')
   if plat == 'Darwin':
     n.rule('link',
-      command='gcc $in $libs $ldflags -o $out && install_name_tool -change /usr/local/lib/libirrklang.dylib @executable_path/libirrklang.dylib $out && install_name_tool -change /usr/lib/libGLEW.1.13.0.dylib @executable_path/libGLEW.1.13.0.dylib $out',
+      command='gcc $in $libs $ldflags -o $out && install_name_tool -change /usr/local/lib/libirrklang.dylib @executable_path/libirrklang.dylib $out && install_name_tool -change /usr/local/lib/libGLEW.2.0.0.dylib @executable_path/libGLEW.2.0.0.dylib $out',
       description='LINK $out')
   else:
     n.rule('link',
@@ -105,7 +105,7 @@ def copy_libs(n, inputs, outdir):
     targets += n.build(joinp(outdir, 'zlib1.dll'), 'cp', joinp(inputs, 'zlib', 'zlib1.dll'))
   elif plat == 'Darwin':
     targets += n.build(joinp(outdir, 'libirrklang.dylib'), 'cp', joinp(inputs, 'irrklang', 'bin', 'macosx-gcc', 'libirrklang.dylib'))
-    targets += n.build(joinp(outdir, 'libGLEW.1.13.0.dylib'), 'cp', joinp(inputs, 'glew', 'lib', 'libGLEW.1.13.0.dylib'))
+    targets += n.build(joinp(outdir, 'libGLEW.2.0.0.dylib'), 'cp', joinp(inputs, 'glew', 'lib', 'libGLEW.2.0.0.dylib'))
   else:
     targets += n.build(joinp(outdir, 'libfmod.so.5'), 'cp', joinp(inputs, 'fmod', 'api', 'lowlevel', 'lib', fmoddir, 'libfmod.so'))
   n.newline()
