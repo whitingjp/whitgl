@@ -5,9 +5,9 @@ rm -rf input
 mkdir input
 pushd input
 wget https://github.com/martine/ninja/raw/master/misc/ninja_syntax.py
-read -p "Download fmodstudioapi10509linux from fmod.org, place in input folder, then press [Enter]"
-tar -xzf fmodstudioapi10509linux.tar.gz
-ln -s fmodstudioapi10509linux fmod
+wget http://www.ambiera.at/downloads/irrKlang-64bit-1.5.0.zip
+unzip irrKlang-64bit-1.5.0.zip
+ln -s irrKlang-64bit-1.5.0 irrklang
 git clone --depth=1 https://github.com/glfw/glfw.git
 mkdir glfw/build
 pushd glfw/build

@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define GLEW_STATIC
 #include <GL/glew.h>

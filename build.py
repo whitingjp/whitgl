@@ -9,23 +9,18 @@ plat = platform.system()
 bit64 = platform.architecture()[0] == '64bit'
 joinp = os.path.join
 
-if(bit64):
-  fmoddir = 'x86_64'
-else:
-  fmoddir = 'x86'
-
 def flags(input_dir):
   cflags = '-Iinc -Wall -Wextra -Werror -g'
   ldflags = ''
   if plat == 'Windows':
-    cflags += ' -I_INPUT_/glfw/include -I_INPUT_/libpng/include -I_INPUT_/zlib/include -I_INPUT_/glew/include -I_INPUT_/fmod/win/inc -I_INPUT_/TinyMT '
-    ldflags += ' -Wl,--stack,4194304 -L_INPUT_/glfw/lib-mingw -L_INPUT_/glew/lib -L_INPUT_/libpng/lib -L_INPUT_/fmod/win/lib _INPUT_/glfw/lib-mingw/glfw3dll.a -lglu32 -lopengl32 -lglew32 -lfmod -lpng _INPUT_/zlib/lib/zdll.lib -mwindows _INPUT_/TinyMT/tinymt/tinymt64.o'
+    cflags += ' -I_INPUT_/glfw/include -I_INPUT_/libpng -I_INPUT_/zlib -I_INPUT_/glew/include  -I_INPUT_/irrklang/include -I_INPUT_/TinyMT'
+    ldflags += ' -Wl,--stack,4194304 -L_INPUT_/glfw/lib-mingw -L_INPUT_/glew/lib/Release/Win32 -L_INPUT_/libpng -L_INPUT_/zlib -L_INPUT_/irrklang/bin/win32-gcc _INPUT_/glfw/lib-mingw/libglfw3dll.a -lglew32s -lglu32 -lopengl32  -lirrKlang -lpng -lz -mwindows _INPUT_/TinyMT/tinymt/tinymt64.o -lstdc++'
   elif plat == 'Darwin':
-    cflags += '  -fstack-protector-all -mmacosx-version-min=10.6 -isystem _INPUT_/fmod/inc -I_INPUT_/glfw/include -I_INPUT_/glew/include -I_INPUT_/libpng -I_INPUT_/TinyMT'
-    ldflags += ' -mmacosx-version-min=10.6 -L_INPUT_/fmod/lib -L_INPUT_/glfw/build/src -L_INPUT_/libpng -L_INPUT_/zlib -L_INPUT_/glew/lib -framework OpenGL -framework Cocoa -framework IOKit -framework ForceFeedback -framework Carbon -framework CoreAudio -framework CoreVideo -framework AudioUnit -lpng -lfmod -lglfw3 -lGLEW -lz _INPUT_/TinyMT/tinymt/tinymt64.o'
+    cflags += '  -fstack-protector-all -mmacosx-version-min=10.6 -isystem _INPUT_/irrklang/include -I_INPUT_/glfw/include -I_INPUT_/glew/include -I_INPUT_/libpng -I_INPUT_/TinyMT'
+    ldflags += ' -mmacosx-version-min=10.6 -L_INPUT_/irrklang/bin/macosx-gcc -L_INPUT_/glfw/build/src -L_INPUT_/libpng -L_INPUT_/zlib -L_INPUT_/glew/lib -framework OpenGL -framework Cocoa -framework IOKit -framework ForceFeedback -framework Carbon -framework CoreAudio -framework CoreVideo -framework AudioUnit -lpng -lirrklang -lglfw3 -lGLEW -lz _INPUT_/TinyMT/tinymt/tinymt64.o'
   else:
-    cflags += '  -fstack-protector-all -isystem _INPUT_/fmod/api/lowlevel/inc -I_INPUT_/glfw/include -I_INPUT_/TinyMT'
-    ldflags += ' -Wl,-rpath=.,--enable-new-dtags -L_INPUT_/fmod/api/lowlevel/lib/%s -L_INPUT_/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lm -lfmod -lX11 -lXxf86vm -lpthread -lXrandr -lXinerama -lXcursor -lXi -lpng -ldl _INPUT_/TinyMT/tinymt/tinymt64.o -lz' % fmoddir
+    cflags += '  -fstack-protector-all -isystem _INPUT_/irrklang/include -I_INPUT_/glfw/include -I_INPUT_/TinyMT'
+    ldflags += ' -Wl,-rpath=.,--enable-new-dtags -L_INPUT_/irrklang/bin/linux-gcc-64  -L_INPUT_/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lm -lIrrKlang -lX11 -lXxf86vm -lpthread -lXrandr -lXinerama -lXcursor -lXi -lpng -ldl _INPUT_/TinyMT/tinymt/tinymt64.o -lz'
   cflags = cflags.replace('_INPUT_', input_dir)
   ldflags = ldflags.replace('_INPUT_', input_dir)
   return (cflags, ldflags)
@@ -43,7 +38,7 @@ def rules(n, cflags, ldflags, scripts):
     command='ar rcs $out $in')
   if plat == 'Darwin':
     n.rule('link',
-      command='gcc $in $libs $ldflags -o $out && install_name_tool -change @rpath/libfmod.dylib @executable_path/libfmod.dylib $out && install_name_tool -change /usr/lib/libGLEW.1.13.0.dylib @executable_path/libGLEW.1.13.0.dylib $out',
+      command='gcc $in $libs $ldflags -o $out && install_name_tool -change /usr/local/lib/libirrklang.dylib @executable_path/libirrklang.dylib $out && install_name_tool -change /usr/local/lib/libGLEW.2.0.0.dylib @executable_path/libGLEW.2.0.0.dylib $out',
       description='LINK $out')
   else:
     n.rule('link',
@@ -65,6 +60,10 @@ def walk_src(n, path, objdir):
       if ext == '.c':
         s = os.path.relpath(joinp(dirpath, f), path)
         o = s.replace('.c', '.o')
+        obj += n.build(joinp(objdir, o), 'cxx', joinp(path, s))
+      if ext == '.cpp':
+        s = os.path.relpath(joinp(dirpath, f), path)
+        o = s.replace('.cpp', '.o')
         obj += n.build(joinp(objdir, o), 'cxx', joinp(path, s))
   n.newline()
   return obj
@@ -94,16 +93,14 @@ def walk_data(n, data_in, data_out, validext=['png','ogg','obj','wav']):
 def copy_libs(n, inputs, outdir):
   targets = []
   if plat == 'Windows':
-    targets += n.build(joinp(outdir, 'fmod.dll'), 'cp', joinp(inputs, 'fmod', 'win', 'lib', 'fmod.dll'))
-    targets += n.build(joinp(outdir, 'glew32.dll'), 'cp', joinp(inputs, 'glew', 'lib', 'glew32.dll'))
+    targets += n.build(joinp(outdir, 'irrKlang.dll'), 'cp', joinp(inputs, 'irrklang', 'bin', 'win32-gcc', 'irrKlang.dll'))
     targets += n.build(joinp(outdir, 'glfw3.dll'), 'cp', joinp(inputs, 'glfw', 'lib-mingw', 'glfw3.dll'))
-    targets += n.build(joinp(outdir, 'libpng3.dll'), 'cp', joinp(inputs, 'libpng', 'bin', 'libpng3.dll'))
     targets += n.build(joinp(outdir, 'zlib1.dll'), 'cp', joinp(inputs, 'zlib', 'zlib1.dll'))
   elif plat == 'Darwin':
-    targets += n.build(joinp(outdir, 'libfmod.dylib'), 'cp', joinp(inputs, 'fmod', 'lib', 'libfmod.dylib'))
-    targets += n.build(joinp(outdir, 'libGLEW.1.13.0.dylib'), 'cp', joinp(inputs, 'glew', 'lib', 'libGLEW.1.13.0.dylib'))
+    targets += n.build(joinp(outdir, 'libirrklang.dylib'), 'cp', joinp(inputs, 'irrklang', 'bin', 'macosx-gcc', 'libirrklang.dylib'))
+    targets += n.build(joinp(outdir, 'libGLEW.2.0.0.dylib'), 'cp', joinp(inputs, 'glew', 'lib', 'libGLEW.2.0.0.dylib'))
   else:
-    targets += n.build(joinp(outdir, 'libfmod.so.5'), 'cp', joinp(inputs, 'fmod', 'api', 'lowlevel', 'lib', fmoddir, 'libfmod.so'))
+    targets += n.build(joinp(outdir, 'libIrrKlang.so'), 'cp', joinp(inputs, 'irrklang', 'bin', 'linux-gcc-64', 'libIrrKlang.so'))
   n.newline()
   return targets
 
