@@ -141,9 +141,9 @@ def do_game(name, extra_cflags, data_types):
 
   targets += copy_libs(n, inputdir, executabledir)
 
-  # if build.plat == 'Darwin':
-  #   targets += n.build(joinp(packagedir, 'Info.plist'), 'cp', joinp(data_in, 'osx', 'Info.plist'))
-  #   targets += n.build(joinp(packagedir, 'Resources', 'Nest.icns'), 'cp', joinp(data_in, 'osx', 'Nest.icns'))
+  if plat == 'Darwin':
+    targets += n.build(joinp(packagedir, 'Info.plist'), 'cp', joinp(data_in, 'osx', 'Info.plist'))
+    targets += n.build(joinp(packagedir, 'Resources', 'Icon.icns'), 'cp', joinp(data_in, 'osx', 'Icon.icns'))
 
   n.build('all', 'phony', targets)
   n.default('all')
