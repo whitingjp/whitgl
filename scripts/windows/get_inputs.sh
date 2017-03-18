@@ -2,8 +2,8 @@ set -e
 mkdir input
 pushd input
 
-DOWNLOAD="cscript.exe ../scripts/get_inputs_windows/downloadfile_windows.vbs"
-UNZIP="cscript.exe ../scripts/get_inputs_windows/unzipfile_windows.vbs"
+DOWNLOAD="cscript.exe ../scripts/windows/downloadfile_windows.vbs"
+UNZIP="cscript.exe ../scripts/windows/unzipfile_windows.vbs"
 $DOWNLOAD http://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-win.zip ninja-win.zip
 $UNZIP ninja-win.zip
 $DOWNLOAD https://raw.githubusercontent.com/martine/ninja/master/misc/ninja_syntax.py ninja_syntax.py
@@ -21,7 +21,7 @@ pushd zlib
 make -f win32/Makefile.gcc
 popd
 git clone --depth=1 https://github.com/glennrp/libpng
-cp ../scripts/get_inputs_windows/libpng_makefile.msys libpng/scripts
+cp ../scripts/windows/libpng_makefile.msys libpng/scripts
 pushd libpng
 make -f scripts/libpng_makefile.msys
 popd
