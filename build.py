@@ -113,7 +113,9 @@ def do_game(target, extra_cflags, data_types):
   libdir = joinp(builddir, 'lib')
   data_in =  'data'
   data_out = joinp(targetdir, 'data')
-  buildfile = open('build.ninja', 'w')
+  if not os.path.exists('build'):
+    os.makedirs('build')
+  buildfile = open(joinp('build', 'build.ninja'), 'w')
   n = ninja_syntax.Writer(buildfile)
   cflags, ldflags = flags(inputdir)
   cflags = cflags + ' -Iwhitgl/inc -Isrc ' + extra_cflags
@@ -146,8 +148,9 @@ def main():
   libdir = joinp(builddir, 'lib')
   data_in =  joinp(examplesrcdir, 'data')
   data_out = joinp(exampledir, 'data')
-  BUILD_FILENAME = 'build.ninja'
-  buildfile = open(BUILD_FILENAME, 'w')
+  if not os.path.exists('build'):
+    os.makedirs('build')
+  buildfile = open(joinp('build', 'build.ninja'), 'w')
   n = ninja_syntax.Writer(buildfile)
   cflags, ldflags = flags('input')
   rules(n, cflags, ldflags, scriptsdir)

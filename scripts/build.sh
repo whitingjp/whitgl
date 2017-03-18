@@ -13,7 +13,7 @@ fi
 set -e
 pushd whitgl
 python build.py
-$whitgl_ninja
+$whitgl_ninja -f build/build.ninja
 popd
 python build.py
-$ninja
+$ninja -f build/build.ninja
