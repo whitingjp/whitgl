@@ -693,15 +693,7 @@ whitgl_fvec whitgl_facing_to_fvec(whitgl_int facing)
 }
 whitgl_float whitgl_facing_to_angle(whitgl_int facing)
 {
-	whitgl_float ang = 0;
-	switch(facing)
-	{
-		case 0: ang = whitgl_pi*0.0; break;
-		case 1: ang = whitgl_pi*0.5; break;
-		case 2: ang = whitgl_pi*1.0; break;
-		case 3: ang = whitgl_pi*1.5; break;
-	}
-	return ang;
+	return (facing/4.0)*whitgl_tau;
 }
 whitgl_int whitgl_ivec_to_facing(whitgl_ivec vec)
 {
@@ -775,20 +767,20 @@ whitgl_fvec whitgl_rotate_point_around_point(whitgl_fvec src, whitgl_fvec pivot,
 }
 whitgl_float whitgl_angle_lerp(whitgl_float a, whitgl_float b, whitgl_float amount)
 {
-	if(b-a > whitgl_pi || b-a < -whitgl_pi)
+	if(b-a > whitgl_tau/2.0f || b-a < -whitgl_tau/2.0f)
 	{
 		if(b > a)
-			a += whitgl_pi*2;
+			a += whitgl_tau;
 		else
-			b += whitgl_pi*2;
+			b += whitgl_tau;
 	}
 	whitgl_float out = a*(1-amount) + b*amount;
-	return whitgl_fwrap(out, 0, whitgl_pi*2);
+	return whitgl_fwrap(out, 0, whitgl_tau);
 }
 whitgl_float whitgl_angle_diff(whitgl_float a, whitgl_float b)
 {
-	whitgl_float ab = whitgl_fwrap(a-b, 0, whitgl_pi*2);
-	whitgl_float ba = whitgl_fwrap(b-a, 0, whitgl_pi*2);
+	whitgl_float ab = whitgl_fwrap(a-b, 0, whitgl_tau);
+	whitgl_float ba = whitgl_fwrap(b-a, 0, whitgl_tau);
 	if(ab < ba)
 		return -ab;
 	else
