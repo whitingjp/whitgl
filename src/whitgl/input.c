@@ -40,7 +40,7 @@ void whitgl_input_shutdown()
 	glfwSetScrollCallback(_window, NULL);
 }
 
-bool whitgl_input_down(whitgl_input input)
+bool whitgl_input_held(whitgl_input input)
 {
 	return _heldInputs[input];
 }
