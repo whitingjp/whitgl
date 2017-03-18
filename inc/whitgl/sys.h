@@ -5,7 +5,6 @@
 #include <stddef.h>
 
 #include <whitgl/math.h>
-#include <whitgl/math3d.h>
 
 typedef enum
 {

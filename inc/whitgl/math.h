@@ -22,6 +22,12 @@ static const whitgl_fvec whitgl_fvec_zero = {0,0};
 
 typedef struct
 {
+ 	whitgl_float x, y, z;
+} whitgl_fvec3;
+static const whitgl_fvec3 whitgl_fvec3_zero = {0,0,0};
+
+typedef struct
+{
 	whitgl_ivec a, b;
 } whitgl_iaabb;
 static const whitgl_iaabb whitgl_iaabb_zero = { {0,0}, {0,0} };
@@ -38,6 +44,20 @@ typedef struct
 	whitgl_float size;
 } whitgl_fcircle;
 static const whitgl_fcircle whitgl_fcircle_zero = { {0,0}, 0};
+
+typedef struct
+{
+	float mat[16];
+} whitgl_fmat;
+static const whitgl_fmat whitgl_fmat_identity =
+{
+{
+	1,0,0,0,
+	0,1,0,0,
+	0,0,1,0,
+	0,0,0,1
+}
+};
 
 whitgl_int whitgl_imin(whitgl_int a, whitgl_int b);
 whitgl_int whitgl_imax(whitgl_int a, whitgl_int b);
@@ -90,6 +110,18 @@ whitgl_fvec whitgl_fvec_from_angle(whitgl_float a);
 whitgl_fvec whitgl_fvec_interpolate(whitgl_fvec a, whitgl_fvec b, whitgl_float ratio);
 whitgl_bool whitgl_fvec_eq(whitgl_fvec a, whitgl_fvec b);
 
+whitgl_fvec3 whitgl_fvec3_val(whitgl_float a);
+whitgl_fvec3 whitgl_fvec3_add(whitgl_fvec3 a, whitgl_fvec3 b);
+whitgl_fvec3 whitgl_fvec3_sub(whitgl_fvec3 a, whitgl_fvec3 b);
+whitgl_fvec3 whitgl_fvec3_scale(whitgl_fvec3 a, whitgl_fvec3 b);
+whitgl_fvec3 whitgl_fvec3_scale_val(whitgl_fvec3 a, whitgl_float val);
+whitgl_float whitgl_fvec3_sqmagnitude(whitgl_fvec3 a);
+whitgl_float whitgl_fvec3_magnitude(whitgl_fvec3 a);
+whitgl_fvec3 whitgl_fvec3_normalize(whitgl_fvec3 a);
+whitgl_fvec3 whitgl_fvec3_cross(whitgl_fvec3 a, whitgl_fvec3 b);
+whitgl_float whitgl_fvec3_dot(whitgl_fvec3 a, whitgl_fvec3 b);
+whitgl_fvec3 whitgl_fvec3_interpolate(whitgl_fvec3 a, whitgl_fvec3 b, whitgl_float ratio);
+
 whitgl_iaabb whitgl_iaabb_add(whitgl_iaabb a, whitgl_ivec b);
 whitgl_iaabb whitgl_iaabb_sub(whitgl_iaabb a, whitgl_ivec b);
 whitgl_iaabb whitgl_iaabb_scale(whitgl_iaabb a, whitgl_ivec s);
@@ -105,6 +137,17 @@ whitgl_faabb whitgl_faabb_divide(whitgl_faabb a, whitgl_fvec s);
 whitgl_faabb whitgl_faabb_intersection(whitgl_faabb a, whitgl_faabb b);
 whitgl_bool whitgl_faabb_intersects(whitgl_faabb a, whitgl_faabb b);
 whitgl_float whitgl_faabb_area(whitgl_faabb a);
+
+whitgl_fmat whitgl_fmat_multiply(whitgl_fmat a, whitgl_fmat b);
+whitgl_fmat whitgl_fmat_orthographic(float left, float right, float top, float bottom, whitgl_float near, whitgl_float far);
+whitgl_fmat whitgl_fmat_perspective(whitgl_float fovY, whitgl_float aspect, whitgl_float zNear, whitgl_float zFar);
+whitgl_fmat whitgl_fmat_lookAt(whitgl_fvec3 eye, whitgl_fvec3 center, whitgl_fvec3 up);
+whitgl_fmat whitgl_fmat_rot_x(whitgl_float f);
+whitgl_fmat whitgl_fmat_rot_y(whitgl_float f);
+whitgl_fmat whitgl_fmat_rot_z(whitgl_float f);
+whitgl_fmat whitgl_fmat_scale(whitgl_fvec3 off);
+whitgl_fmat whitgl_fmat_translate(whitgl_fvec3 off);
+whitgl_bool whitgl_fmat_eq(whitgl_fmat a, whitgl_fmat b);
 
 whitgl_bool whitgl_ivec_point_in_rect(whitgl_ivec p, whitgl_iaabb rect);
 whitgl_bool whitgl_fvec_point_in_rect(whitgl_fvec p, whitgl_faabb rect);
@@ -135,6 +178,7 @@ whitgl_float whitgl_angle_diff(whitgl_float a, whitgl_float b);
 
 whitgl_ivec whitgl_camera(whitgl_ivec pos, whitgl_ivec world_size, whitgl_ivec screen_size);
 
-static const whitgl_float whitgl_pi = 3.14159;
+static const whitgl_float whitgl_tau = 6.28318530718;
+static const whitgl_float whitgl_pi = whitgl_tau/2.0;
 
 #endif // WHITGL_MATH_H_
