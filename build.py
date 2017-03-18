@@ -25,7 +25,7 @@ def flags(input_dir):
   ldflags = ldflags.replace('_INPUT_', input_dir)
   return (cflags, ldflags)
 
-def rules(n, cflags, ldflags, scripts):
+def rules(n, cflags, ldflags, scripts, build):
   n.variable('cflags', cflags)
   n.variable('ldflags', ldflags)
   n.newline()
@@ -40,6 +40,9 @@ def rules(n, cflags, ldflags, scripts):
     n.rule('link',
       command='gcc $in $libs $ldflags -o $out && install_name_tool -change /usr/local/lib/libirrklang.dylib @executable_path/libirrklang.dylib $out && install_name_tool -change /usr/local/lib/libGLEW.2.0.0.dylib @executable_path/libGLEW.2.0.0.dylib $out',
       description='LINK $out')
+    n.rule('icon',
+      command='%s $in %s $out' % (joinp(scripts,'osx','create_icns.sh'), joinp(build,'icon')),
+      description='ICON $out')
   else:
     n.rule('link',
       command='gcc $in $libs $ldflags -o $out',
@@ -127,7 +130,7 @@ def do_game(name, extra_cflags, data_types):
   n = ninja_syntax.Writer(buildfile)
   cflags, ldflags = flags(inputdir)
   cflags = cflags + ' -Iwhitgl/inc -Isrc ' + extra_cflags
-  rules(n, cflags, ldflags, 'scripts')
+  rules(n, cflags, ldflags, joinp('whitgl','scripts'), builddir)
   obj = walk_src(n, srcdir, objdir)
   whitgl = [joinp('whitgl','build','lib','whitgl.a')]
   targets = []
@@ -143,7 +146,7 @@ def do_game(name, extra_cflags, data_types):
 
   if plat == 'Darwin':
     targets += n.build(joinp(packagedir, 'Info.plist'), 'cp', joinp(data_in, 'osx', 'Info.plist'))
-    targets += n.build(joinp(packagedir, 'Resources', 'Icon.icns'), 'cp', joinp(data_in, 'osx', 'Icon.icns'))
+    targets += n.build(joinp(packagedir, 'Resources', 'Icon.icns'), 'icon', joinp('art', 'icon', 'icon.png'))
 
   n.build('all', 'phony', targets)
   n.default('all')
@@ -165,7 +168,7 @@ def main():
   buildfile = open(joinp('build', 'build.ninja'), 'w')
   n = ninja_syntax.Writer(buildfile)
   cflags, ldflags = flags('input')
-  rules(n, cflags, ldflags, scriptsdir)
+  rules(n, cflags, ldflags, scriptsdir, builddir)
   # Library
   obj = walk_src(n, srcdir, objdir)
   staticlib = n.build(joinp(libdir, target), 'static', obj)

@@ -1,14 +1,15 @@
 #/usr/bin/bash
 set -e
-if [ $# -ne 2 ]
+if [ $# -ne 3 ]
   then
     echo "Usage:"
-    echo "  create_icns.sh source_image.png working_dir"
+    echo "  create_icns.sh source_image.png working_dir dest"
     exit 1
 fi
 
 SOURCE="$1"
 WORKING_DIR="$2"
+DEST="$3"
 ICONSET=${WORKING_DIR}/Icon.iconset
 
 mkdir -p ${ICONSET}
@@ -23,3 +24,4 @@ sips -z 512 512   ${SOURCE} --out ${ICONSET}/icon_256x256@2x.png
 sips -z 512 512   ${SOURCE} --out ${ICONSET}/icon_512x512.png
 cp ${SOURCE} ${ICONSET}/icon_512x512@2x.png
 iconutil -c icns ${ICONSET}
+cp ${WORKING_DIR}/Icon.icns ${DEST}
