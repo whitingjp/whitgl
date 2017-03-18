@@ -104,11 +104,19 @@ def copy_libs(n, inputs, outdir):
   n.newline()
   return targets
 
-def do_game(target, extra_cflags, data_types):
+def do_game(name, extra_cflags, data_types):
+  target = name.lower()
   srcdir = 'src'
   inputdir = joinp('whitgl', 'input')
   builddir = 'build'
   targetdir = joinp(builddir, 'out')
+  if plat == 'Darwin':
+    packagedir = joinp(targetdir, '%s.app' % name, 'Contents')
+    executabledir = joinp(packagedir, 'MacOS')
+    data_out = joinp(packagedir, 'Resources', 'data')
+  else:
+    executabledir = targetdir
+    data_out = joinp(targetdir, 'data')
   objdir = joinp(builddir, 'obj')
   libdir = joinp(builddir, 'lib')
   data_in =  'data'
@@ -123,7 +131,7 @@ def do_game(target, extra_cflags, data_types):
   obj = walk_src(n, srcdir, objdir)
   whitgl = [joinp('whitgl','build','lib','whitgl.a')]
   targets = []
-  targets += n.build(joinp(targetdir, target), 'link', obj+whitgl)
+  targets += n.build(joinp(executabledir, target), 'link', obj+whitgl)
   n.newline()
 
   data = walk_data(n, data_in, data_out, data_types)
@@ -131,7 +139,11 @@ def do_game(target, extra_cflags, data_types):
   targets += n.build('data', 'phony', data)
   n.newline()
 
-  targets += copy_libs(n, inputdir, targetdir)
+  targets += copy_libs(n, inputdir, executabledir)
+
+  # if build.plat == 'Darwin':
+  #   targets += n.build(joinp(packagedir, 'Info.plist'), 'cp', joinp(data_in, 'osx', 'Info.plist'))
+  #   targets += n.build(joinp(packagedir, 'Resources', 'Nest.icns'), 'cp', joinp(data_in, 'osx', 'Nest.icns'))
 
   n.build('all', 'phony', targets)
   n.default('all')

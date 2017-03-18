@@ -8,4 +8,4 @@ import build
 sys.path.insert(0, 'input')
 import ninja_syntax
 
-build.do_game('game', '', ['png','ogg'])
+build.do_game('Game', '', ['png','ogg'])
