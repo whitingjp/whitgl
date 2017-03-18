@@ -25,6 +25,7 @@ typedef struct
 	whitgl_bool over_render;
 	whitgl_bool start_focused;
 	whitgl_bool clear_buffer;
+	whitgl_int num_framebuffers;
 } whitgl_sys_setup;
 static const whitgl_sys_setup whitgl_sys_setup_zero =
 {
@@ -38,6 +39,7 @@ static const whitgl_sys_setup whitgl_sys_setup_zero =
 	false,
 	true,
 	true,
+	1,
 };
 
 typedef struct

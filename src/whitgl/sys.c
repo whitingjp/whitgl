@@ -25,7 +25,7 @@ typedef struct
 } whitgl_image;
 #define WHITGL_IMAGE_MAX (64)
 whitgl_image images[WHITGL_IMAGE_MAX];
-int num_images;
+whitgl_int num_images;
 
 typedef struct
 {
@@ -37,7 +37,7 @@ typedef struct
 static const whitgl_model whitgl_model_zero = {-1, 0, -1, -1};
 #define WHITGL_MODEL_MAX (8)
 whitgl_model models[WHITGL_MODEL_MAX];
-int num_models;
+whitgl_int num_models;
 
 
 typedef struct
@@ -47,6 +47,7 @@ typedef struct
 } whitgl_framebuffer;
 #define WHITGL_FRAMEBUFFER_MAX (8)
 whitgl_framebuffer framebuffers[WHITGL_MODEL_MAX];
+whitgl_int num_framebuffers;
 
 const char* _vertex_src = "\
 #version 150\
@@ -387,14 +388,17 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 
 	WHITGL_LOG("Creating framebuffers");
 	whitgl_int i;
-	for(i=0; i<WHITGL_FRAMEBUFFER_MAX; i++)
+	if(setup->num_framebuffers > WHITGL_FRAMEBUFFER_MAX)
+		WHITGL_PANIC("More than maximum framebuffers");
+	num_framebuffers = setup->num_framebuffers;
+	for(i=0; i<num_framebuffers; i++)
 	{
+		WHITGL_LOG("Creating framebuffer %d", i);
 		// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
 		GL_CHECK( glGenFramebuffers(1, &framebuffers[i].buffer) );
 		GL_CHECK( glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[i].buffer) );
 		GL_CHECK( glGenTextures(1, &framebuffers[i].texture) );
 		GL_CHECK( glBindTexture(GL_TEXTURE_2D, framebuffers[i].texture) );
-		WHITGL_LOG("Creating framebuffer glTexImage2D");
 		GL_CHECK( glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, setup->size.x, setup->size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0) );
 		GL_CHECK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE) );
 		GL_CHECK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE) );
@@ -496,6 +500,8 @@ double whitgl_sys_getTime()
 
 void whitgl_sys_draw_init(whitgl_int framebuffer_id)
 {
+	if(framebuffer_id >= num_framebuffers)
+		WHITGL_PANIC("invalid framebuffer, have you assigned enough");
 	int w, h;
 	glfwGetFramebufferSize(_window, &w, &h);
 	_window_size.x = w;
