@@ -25,11 +25,7 @@ def flags(input_dir):
   ldflags = ldflags.replace('_INPUT_', input_dir)
   return (cflags, ldflags)
 
-def rules(n, cflags, ldflags, scripts, build):
-  n.variable('cflags', cflags)
-  n.variable('ldflags', ldflags)
-  n.newline()
-
+def rules(n):
   n.rule('cxx',
     command='gcc -MMD -MF $out.d $cflags -c $in -o $out',
     depfile='$out.d',
@@ -41,7 +37,7 @@ def rules(n, cflags, ldflags, scripts, build):
       command='gcc $in $libs $ldflags -o $out && install_name_tool -change /usr/local/lib/libirrklang.dylib @executable_path/libirrklang.dylib $out && install_name_tool -change /usr/local/lib/libGLEW.2.0.0.dylib @executable_path/libGLEW.2.0.0.dylib $out',
       description='LINK $out')
     n.rule('icon',
-      command='%s $in %s $out' % (joinp(scripts,'osx','create_icns.sh'), joinp(build,'icon')),
+      command='$scripts_dir/osx/create_icns.sh $in $build_dir/icon $out',
       description='ICON $out')
   else:
     n.rule('link',
@@ -51,7 +47,7 @@ def rules(n, cflags, ldflags, scripts, build):
     command='cp $in $out',
     description='COPY $in $out')
   n.rule('model',
-    command='python %s $in $out' % joinp(scripts,'process_model.py'),
+    command='python $scripts_dir/process_model.py $in $out',
     description='MODEL $in $out')
   n.newline()
 
@@ -128,9 +124,15 @@ def do_game(name, extra_cflags, data_types):
     os.makedirs('build')
   buildfile = open(joinp('build', 'build.ninja'), 'w')
   n = ninja_syntax.Writer(buildfile)
+  n.variable('build_dir', builddir)
+  n.variable('scripts_dir', joinp('whitgl','scripts'))
+  n.newline()
   cflags, ldflags = flags(inputdir)
   cflags = cflags + ' -Iwhitgl/inc -Isrc ' + extra_cflags
-  rules(n, cflags, ldflags, joinp('whitgl','scripts'), builddir)
+  n.variable('cflags', cflags)
+  n.variable('ldflags', ldflags)
+  n.newline()
+  rules(n)
   obj = walk_src(n, srcdir, objdir)
   whitgl = [joinp('whitgl','build','lib','whitgl.a')]
   targets = []
@@ -157,7 +159,6 @@ def main():
   examplesrcdir = 'example'
   inputdir = 'input'
   builddir = 'build'
-  scriptsdir = 'scripts'
   exampledir = joinp(builddir, 'example')
   objdir = joinp(builddir, 'obj')
   libdir = joinp(builddir, 'lib')
@@ -167,8 +168,14 @@ def main():
     os.makedirs('build')
   buildfile = open(joinp('build', 'build.ninja'), 'w')
   n = ninja_syntax.Writer(buildfile)
+  n.variable('build_dir', builddir)
+  n.variable('scripts_dir', 'scripts')
+  n.newline()
   cflags, ldflags = flags('input')
-  rules(n, cflags, ldflags, scriptsdir, builddir)
+  n.variable('cflags', cflags)
+  n.variable('ldflags', ldflags)
+  n.newline()
+  rules(n)
   # Library
   obj = walk_src(n, srcdir, objdir)
   staticlib = n.build(joinp(libdir, target), 'static', obj)
