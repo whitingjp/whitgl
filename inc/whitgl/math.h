@@ -148,6 +148,7 @@ whitgl_fmat whitgl_fmat_rot_z(whitgl_float f);
 whitgl_fmat whitgl_fmat_scale(whitgl_fvec3 off);
 whitgl_fmat whitgl_fmat_translate(whitgl_fvec3 off);
 whitgl_bool whitgl_fmat_eq(whitgl_fmat a, whitgl_fmat b);
+whitgl_fvec3 whitgl_fvec3_apply_fmat(whitgl_fvec3 v, whitgl_fmat m);
 
 whitgl_bool whitgl_ivec_point_in_rect(whitgl_ivec p, whitgl_iaabb rect);
 whitgl_bool whitgl_fvec_point_in_rect(whitgl_fvec p, whitgl_faabb rect);
