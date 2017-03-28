@@ -71,6 +71,7 @@ typedef enum
 #define WHITGL_MAX_SHADER_UNIFORMS (16)
 #define WHITGL_MAX_SHADER_COLORS (4)
 #define WHITGL_MAX_SHADER_IMAGES (4)
+#define WHITGL_MAX_SHADER_MATRICES (4)
 typedef struct
 {
 	const char* vertex_src;
@@ -81,8 +82,10 @@ typedef struct
 	const char* colors[WHITGL_MAX_SHADER_COLORS];
 	int num_images;
 	const char* images[WHITGL_MAX_SHADER_IMAGES];
+	int num_matrices;
+	const char* matrices[WHITGL_MAX_SHADER_MATRICES];
 } whitgl_shader;
-static const whitgl_shader whitgl_shader_zero = {NULL, NULL, 0, {}, 0, {}, 0, {}};
+static const whitgl_shader whitgl_shader_zero = {NULL, NULL, 0, {}, 0, {}, 0, {}, 0, {}};
 
 bool whitgl_sys_init(whitgl_sys_setup* setup);
 bool whitgl_sys_should_close();
@@ -94,6 +97,7 @@ bool whitgl_change_shader(whitgl_shader_slot type, whitgl_shader shader);
 void whitgl_set_shader_uniform(whitgl_shader_slot type, int uniform, float value);
 void whitgl_set_shader_color(whitgl_shader_slot type, whitgl_int color, whitgl_sys_color value);
 void whitgl_set_shader_image(whitgl_shader_slot type, whitgl_int image, whitgl_int index);
+void whitgl_set_shader_matrix(whitgl_shader_slot type, whitgl_int matrix, whitgl_fmat fmat);
 
 void whitgl_sys_draw_init(whitgl_int framebuffer_id);
 void whitgl_sys_draw_finish();

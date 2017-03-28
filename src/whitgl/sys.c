@@ -116,6 +116,7 @@ typedef struct
 	float uniforms[WHITGL_MAX_SHADER_UNIFORMS];
 	whitgl_sys_color colors[WHITGL_MAX_SHADER_COLORS];
 	whitgl_int images[WHITGL_MAX_SHADER_IMAGES];
+	whitgl_fmat matrices[WHITGL_MAX_SHADER_MATRICES];
 	whitgl_shader shader;
 } whitgl_shader_data;
 
@@ -247,7 +248,7 @@ void whitgl_set_shader_color(whitgl_shader_slot type, whitgl_int color, whitgl_s
 	}
 	if(color < 0 || color >= WHITGL_MAX_SHADER_COLORS || color >= shaders[type].shader.num_colors)
 	{
-		WHITGL_PANIC("Invalid shader uniform %d", color);
+		WHITGL_PANIC("Invalid shader color %d", color);
 		return;
 	}
 	if(shaders[type].colors[color].r != value.r ||
@@ -266,13 +267,29 @@ void whitgl_set_shader_image(whitgl_shader_slot type, whitgl_int image, whitgl_i
 	}
 	if(image < 0 || image >= WHITGL_MAX_SHADER_IMAGES || image >= shaders[type].shader.num_images)
 	{
-		WHITGL_PANIC("Invalid shader uniform %d", image);
+		WHITGL_PANIC("Invalid shader image %d", image);
 		return;
 	}
 	if(shaders[type].images[image] != index)
 		_whitgl_sys_flush_tex_iaabb();
 	shaders[type].images[image] = index;
 }
+void whitgl_set_shader_matrix(whitgl_shader_slot type, whitgl_int matrix, whitgl_fmat fmat)
+{
+	if(type >= WHITGL_SHADER_MAX)
+	{
+		WHITGL_PANIC("Invalid shader type %d", type);
+		return;
+	}
+	if(matrix < 0 || matrix >= WHITGL_MAX_SHADER_MATRICES || matrix >= shaders[type].shader.num_matrices)
+	{
+		WHITGL_PANIC("Invalid shader matrix %d", matrix);
+		return;
+	}
+	if(!whitgl_fmat_eq(shaders[type].matrices[matrix], fmat))
+		_whitgl_sys_flush_tex_iaabb();
+	shaders[type].matrices[matrix] = fmat;
+};
 
 bool whitgl_sys_init(whitgl_sys_setup* setup)
 {
@@ -560,6 +577,15 @@ void _whitgl_load_uniforms(whitgl_shader_slot slot)
 		whitgl_int image = shaders[slot].images[i];
 		glActiveTexture(GL_TEXTURE0 + 1 + i);
 		glBindTexture(GL_TEXTURE_2D, images[image].gluint);
+	}
+	for(i=0; i<shaders[slot].shader.num_matrices; i++)
+	{
+		GLint location = glGetUniformLocation(shaders[slot].program, shaders[slot].shader.matrices[i]);
+		whitgl_int j;
+		GLfloat converted[16];
+		for(j=0; j<16; j++)
+			converted[j] = shaders[slot].matrices[i].mat[j];
+		glUniformMatrix4fv( location, 1, GL_FALSE, converted);
 	}
 	GL_CHECK( return );
 }
