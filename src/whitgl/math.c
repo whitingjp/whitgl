@@ -615,12 +615,19 @@ whitgl_bool whitgl_fmat_eq(whitgl_fmat a, whitgl_fmat b)
 			return false;
 	return true;
 }
+whitgl_fvec whitgl_fvec_apply_fmat(whitgl_fvec v, whitgl_fmat m)
+{
+	whitgl_fvec out = whitgl_fvec_zero;
+	out.x = m.mat[0]*v.x + m.mat[4]*v.y + m.mat[12];
+	out.y = m.mat[1]*v.x + m.mat[5]*v.y + m.mat[13];
+	return out;
+}
 whitgl_fvec3 whitgl_fvec3_apply_fmat(whitgl_fvec3 v, whitgl_fmat m)
 {
 	whitgl_fvec3 out = whitgl_fvec3_zero;
-	out.x = m.mat[0]*v.x + m.mat[1]*v.y + m.mat[2]*v.z + m.mat[3];
-	out.y = m.mat[4]*v.x + m.mat[5]*v.y + m.mat[6]*v.z + m.mat[7];
-	out.z = m.mat[8]*v.x + m.mat[9]*v.y + m.mat[10]*v.z + m.mat[11];
+	out.x = m.mat[0]*v.x + m.mat[4]*v.y + m.mat[8]*v.z + m.mat[12];
+	out.y = m.mat[1]*v.x + m.mat[5]*v.y + m.mat[9]*v.z + m.mat[13];
+	out.z = m.mat[2]*v.x + m.mat[6]*v.y + m.mat[10]*v.z + m.mat[14];
 	return out;
 }
 
