@@ -23,11 +23,11 @@ pushd glew
 make extensions
 make
 popd
-git clone --depth=1 git@github.com:glennrp/libpng.git
+git clone --depth=1 https://github.com/glennrp/libpng.git
 pushd libpng
 make -f scripts/makefile.darwin
 popd
-git clone --depth=1 git@github.com:madler/zlib
+git clone --depth=1 https://github.com/madler/zlib.git
 pushd zlib
 ./configure --static
 make
