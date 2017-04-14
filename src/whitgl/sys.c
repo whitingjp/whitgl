@@ -110,13 +110,18 @@ void main()\
 }\
 ";
 
+typedef union
+{
+	whitgl_float number;
+	whitgl_sys_color color;
+	whitgl_int image;
+	whitgl_fmat matrix;
+} whitgl_uniform_data;
+
 typedef struct
 {
 	GLuint program;
-	float uniforms[WHITGL_MAX_SHADER_UNIFORMS];
-	whitgl_sys_color colors[WHITGL_MAX_SHADER_COLORS];
-	whitgl_int images[WHITGL_MAX_SHADER_IMAGES];
-	whitgl_fmat matrices[WHITGL_MAX_SHADER_MATRICES];
+	whitgl_uniform_data uniforms[WHITGL_MAX_SHADER_UNIFORMS];
 	whitgl_shader shader;
 } whitgl_shader_data;
 
@@ -223,72 +228,47 @@ bool whitgl_change_shader(whitgl_shader_slot type, whitgl_shader shader)
 	return true;
 }
 
-void whitgl_set_shader_uniform(whitgl_shader_slot type, int uniform, float value)
+void _whitgl_check_uniform_validity(whitgl_shader_slot slot, whitgl_int uniform, whitgl_uniform_type type)
 {
-	if(type >= WHITGL_SHADER_MAX)
-	{
-		WHITGL_PANIC("Invalid shader type %d", type);
-		return;
-	}
-	if(uniform < 0 || uniform >= WHITGL_MAX_SHADER_UNIFORMS || uniform >= shaders[type].shader.num_uniforms)
-	{
+	if(slot >= WHITGL_SHADER_MAX)
+		WHITGL_PANIC("Invalid shader slot %d", slot);
+	if(uniform < 0 || uniform >= WHITGL_MAX_SHADER_UNIFORMS || uniform >= shaders[slot].shader.num_uniforms)
 		WHITGL_PANIC("Invalid shader uniform %d", uniform);
-		return;
-	}
-	if(shaders[type].uniforms[uniform] != value)
-		_whitgl_sys_flush_tex_iaabb();
-	shaders[type].uniforms[uniform] = value;
+	if(shaders[slot].shader.uniforms[uniform].type != type)
+		WHITGL_PANIC("Invalid uniform type %d expecting %d", shaders[slot].shader.uniforms[uniform].type, type);
 }
-void whitgl_set_shader_color(whitgl_shader_slot type, whitgl_int color, whitgl_sys_color value)
+
+void whitgl_set_shader_uniform(whitgl_shader_slot type, whitgl_int uniform, float value)
 {
-	if(type >= WHITGL_SHADER_MAX)
-	{
-		WHITGL_PANIC("Invalid shader type %d", type);
-		return;
-	}
-	if(color < 0 || color >= WHITGL_MAX_SHADER_COLORS || color >= shaders[type].shader.num_colors)
-	{
-		WHITGL_PANIC("Invalid shader color %d", color);
-		return;
-	}
-	if(shaders[type].colors[color].r != value.r ||
-	   shaders[type].colors[color].g != value.g ||
-	   shaders[type].colors[color].b != value.b ||
-	   shaders[type].colors[color].a != value.a)
+	_whitgl_check_uniform_validity(type, uniform, WHITGL_UNIFORM_FLOAT);
+	if(shaders[type].uniforms[uniform].number != value)
 		_whitgl_sys_flush_tex_iaabb();
-	shaders[type].colors[color] = value;
+	shaders[type].uniforms[uniform].number = value;
 }
-void whitgl_set_shader_image(whitgl_shader_slot type, whitgl_int image, whitgl_int index)
+void whitgl_set_shader_color(whitgl_shader_slot type, whitgl_int uniform, whitgl_sys_color value)
 {
-	if(type >= WHITGL_SHADER_MAX)
-	{
-		WHITGL_PANIC("Invalid shader type %d", type);
-		return;
-	}
-	if(image < 0 || image >= WHITGL_MAX_SHADER_IMAGES || image >= shaders[type].shader.num_images)
-	{
-		WHITGL_PANIC("Invalid shader image %d", image);
-		return;
-	}
-	if(shaders[type].images[image] != index)
+	_whitgl_check_uniform_validity(type, uniform, WHITGL_UNIFORM_COLOR);
+	whitgl_sys_color existing = shaders[type].uniforms[uniform].color;
+	if(existing.r != value.r ||
+	   existing.g != value.g ||
+	   existing.b != value.b ||
+	   existing.a != value.a)
 		_whitgl_sys_flush_tex_iaabb();
-	shaders[type].images[image] = index;
+	shaders[type].uniforms[uniform].color = value;
 }
-void whitgl_set_shader_matrix(whitgl_shader_slot type, whitgl_int matrix, whitgl_fmat fmat)
+void whitgl_set_shader_image(whitgl_shader_slot type, whitgl_int uniform, whitgl_int index)
 {
-	if(type >= WHITGL_SHADER_MAX)
-	{
-		WHITGL_PANIC("Invalid shader type %d", type);
-		return;
-	}
-	if(matrix < 0 || matrix >= WHITGL_MAX_SHADER_MATRICES || matrix >= shaders[type].shader.num_matrices)
-	{
-		WHITGL_PANIC("Invalid shader matrix %d", matrix);
-		return;
-	}
-	if(!whitgl_fmat_eq(shaders[type].matrices[matrix], fmat))
+	_whitgl_check_uniform_validity(type, uniform, WHITGL_UNIFORM_IMAGE);
+	if(shaders[type].uniforms[uniform].image != index)
 		_whitgl_sys_flush_tex_iaabb();
-	shaders[type].matrices[matrix] = fmat;
+	shaders[type].uniforms[uniform].image = index;
+}
+void whitgl_set_shader_matrix(whitgl_shader_slot type, whitgl_int uniform, whitgl_fmat fmat)
+{
+	_whitgl_check_uniform_validity(type, uniform, WHITGL_UNIFORM_MATRIX);
+	if(!whitgl_fmat_eq(shaders[type].uniforms[uniform].matrix, fmat))
+		_whitgl_sys_flush_tex_iaabb();
+	shaders[type].uniforms[uniform].matrix = fmat;
 };
 
 bool whitgl_sys_init(whitgl_sys_setup* setup)
@@ -560,33 +540,53 @@ void _whitgl_load_uniforms(whitgl_shader_slot slot)
 {
 	int i;
 	for(i=0; i<shaders[slot].shader.num_uniforms; i++)
-		glUniform1f( glGetUniformLocation( shaders[slot].program, shaders[slot].shader.uniforms[i]), shaders[slot].uniforms[i]);
-	for(i=0; i<shaders[slot].shader.num_colors; i++)
 	{
-		whitgl_sys_color c = shaders[slot].colors[i];
-		float r = ((float)c.r)/255.0;
-		float g = ((float)c.g)/255.0;
-		float b = ((float)c.b)/255.0;
-		float a = ((float)c.a)/255.0;
-		glUniform4f( glGetUniformLocation( shaders[slot].program, shaders[slot].shader.colors[i]), r, g, b, a);
+		GLint location = glGetUniformLocation( shaders[slot].program, shaders[slot].shader.uniforms[i].name);
+		switch(shaders[slot].shader.uniforms[i].type)
+		{
+			case WHITGL_UNIFORM_FLOAT:
+			{
+				glUniform1f(location, shaders[slot].uniforms[i].number);
+				break;
+			}
+			case WHITGL_UNIFORM_COLOR:
+			{
+				whitgl_sys_color c = shaders[slot].uniforms[i].color;
+				float r = ((float)c.r)/255.0;
+				float g = ((float)c.g)/255.0;
+				float b = ((float)c.b)/255.0;
+				float a = ((float)c.a)/255.0;
+				glUniform4f(location, r, g, b, a);
+				break;
+			}
+			case WHITGL_UNIFORM_IMAGE:
+			{
+				glUniform1i(location, i+1); // i+1 here is imperfect, it'd be better to know how many images we are actually using
+				whitgl_int image = shaders[slot].uniforms[i].image;
+				glActiveTexture(GL_TEXTURE0 + 1 + i);
+				glBindTexture(GL_TEXTURE_2D, images[image].gluint);
+				break;
+			}
+			case WHITGL_UNIFORM_MATRIX:
+			{
+				whitgl_int j;
+				GLfloat converted[16];
+				for(j=0; j<16; j++)
+					converted[j] = shaders[slot].uniforms[i].matrix.mat[j];
+				glUniformMatrix4fv(location, 1, GL_FALSE, converted);
+				break;
+			}
+		}
 	}
-	for(i=0; i<shaders[slot].shader.num_images; i++)
-	{
-		GLint location = glGetUniformLocation(shaders[slot].program, shaders[slot].shader.images[i]);
-		glUniform1i(location, i+1);
-		whitgl_int image = shaders[slot].images[i];
-		glActiveTexture(GL_TEXTURE0 + 1 + i);
-		glBindTexture(GL_TEXTURE_2D, images[image].gluint);
-	}
-	for(i=0; i<shaders[slot].shader.num_matrices; i++)
-	{
-		GLint location = glGetUniformLocation(shaders[slot].program, shaders[slot].shader.matrices[i]);
-		whitgl_int j;
-		GLfloat converted[16];
-		for(j=0; j<16; j++)
-			converted[j] = shaders[slot].matrices[i].mat[j];
-		glUniformMatrix4fv( location, 1, GL_FALSE, converted);
-	}
+	// for(i=0; i<shaders[slot].shader.num_matrices; i++)
+	// {
+	// 	GLint location = glGetUniformLocation(shaders[slot].program, shaders[slot].shader.matrices[i]);
+	// 	whitgl_int j;
+	// 	GLfloat converted[16];
+	// 	for(j=0; j<16; j++)
+	// 		converted[j] = shaders[slot].matrices[i].mat[j];
+	// 	glUniformMatrix4fv( location, 1, GL_FALSE, converted);
+	// }
 	GL_CHECK( return );
 }
 

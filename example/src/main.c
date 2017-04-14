@@ -39,10 +39,11 @@ int main()
 		return 1;
 	whitgl_shader post_shader = whitgl_shader_zero;
 	post_shader.fragment_src = post_src;
-	post_shader.num_uniforms = 1;
-	post_shader.uniforms[0] = "spread";
-	post_shader.num_images = 1;
-	post_shader.images[0] = "extra";
+	post_shader.num_uniforms = 2;
+	post_shader.uniforms[0].name = "spread";
+	post_shader.uniforms[0].type = WHITGL_UNIFORM_FLOAT;
+	post_shader.uniforms[1].name = "extra";
+	post_shader.uniforms[1].type = WHITGL_UNIFORM_IMAGE;
 
 	// whitgl_sys_color bg = {0xc7,0xb2,0xf6,0xff};
 	// whitgl_sys_set_clear_color(bg);
@@ -144,7 +145,7 @@ int main()
 
 
 		whitgl_set_shader_uniform(WHITGL_SHADER_POST, 0, uniform);
-		whitgl_set_shader_image(WHITGL_SHADER_POST, 0, 1);
+		whitgl_set_shader_image(WHITGL_SHADER_POST, 1, 1);
 		whitgl_sys_draw_finish();
 	}
 
