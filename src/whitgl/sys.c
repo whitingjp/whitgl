@@ -113,6 +113,8 @@ void main()\
 typedef union
 {
 	whitgl_float number;
+	whitgl_fvec fvec;
+	whitgl_fvec3 fvec3;
 	whitgl_sys_color color;
 	whitgl_int image;
 	whitgl_fmat matrix;
@@ -238,12 +240,28 @@ void _whitgl_check_uniform_validity(whitgl_shader_slot slot, whitgl_int uniform,
 		WHITGL_PANIC("Invalid uniform type %d expecting %d", shaders[slot].shader.uniforms[uniform].type, type);
 }
 
-void whitgl_set_shader_uniform(whitgl_shader_slot type, whitgl_int uniform, float value)
+void whitgl_set_shader_float(whitgl_shader_slot type, whitgl_int uniform, float value)
 {
 	_whitgl_check_uniform_validity(type, uniform, WHITGL_UNIFORM_FLOAT);
 	if(shaders[type].uniforms[uniform].number != value)
 		_whitgl_sys_flush_tex_iaabb();
 	shaders[type].uniforms[uniform].number = value;
+}
+void whitgl_set_shader_fvec(whitgl_shader_slot type, whitgl_int uniform, whitgl_fvec value)
+{
+	_whitgl_check_uniform_validity(type, uniform, WHITGL_UNIFORM_FVEC);
+	whitgl_fvec existing = shaders[type].uniforms[uniform].fvec;
+	if(existing.x != value.x || existing.y != value.y)
+		_whitgl_sys_flush_tex_iaabb();
+	shaders[type].uniforms[uniform].fvec = value;
+}
+void whitgl_set_shader_fvec3(whitgl_shader_slot type, whitgl_int uniform, whitgl_fvec3 value)
+{
+	_whitgl_check_uniform_validity(type, uniform, WHITGL_UNIFORM_FVEC3);
+	whitgl_fvec3 existing = shaders[type].uniforms[uniform].fvec3;
+	if(existing.x != value.x || existing.y != value.y || existing.z != value.z)
+		_whitgl_sys_flush_tex_iaabb();
+	shaders[type].uniforms[uniform].fvec3 = value;
 }
 void whitgl_set_shader_color(whitgl_shader_slot type, whitgl_int uniform, whitgl_sys_color value)
 {
@@ -547,6 +565,18 @@ void _whitgl_load_uniforms(whitgl_shader_slot slot)
 			case WHITGL_UNIFORM_FLOAT:
 			{
 				glUniform1f(location, shaders[slot].uniforms[i].number);
+				break;
+			}
+			case WHITGL_UNIFORM_FVEC:
+			{
+				whitgl_fvec v = shaders[slot].uniforms[i].fvec;
+				glUniform2f(location, v.x, v.y);
+				break;
+			}
+			case WHITGL_UNIFORM_FVEC3:
+			{
+				whitgl_fvec3 v = shaders[slot].uniforms[i].fvec3;
+				glUniform3f(location, v.x, v.y, v.z);
 				break;
 			}
 			case WHITGL_UNIFORM_COLOR:

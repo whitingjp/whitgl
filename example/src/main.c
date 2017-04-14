@@ -143,8 +143,7 @@ int main()
 		whitgl_fcircle circle = {{24,24},6};
 		whitgl_sys_draw_fcircle(circle, whitgl_sys_color_white, 8);
 
-
-		whitgl_set_shader_uniform(WHITGL_SHADER_POST, 0, uniform);
+		whitgl_set_shader_float(WHITGL_SHADER_POST, 0, uniform);
 		whitgl_set_shader_image(WHITGL_SHADER_POST, 1, 1);
 		whitgl_sys_draw_finish();
 	}

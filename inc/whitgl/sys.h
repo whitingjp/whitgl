@@ -71,6 +71,8 @@ typedef enum
 typedef enum
 {
 	WHITGL_UNIFORM_FLOAT,
+	WHITGL_UNIFORM_FVEC,
+	WHITGL_UNIFORM_FVEC3,
 	WHITGL_UNIFORM_COLOR,
 	WHITGL_UNIFORM_IMAGE,
 	WHITGL_UNIFORM_MATRIX,
@@ -97,7 +99,9 @@ void whitgl_sys_close();
 void whitgl_sys_set_clear_color(whitgl_sys_color col);
 
 bool whitgl_change_shader(whitgl_shader_slot type, whitgl_shader shader);
-void whitgl_set_shader_uniform(whitgl_shader_slot type, whitgl_int uniform, float value);
+void whitgl_set_shader_float(whitgl_shader_slot type, whitgl_int uniform, float value);
+void whitgl_set_shader_fvec(whitgl_shader_slot type, whitgl_int uniform, whitgl_fvec value);
+void whitgl_set_shader_fvec3(whitgl_shader_slot type, whitgl_int uniform, whitgl_fvec3 value);
 void whitgl_set_shader_color(whitgl_shader_slot type, whitgl_int color, whitgl_sys_color value);
 void whitgl_set_shader_image(whitgl_shader_slot type, whitgl_int image, whitgl_int index);
 void whitgl_set_shader_matrix(whitgl_shader_slot type, whitgl_int matrix, whitgl_fmat fmat);
