@@ -59,6 +59,12 @@ static const whitgl_fmat whitgl_fmat_identity =
 }
 };
 
+typedef struct
+{
+	whitgl_float x, y, z, w;
+} whitgl_quat;
+static const whitgl_quat whitgl_quat_identity = {0,0,0,1};
+
 whitgl_int whitgl_imin(whitgl_int a, whitgl_int b);
 whitgl_int whitgl_imax(whitgl_int a, whitgl_int b);
 whitgl_int whitgl_iclamp(whitgl_int a, whitgl_int min, whitgl_int max);
@@ -150,6 +156,10 @@ whitgl_fmat whitgl_fmat_translate(whitgl_fvec3 off);
 whitgl_bool whitgl_fmat_eq(whitgl_fmat a, whitgl_fmat b);
 whitgl_fvec whitgl_fvec_apply_fmat(whitgl_fvec v, whitgl_fmat m);
 whitgl_fvec3 whitgl_fvec3_apply_fmat(whitgl_fvec3 v, whitgl_fmat m);
+
+whitgl_quat whitgl_quat_multiply(whitgl_quat a, whitgl_quat b);
+whitgl_quat whitgl_quat_rotate(whitgl_float angle, whitgl_fvec3 axis);
+whitgl_fmat whitgl_quat_to_fmat(whitgl_quat a);
 
 whitgl_bool whitgl_ivec_point_in_rect(whitgl_ivec p, whitgl_iaabb rect);
 whitgl_bool whitgl_fvec_point_in_rect(whitgl_fvec p, whitgl_faabb rect);

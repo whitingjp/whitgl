@@ -630,6 +630,52 @@ whitgl_fvec3 whitgl_fvec3_apply_fmat(whitgl_fvec3 v, whitgl_fmat m)
 	out.z = m.mat[2]*v.x + m.mat[6]*v.y + m.mat[10]*v.z + m.mat[14];
 	return out;
 }
+whitgl_quat whitgl_quat_multiply(whitgl_quat q1, whitgl_quat q2)
+{
+	whitgl_quat out;
+    out.x =  q1.x * q2.w + q1.y * q2.z - q1.z * q2.y + q1.w * q2.x;
+    out.y = -q1.x * q2.z + q1.y * q2.w + q1.z * q2.x + q1.w * q2.y;
+    out.z =  q1.x * q2.y - q1.y * q2.x + q1.z * q2.w + q1.w * q2.z;
+    out.w = -q1.x * q2.x - q1.y * q2.y - q1.z * q2.z + q1.w * q2.w;
+	return out;
+}
+whitgl_quat whitgl_quat_rotate(whitgl_float angle, whitgl_fvec3 axis)
+{
+	whitgl_quat out;
+	whitgl_fvec3 v = whitgl_fvec3_scale_val(axis, whitgl_fsin(angle/2));
+	out.x = v.x;
+	out.y = v.y;
+	out.z = v.z;
+	out.w = whitgl_fcos(angle/2);
+	return out;
+}
+whitgl_fmat whitgl_quat_to_fmat(whitgl_quat a)
+{
+	whitgl_fmat out;
+	float x2 = a.x*a.x;
+	float y2 = a.y*a.y;
+	float z2 = a.z*a.z;
+	float w2 = a.w*a.w;
+
+	out.mat[0] = x2 + y2 - z2 - w2;
+	out.mat[1] = 2.f*(a.y*a.z + a.x*a.w);
+	out.mat[2] = 2.f*(a.y*a.w - a.x*a.z);
+	out.mat[3] = 0.f;
+
+	out.mat[4] = 2*(a.y*a.z - a.x*a.w);
+	out.mat[5] = x2 - y2 + z2 - w2;
+	out.mat[6] = 2.f*(a.z*a.w + a.x*a.y);
+	out.mat[7] = 0.f;
+
+	out.mat[8] = 2.f*(a.y*a.w + a.x*a.z);
+	out.mat[9] = 2.f*(a.z*a.w - a.x*a.y);
+	out.mat[10] = x2 - y2 - z2 + w2;
+	out.mat[11] = 0.f;
+
+	out.mat[12] = out.mat[13] = out.mat[14] = 0.f;
+	out.mat[15] = 1.f;
+	return out;
+}
 
 whitgl_bool whitgl_ivec_point_in_rect(whitgl_ivec p, whitgl_iaabb r)
 {
