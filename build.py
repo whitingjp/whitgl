@@ -71,7 +71,8 @@ def walk_data(n, data_in, data_out, validext=['png','ogg','obj','wav']):
   data = []
   for (dirpath, dirnames, filenames) in os.walk(data_in):
     for f in filenames:
-      ext = f[-3:]
+      _, ext = os.path.splitext(f)
+      ext = ext[1:]
       valid = False
       for e in validext:
         if ext == e:
@@ -119,7 +120,6 @@ def do_game(name, extra_cflags, data_types):
   objdir = joinp(builddir, 'obj')
   libdir = joinp(builddir, 'lib')
   data_in =  'data'
-  data_out = joinp(targetdir, 'data')
   if not os.path.exists('build'):
     os.makedirs('build')
   buildfile = open(joinp('build', 'build.ninja'), 'w')
