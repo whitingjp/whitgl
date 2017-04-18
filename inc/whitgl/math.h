@@ -159,6 +159,7 @@ whitgl_fvec3 whitgl_fvec3_apply_fmat(whitgl_fvec3 v, whitgl_fmat m);
 
 whitgl_quat whitgl_quat_multiply(whitgl_quat a, whitgl_quat b);
 whitgl_quat whitgl_quat_rotate(whitgl_float angle, whitgl_fvec3 axis);
+whitgl_quat whitgl_quat_slerp(whitgl_quat a, whitgl_quat b, whitgl_float t);
 whitgl_fmat whitgl_quat_to_fmat(whitgl_quat a);
 
 whitgl_bool whitgl_ivec_point_in_rect(whitgl_ivec p, whitgl_iaabb rect);

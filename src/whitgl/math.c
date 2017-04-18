@@ -649,6 +649,37 @@ whitgl_quat whitgl_quat_rotate(whitgl_float angle, whitgl_fvec3 axis)
 	out.w = whitgl_fcos(angle/2);
 	return out;
 }
+whitgl_quat whitgl_quat_slerp(whitgl_quat a, whitgl_quat b, whitgl_float t)
+{
+	whitgl_quat out;
+	float cos_theta = a.x*b.x + a.y*b.y + a.z*b.z + a.w*b.w;
+	if(cos_theta < 0)
+	{
+		cos_theta = -cos_theta;
+		b.x = -b.x;
+		b.y = -b.y;
+		b.z = -b.z;
+		b.w = -b.w;
+	}
+	float wa, wb;
+	if(cos_theta < 0.95)
+	{
+		float theta = whitgl_facos(cos_theta);
+		float sn = whitgl_fsin(theta);
+		wa = whitgl_fsin((1-t)*theta)/sn;
+		wb = whitgl_fsin(t*theta)/sn;
+	} else
+	{
+		// if the angle is small, use linear interpolation
+		wa = 1-t;
+		wb = t;
+	}
+	out.x = wa*a.x + wb*b.x;
+	out.y = wa*a.y + wb*b.y;
+	out.z = wa*a.z + wb*b.z;
+	out.w = wa*a.w + wb*b.w;
+	return out;
+}
 whitgl_fmat whitgl_quat_to_fmat(whitgl_quat a)
 {
 	whitgl_fmat out;
