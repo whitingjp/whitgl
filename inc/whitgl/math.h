@@ -111,6 +111,7 @@ whitgl_fvec whitgl_fvec_divide_val(whitgl_fvec a, whitgl_float s);
 whitgl_float whitgl_fvec_sqmagnitude(whitgl_fvec a);
 whitgl_float whitgl_fvec_magnitude(whitgl_fvec a);
 whitgl_fvec whitgl_fvec_normalize(whitgl_fvec a);
+whitgl_float whitgl_fvec_dot(whitgl_fvec a, whitgl_fvec b);
 whitgl_fvec whitgl_fvec_bound(whitgl_fvec a, whitgl_faabb bounds);
 whitgl_fvec whitgl_fvec_from_angle(whitgl_float a);
 whitgl_fvec whitgl_fvec_interpolate(whitgl_fvec a, whitgl_fvec b, whitgl_float ratio);

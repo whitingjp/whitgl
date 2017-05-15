@@ -244,6 +244,10 @@ whitgl_fvec whitgl_fvec_normalize(whitgl_fvec a)
 	scale.y = mag;
 	return whitgl_fvec_divide(a, scale);
 }
+whitgl_float whitgl_fvec_dot(whitgl_fvec a, whitgl_fvec b)
+{
+	return a.x*b.x + a.y*b.y;
+}
 whitgl_fvec whitgl_fvec_bound(whitgl_fvec a, whitgl_faabb bounds)
 {
 	if(bounds.a.x > bounds.b.x)
