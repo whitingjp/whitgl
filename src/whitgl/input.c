@@ -11,6 +11,7 @@ whitgl_fvec _joystick;
 whitgl_fvec _joystick2;
 whitgl_fvec _joystick3;
 whitgl_float _scroll;
+whitgl_ivec _mouse_pos;
 
 extern GLFWwindow* _window;
 
@@ -53,12 +54,8 @@ bool whitgl_input_pressed(whitgl_input input)
 whitgl_ivec whitgl_input_mouse_pos(int pixel_size)
 {
 	whitgl_ivec out;
-	double x, y;
-	glfwGetCursorPos(_window, &x, &y);
-	out.x = (int)x;
-	out.y = (int)y;
-	out.x /= pixel_size;
-	out.y /= pixel_size;
+	out.x = _mouse_pos.x/pixel_size;
+	out.y = _mouse_pos.y/pixel_size;
 	return out;
 }
 
@@ -242,4 +239,9 @@ void whitgl_input_update()
 
 	for(i=0; i<WHITGL_INPUT_MAX; i++)
 		_pressedInputs[i] = !_oldInputs[i] && _heldInputs[i];
+
+	double x, y;
+	glfwGetCursorPos(_window, &x, &y);
+	_mouse_pos.x = (whitgl_int)x;
+	_mouse_pos.y = (whitgl_int)y;
 }
