@@ -14,6 +14,7 @@ void _whitgl_sys_flush_tex_iaabb();
 
 whitgl_bool _shouldClose;
 whitgl_ivec _window_size;
+whitgl_ivec _buffer_size;
 GLFWwindow* _window;
 whitgl_bool _windowFocused;
 
@@ -44,6 +45,8 @@ typedef struct
 {
 	GLuint buffer;
 	GLuint texture;
+	GLuint depth;
+	whitgl_ivec size;
 } whitgl_framebuffer;
 #define WHITGL_FRAMEBUFFER_MAX (8)
 whitgl_framebuffer framebuffers[WHITGL_MODEL_MAX];
@@ -289,6 +292,42 @@ void whitgl_set_shader_matrix(whitgl_shader_slot type, whitgl_int uniform, whitg
 	shaders[type].uniforms[uniform].matrix = fmat;
 };
 
+void whitgl_resize_framebuffer(whitgl_int i, whitgl_ivec size)
+{
+	if(i >= _setup.num_framebuffers)
+		WHITGL_LOG("Invalid framebuffer number");
+
+	WHITGL_LOG("Deleting framebuffer %d");
+	GL_CHECK( glDeleteRenderbuffers(1, &framebuffers[i].depth ) );
+	GL_CHECK( glDeleteTextures(1, &framebuffers[i].texture ) );
+	GL_CHECK( glDeleteFramebuffers(1, &framebuffers[i].buffer ) );
+
+
+	WHITGL_LOG("Creating framebuffer %d", i);
+	// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
+	GL_CHECK( glGenFramebuffers(1, &framebuffers[i].buffer) );
+	GL_CHECK( glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[i].buffer) );
+	GL_CHECK( glGenTextures(1, &framebuffers[i].texture) );
+	GL_CHECK( glBindTexture(GL_TEXTURE_2D, framebuffers[i].texture) );
+	GL_CHECK( glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0) );
+	GL_CHECK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE) );
+	GL_CHECK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE) );
+	GL_CHECK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST) );
+	GL_CHECK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST) );
+	// The depth buffer
+	GL_CHECK( glGenRenderbuffers(1, &framebuffers[i].depth) );
+	GL_CHECK( glBindRenderbuffer(GL_RENDERBUFFER, framebuffers[i].depth) );
+	GL_CHECK( glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, size.x, size.y) );
+	GL_CHECK( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, framebuffers[i].depth) );
+	GL_CHECK( glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, framebuffers[i].texture, 0) );
+	GLenum drawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+	GL_CHECK( glDrawBuffers(1, drawBuffers) ); // "1" is the size of drawBuffers
+	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		WHITGL_LOG("Problem setting up intermediate render target");
+	GL_CHECK( glBindFramebuffer(GL_FRAMEBUFFER, 0) );
+	framebuffers[i].size = size;
+}
+
 bool whitgl_sys_init(whitgl_sys_setup* setup)
 {
 	bool result;
@@ -420,17 +459,17 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 		GL_CHECK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST) );
 		GL_CHECK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST) );
 		// The depth buffer
-		GLuint depthrenderbuffer;
-		GL_CHECK( glGenRenderbuffers(1, &depthrenderbuffer) );
-		GL_CHECK( glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer) );
+		GL_CHECK( glGenRenderbuffers(1, &framebuffers[i].depth) );
+		GL_CHECK( glBindRenderbuffer(GL_RENDERBUFFER, framebuffers[i].depth) );
 		GL_CHECK( glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, setup->size.x, setup->size.y) );
-		GL_CHECK( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer) );
+		GL_CHECK( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, framebuffers[i].depth) );
 		GL_CHECK( glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, framebuffers[i].texture, 0) );
 		GLenum drawBuffers[1] = {GL_COLOR_ATTACHMENT0};
 		GL_CHECK( glDrawBuffers(1, drawBuffers) ); // "1" is the size of drawBuffers
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			WHITGL_LOG("Problem setting up intermediate render target");
 		GL_CHECK( glBindFramebuffer(GL_FRAMEBUFFER, 0) );
+		framebuffers[i].size = setup->size;
 	}
 
 	if(setup->vsync)
@@ -521,13 +560,16 @@ void whitgl_sys_draw_init(whitgl_int framebuffer_id)
 	glfwGetFramebufferSize(_window, &w, &h);
 	_window_size.x = w;
 	_window_size.y = h;
-
 	GL_CHECK( glEnable(GL_BLEND) );
 	GL_CHECK( glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA) );
 	GL_CHECK( glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[framebuffer_id].buffer) );
-	GL_CHECK( glViewport( 0, 0, _setup.size.x, _setup.size.y ) );
+	_buffer_size = framebuffers[framebuffer_id].size;
+
+	GL_CHECK( glViewport( 0, 0, _buffer_size.x, _buffer_size.y ) );
 	if(_setup.clear_buffer)
 		GL_CHECK( glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) );
+
+
 }
 
 void _whitgl_populate_vertices(float* vertices, whitgl_iaabb s, whitgl_iaabb d, whitgl_ivec image_size)
@@ -633,21 +675,21 @@ void whitgl_sys_draw_finish()
 	float vertices[6*5];
 	whitgl_iaabb src = whitgl_iaabb_zero;
 	whitgl_iaabb dest = whitgl_iaabb_zero;
-	src.b.x = _setup.size.x;
-	src.a.y = _setup.size.y;
+	src.b.x = _buffer_size.x;
+	src.a.y = _buffer_size.y;
 	if(_setup.exact_size)
 	{
 		dest.b = _window_size;
 	}
 	else
 	{
-		dest.a.x = (_window_size.x-_setup.size.x*_setup.pixel_size)/2;
-		dest.a.y = (_window_size.y-_setup.size.y*_setup.pixel_size)/2;
-		dest.b.x = dest.a.x+_setup.size.x*_setup.pixel_size;
-		dest.b.y = dest.a.y+_setup.size.y*_setup.pixel_size;
+		dest.a.x = (_window_size.x-_buffer_size.x*_setup.pixel_size)/2;
+		dest.a.y = (_window_size.y-_buffer_size.y*_setup.pixel_size)/2;
+		dest.b.x = dest.a.x+_buffer_size.x*_setup.pixel_size;
+		dest.b.y = dest.a.y+_buffer_size.y*_setup.pixel_size;
 	}
 
-	_whitgl_populate_vertices(vertices, src, dest, _setup.size);
+	_whitgl_populate_vertices(vertices, src, dest, _buffer_size);
 	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, vbo ) );
 	GL_CHECK( glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW ) );
 
@@ -739,7 +781,7 @@ void whitgl_sys_draw_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 	GL_CHECK( glUseProgram( shaderProgram ) );
 	GL_CHECK( glUniform4f( glGetUniformLocation( shaderProgram, "sColor" ), (float)col.r/255.0, (float)col.g/255.0, (float)col.b/255.0, (float)col.a/255.0 ) );
 	_whitgl_load_uniforms(WHITGL_SHADER_FLAT);
-	_whitgl_sys_orthographic(shaderProgram, 0, _setup.size.x, 0, _setup.size.y);
+	_whitgl_sys_orthographic(shaderProgram, 0, _buffer_size.x, 0, _buffer_size.y);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
@@ -775,7 +817,7 @@ void whitgl_sys_draw_line(whitgl_iaabb l, whitgl_sys_color col)
 	GL_CHECK( glUseProgram( shaderProgram ) );
 	GL_CHECK( glUniform4f( glGetUniformLocation( shaderProgram, "sColor" ), (float)col.r/255.0, (float)col.g/255.0, (float)col.b/255.0, (float)col.a/255.0 ) );
 	_whitgl_load_uniforms(WHITGL_SHADER_FLAT);
-	_whitgl_sys_orthographic(shaderProgram, 0, _setup.size.x, 0, _setup.size.y);
+	_whitgl_sys_orthographic(shaderProgram, 0, _buffer_size.x, 0, _buffer_size.y);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
@@ -814,7 +856,7 @@ void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
 	GL_CHECK( glUseProgram( shaderProgram ) );
 	GL_CHECK( glUniform4f( glGetUniformLocation( shaderProgram, "sColor" ), (float)col.r/255.0, (float)col.g/255.0, (float)col.b/255.0, (float)col.a/255.0 ) );
 	_whitgl_load_uniforms(WHITGL_SHADER_FLAT);
-	_whitgl_sys_orthographic(shaderProgram, 0, _setup.size.x, 0, _setup.size.y);
+	_whitgl_sys_orthographic(shaderProgram, 0, _buffer_size.x, 0, _buffer_size.y);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
@@ -893,7 +935,7 @@ void _whitgl_sys_flush_tex_iaabb()
 	GL_CHECK( glUseProgram( shaderProgram ) );
 	GL_CHECK( glUniform1i( glGetUniformLocation( shaderProgram, "tex" ), 0 ) );
 	_whitgl_load_uniforms(WHITGL_SHADER_TEXTURE);
-	_whitgl_sys_orthographic(shaderProgram, 0, _setup.size.x, 0, _setup.size.y);
+	_whitgl_sys_orthographic(shaderProgram, 0, _buffer_size.x, 0, _buffer_size.y);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
