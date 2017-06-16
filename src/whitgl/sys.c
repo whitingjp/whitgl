@@ -726,9 +726,16 @@ void whitgl_sys_draw_finish()
 	GL_CHECK( glDisable(GL_BLEND) );
 }
 
-void whitgl_sys_draw_buffer_pane(whitgl_int id, whitgl_fvec3 v[4], whitgl_fmat m_model, whitgl_fmat m_view, whitgl_fmat m_perspective)
+void whitgl_sys_draw_buffer_pane(whitgl_int id, whitgl_fvec3 v[4], whitgl_shader_slot shader, whitgl_fmat m_model, whitgl_fmat m_view, whitgl_fmat m_perspective)
 {
 	_whitgl_sys_flush_tex_iaabb();
+
+
+	if(shader >= WHITGL_SHADER_MAX)
+	{
+		WHITGL_PANIC("Invalid shader type %d", shader);
+		return;
+	}
 
 	GL_CHECK( glActiveTexture( GL_TEXTURE0 ) );
 	GL_CHECK( glBindTexture( GL_TEXTURE_2D, framebuffers[id].texture ) );
@@ -747,11 +754,11 @@ void whitgl_sys_draw_buffer_pane(whitgl_int id, whitgl_fvec3 v[4], whitgl_fmat m
 	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, vbo ) );
 	GL_CHECK( glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_DYNAMIC_DRAW ) );
 
-	GLuint shaderProgram = shaders[WHITGL_SHADER_TEXTURE].program;
+	GLuint shaderProgram = shaders[shader].program;
 	GL_CHECK( glUseProgram( shaderProgram ) );
 	GL_CHECK( glUniform1i( glGetUniformLocation( shaderProgram, "tex" ), 0 ) );
 
-	_whitgl_load_uniforms(WHITGL_SHADER_TEXTURE);
+	_whitgl_load_uniforms(shader);
 	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "m_model"), 1, GL_FALSE, m_model.mat);
 	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "m_view"), 1, GL_FALSE, m_view.mat);
 	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "m_perspective"), 1, GL_FALSE, m_perspective.mat);
