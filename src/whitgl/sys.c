@@ -91,12 +91,11 @@ void main()\
 const char* _flat_src = "\
 #version 150\
 \n\
-uniform vec4 sColor;\
-in vec3 fragmentColor;\
+uniform vec4 color;\
 out vec4 outColor;\
 void main()\
 {\
-	outColor = sColor;\
+	outColor = color;\
 }\
 ";
 
@@ -428,6 +427,9 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	WHITGL_LOG("Loading shaders");
 	whitgl_shader flat_shader = whitgl_shader_zero;
 	flat_shader.fragment_src = _flat_src;
+	flat_shader.num_uniforms = 1;
+	flat_shader.uniforms[0].type = WHITGL_UNIFORM_COLOR;
+	flat_shader.uniforms[0].name = "color";
 	if(!whitgl_change_shader( WHITGL_SHADER_FLAT, flat_shader))
 		return false;
 	whitgl_shader texture_shader = whitgl_shader_zero;
@@ -748,7 +750,6 @@ void whitgl_sys_draw_buffer_pane(whitgl_int id, whitgl_fvec3 v[4], whitgl_fmat m
 	GLuint shaderProgram = shaders[WHITGL_SHADER_TEXTURE].program;
 	GL_CHECK( glUseProgram( shaderProgram ) );
 	GL_CHECK( glUniform1i( glGetUniformLocation( shaderProgram, "tex" ), 0 ) );
-	GL_CHECK( glUniform4f( glGetUniformLocation( shaderProgram, "sColor" ), 1, 0, 1, 1 ) );
 
 	_whitgl_load_uniforms(WHITGL_SHADER_TEXTURE);
 	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "m_model"), 1, GL_FALSE, m_model.mat);
@@ -779,7 +780,7 @@ void whitgl_sys_draw_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 
 	GLuint shaderProgram = shaders[WHITGL_SHADER_FLAT].program;
 	GL_CHECK( glUseProgram( shaderProgram ) );
-	GL_CHECK( glUniform4f( glGetUniformLocation( shaderProgram, "sColor" ), (float)col.r/255.0, (float)col.g/255.0, (float)col.b/255.0, (float)col.a/255.0 ) );
+	whitgl_set_shader_color(WHITGL_SHADER_FLAT, 0, col);
 	_whitgl_load_uniforms(WHITGL_SHADER_FLAT);
 	_whitgl_sys_orthographic(shaderProgram, 0, _buffer_size.x, 0, _buffer_size.y);
 
@@ -815,7 +816,7 @@ void whitgl_sys_draw_line(whitgl_iaabb l, whitgl_sys_color col)
 
 	GLuint shaderProgram = shaders[WHITGL_SHADER_FLAT].program;
 	GL_CHECK( glUseProgram( shaderProgram ) );
-	GL_CHECK( glUniform4f( glGetUniformLocation( shaderProgram, "sColor" ), (float)col.r/255.0, (float)col.g/255.0, (float)col.b/255.0, (float)col.a/255.0 ) );
+	whitgl_set_shader_color(WHITGL_SHADER_FLAT, 0, col);
 	_whitgl_load_uniforms(WHITGL_SHADER_FLAT);
 	_whitgl_sys_orthographic(shaderProgram, 0, _buffer_size.x, 0, _buffer_size.y);
 
@@ -854,7 +855,7 @@ void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
 
 	GLuint shaderProgram = shaders[WHITGL_SHADER_FLAT].program;
 	GL_CHECK( glUseProgram( shaderProgram ) );
-	GL_CHECK( glUniform4f( glGetUniformLocation( shaderProgram, "sColor" ), (float)col.r/255.0, (float)col.g/255.0, (float)col.b/255.0, (float)col.a/255.0 ) );
+	whitgl_set_shader_color(WHITGL_SHADER_FLAT, 0, col);
 	_whitgl_load_uniforms(WHITGL_SHADER_FLAT);
 	_whitgl_sys_orthographic(shaderProgram, 0, _buffer_size.x, 0, _buffer_size.y);
 
@@ -891,7 +892,6 @@ void whitgl_sys_draw_model(whitgl_int id, whitgl_fmat m_model, whitgl_fmat m_vie
 
 	GLuint shaderProgram = shaders[WHITGL_SHADER_MODEL].program;
 	GL_CHECK( glUseProgram( shaderProgram ) );
-	GL_CHECK( glUniform4f( glGetUniformLocation( shaderProgram, "sColor" ), 1, 0.5, 1, 1 ) );
 	_whitgl_load_uniforms(WHITGL_SHADER_MODEL);
 	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "m_model"), 1, GL_FALSE, m_model.mat);
 	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "m_view"), 1, GL_FALSE, m_view.mat);
