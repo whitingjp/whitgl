@@ -127,7 +127,7 @@ int main()
 		whitgl_fmat model_matrix = whitgl_fmat_rot_y(time);
 		model_matrix = whitgl_fmat_multiply(model_matrix, whitgl_fmat_rot_z(time*3));
 
-		whitgl_sys_draw_model(shape, model_matrix, view, perspective);
+		whitgl_sys_draw_model(shape, WHITGL_SHADER_MODEL, model_matrix, view, perspective);
 
 		whitgl_sprite sprite = {0, {0,0},{16,16}};
 		whitgl_ivec frametr = {1, 0};

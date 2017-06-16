@@ -868,7 +868,7 @@ void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
 	free(vertices);
 }
 
-void whitgl_sys_draw_model(whitgl_int id, whitgl_fmat m_model, whitgl_fmat m_view, whitgl_fmat m_perspective)
+void whitgl_sys_draw_model(whitgl_int id, whitgl_shader_slot shader, whitgl_fmat m_model, whitgl_fmat m_view, whitgl_fmat m_perspective)
 {
 	_whitgl_sys_flush_tex_iaabb();
 
@@ -887,12 +887,17 @@ void whitgl_sys_draw_model(whitgl_int id, whitgl_fmat m_model, whitgl_fmat m_vie
 		WHITGL_PANIC("ERR Cannot find model %d", id);
 		return;
 	}
+	if(shader >= WHITGL_SHADER_MAX)
+	{
+		WHITGL_PANIC("Invalid shader type %d", shader);
+		return;
+	}
 
 	GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, models[index].vbo ) );
 
-	GLuint shaderProgram = shaders[WHITGL_SHADER_MODEL].program;
+	GLuint shaderProgram = shaders[shader].program;
 	GL_CHECK( glUseProgram( shaderProgram ) );
-	_whitgl_load_uniforms(WHITGL_SHADER_MODEL);
+	_whitgl_load_uniforms(shader);
 	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "m_model"), 1, GL_FALSE, m_model.mat);
 	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "m_view"), 1, GL_FALSE, m_view.mat);
 	glUniformMatrix4fv( glGetUniformLocation( shaderProgram, "m_perspective"), 1, GL_FALSE, m_perspective.mat);
