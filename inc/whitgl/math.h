@@ -146,6 +146,7 @@ whitgl_bool whitgl_faabb_intersects(whitgl_faabb a, whitgl_faabb b);
 whitgl_float whitgl_faabb_area(whitgl_faabb a);
 
 whitgl_fmat whitgl_fmat_multiply(whitgl_fmat a, whitgl_fmat b);
+whitgl_fmat whitgl_fmat_invert(whitgl_fmat m);
 whitgl_fmat whitgl_fmat_orthographic(float left, float right, float top, float bottom, whitgl_float near, whitgl_float far);
 whitgl_fmat whitgl_fmat_perspective(whitgl_float fovY, whitgl_float aspect, whitgl_float zNear, whitgl_float zFar);
 whitgl_fmat whitgl_fmat_lookAt(whitgl_fvec3 eye, whitgl_fvec3 center, whitgl_fvec3 up);

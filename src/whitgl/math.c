@@ -492,7 +492,133 @@ whitgl_fmat whitgl_fmat_multiply(whitgl_fmat a, whitgl_fmat b)
 
 	return o;
 }
+whitgl_fmat whitgl_fmat_invert(whitgl_fmat m)
+{
+	whitgl_fmat out;
 
+	out.mat[0] = m.mat[5]  * m.mat[10] * m.mat[15] -
+			 m.mat[5]  * m.mat[11] * m.mat[14] -
+			 m.mat[9]  * m.mat[6]  * m.mat[15] +
+			 m.mat[9]  * m.mat[7]  * m.mat[14] +
+			 m.mat[13] * m.mat[6]  * m.mat[11] -
+			 m.mat[13] * m.mat[7]  * m.mat[10];
+
+	out.mat[4] = -m.mat[4]  * m.mat[10] * m.mat[15] +
+			  m.mat[4]  * m.mat[11] * m.mat[14] +
+			  m.mat[8]  * m.mat[6]  * m.mat[15] -
+			  m.mat[8]  * m.mat[7]  * m.mat[14] -
+			  m.mat[12] * m.mat[6]  * m.mat[11] +
+			  m.mat[12] * m.mat[7]  * m.mat[10];
+
+	out.mat[8] = m.mat[4]  * m.mat[9] * m.mat[15] -
+			 m.mat[4]  * m.mat[11] * m.mat[13] -
+			 m.mat[8]  * m.mat[5] * m.mat[15] +
+			 m.mat[8]  * m.mat[7] * m.mat[13] +
+			 m.mat[12] * m.mat[5] * m.mat[11] -
+			 m.mat[12] * m.mat[7] * m.mat[9];
+
+	out.mat[12] = -m.mat[4]  * m.mat[9] * m.mat[14] +
+			   m.mat[4]  * m.mat[10] * m.mat[13] +
+			   m.mat[8]  * m.mat[5] * m.mat[14] -
+			   m.mat[8]  * m.mat[6] * m.mat[13] -
+			   m.mat[12] * m.mat[5] * m.mat[10] +
+			   m.mat[12] * m.mat[6] * m.mat[9];
+
+	out.mat[1] = -m.mat[1]  * m.mat[10] * m.mat[15] +
+			  m.mat[1]  * m.mat[11] * m.mat[14] +
+			  m.mat[9]  * m.mat[2] * m.mat[15] -
+			  m.mat[9]  * m.mat[3] * m.mat[14] -
+			  m.mat[13] * m.mat[2] * m.mat[11] +
+			  m.mat[13] * m.mat[3] * m.mat[10];
+
+	out.mat[5] = m.mat[0]  * m.mat[10] * m.mat[15] -
+			 m.mat[0]  * m.mat[11] * m.mat[14] -
+			 m.mat[8]  * m.mat[2] * m.mat[15] +
+			 m.mat[8]  * m.mat[3] * m.mat[14] +
+			 m.mat[12] * m.mat[2] * m.mat[11] -
+			 m.mat[12] * m.mat[3] * m.mat[10];
+
+	out.mat[9] = -m.mat[0]  * m.mat[9] * m.mat[15] +
+			  m.mat[0]  * m.mat[11] * m.mat[13] +
+			  m.mat[8]  * m.mat[1] * m.mat[15] -
+			  m.mat[8]  * m.mat[3] * m.mat[13] -
+			  m.mat[12] * m.mat[1] * m.mat[11] +
+			  m.mat[12] * m.mat[3] * m.mat[9];
+
+	out.mat[13] = m.mat[0]  * m.mat[9] * m.mat[14] -
+			  m.mat[0]  * m.mat[10] * m.mat[13] -
+			  m.mat[8]  * m.mat[1] * m.mat[14] +
+			  m.mat[8]  * m.mat[2] * m.mat[13] +
+			  m.mat[12] * m.mat[1] * m.mat[10] -
+			  m.mat[12] * m.mat[2] * m.mat[9];
+
+	out.mat[2] = m.mat[1]  * m.mat[6] * m.mat[15] -
+			 m.mat[1]  * m.mat[7] * m.mat[14] -
+			 m.mat[5]  * m.mat[2] * m.mat[15] +
+			 m.mat[5]  * m.mat[3] * m.mat[14] +
+			 m.mat[13] * m.mat[2] * m.mat[7] -
+			 m.mat[13] * m.mat[3] * m.mat[6];
+
+	out.mat[6] = -m.mat[0]  * m.mat[6] * m.mat[15] +
+			  m.mat[0]  * m.mat[7] * m.mat[14] +
+			  m.mat[4]  * m.mat[2] * m.mat[15] -
+			  m.mat[4]  * m.mat[3] * m.mat[14] -
+			  m.mat[12] * m.mat[2] * m.mat[7] +
+			  m.mat[12] * m.mat[3] * m.mat[6];
+
+	out.mat[10] = m.mat[0]  * m.mat[5] * m.mat[15] -
+			  m.mat[0]  * m.mat[7] * m.mat[13] -
+			  m.mat[4]  * m.mat[1] * m.mat[15] +
+			  m.mat[4]  * m.mat[3] * m.mat[13] +
+			  m.mat[12] * m.mat[1] * m.mat[7] -
+			  m.mat[12] * m.mat[3] * m.mat[5];
+
+	out.mat[14] = -m.mat[0]  * m.mat[5] * m.mat[14] +
+			   m.mat[0]  * m.mat[6] * m.mat[13] +
+			   m.mat[4]  * m.mat[1] * m.mat[14] -
+			   m.mat[4]  * m.mat[2] * m.mat[13] -
+			   m.mat[12] * m.mat[1] * m.mat[6] +
+			   m.mat[12] * m.mat[2] * m.mat[5];
+
+	out.mat[3] = -m.mat[1] * m.mat[6] * m.mat[11] +
+			  m.mat[1] * m.mat[7] * m.mat[10] +
+			  m.mat[5] * m.mat[2] * m.mat[11] -
+			  m.mat[5] * m.mat[3] * m.mat[10] -
+			  m.mat[9] * m.mat[2] * m.mat[7] +
+			  m.mat[9] * m.mat[3] * m.mat[6];
+
+	out.mat[7] = m.mat[0] * m.mat[6] * m.mat[11] -
+			 m.mat[0] * m.mat[7] * m.mat[10] -
+			 m.mat[4] * m.mat[2] * m.mat[11] +
+			 m.mat[4] * m.mat[3] * m.mat[10] +
+			 m.mat[8] * m.mat[2] * m.mat[7] -
+			 m.mat[8] * m.mat[3] * m.mat[6];
+
+	out.mat[11] = -m.mat[0] * m.mat[5] * m.mat[11] +
+			   m.mat[0] * m.mat[7] * m.mat[9] +
+			   m.mat[4] * m.mat[1] * m.mat[11] -
+			   m.mat[4] * m.mat[3] * m.mat[9] -
+			   m.mat[8] * m.mat[1] * m.mat[7] +
+			   m.mat[8] * m.mat[3] * m.mat[5];
+
+	out.mat[15] = m.mat[0] * m.mat[5] * m.mat[10] -
+			  m.mat[0] * m.mat[6] * m.mat[9] -
+			  m.mat[4] * m.mat[1] * m.mat[10] +
+			  m.mat[4] * m.mat[2] * m.mat[9] +
+			  m.mat[8] * m.mat[1] * m.mat[6] -
+			  m.mat[8] * m.mat[2] * m.mat[5];
+
+	whitgl_float det = m.mat[0] * out.mat[0] + m.mat[1] * out.mat[4] + m.mat[2] * out.mat[8] + m.mat[3] * out.mat[12];
+
+	if (det == 0)
+		WHITGL_PANIC("det is 0");
+
+	det = 1.0 / det;
+	whitgl_int i;
+	for (i = 0; i < 16; i++)
+		out.mat[i] = out.mat[i] * det;
+	return out;
+}
 whitgl_fmat whitgl_fmat_orthographic(float left, float right, float top, float bottom, whitgl_float near, whitgl_float far)
 {
 	whitgl_float sumX = right + left;
@@ -533,32 +659,32 @@ whitgl_fmat whitgl_fmat_perspective(whitgl_float fovY, whitgl_float aspect, whit
 
 whitgl_fmat whitgl_fmat_lookAt(whitgl_fvec3 eye, whitgl_fvec3 center, whitgl_fvec3 up)
 {
-    whitgl_fvec3 f = whitgl_fvec3_normalize(whitgl_fvec3_sub(center, eye));
-    whitgl_fvec3 s = whitgl_fvec3_normalize(whitgl_fvec3_cross(f, up));
-    whitgl_fvec3 u = whitgl_fvec3_cross(s,f);
+	whitgl_fvec3 f = whitgl_fvec3_normalize(whitgl_fvec3_sub(center, eye));
+	whitgl_fvec3 s = whitgl_fvec3_normalize(whitgl_fvec3_cross(f, up));
+	whitgl_fvec3 u = whitgl_fvec3_cross(s,f);
 
-    whitgl_fmat o = whitgl_fmat_identity;
-    o.mat[0] = s.x;
-    o.mat[1] = u.x;
-    o.mat[2] = -f.x;
-    o.mat[3] = 0.0;
+	whitgl_fmat o = whitgl_fmat_identity;
+	o.mat[0] = s.x;
+	o.mat[1] = u.x;
+	o.mat[2] = -f.x;
+	o.mat[3] = 0.0;
 
-    o.mat[4] = s.y;
-    o.mat[5] = u.y;
-    o.mat[6] = -f.y;
-    o.mat[7] = 0.0;
+	o.mat[4] = s.y;
+	o.mat[5] = u.y;
+	o.mat[6] = -f.y;
+	o.mat[7] = 0.0;
 
-    o.mat[8] = s.z;
-    o.mat[9] = u.z;
-    o.mat[10] = -f.z;
-    o.mat[11] = 0.0;
+	o.mat[8] = s.z;
+	o.mat[9] = u.z;
+	o.mat[10] = -f.z;
+	o.mat[11] = 0.0;
 
-    o.mat[12] = -whitgl_fvec3_dot(s, eye);
-    o.mat[13] = -whitgl_fvec3_dot(u, eye);
-    o.mat[14] = whitgl_fvec3_dot(f, eye);
-    o.mat[15] = 1.0;
+	o.mat[12] = -whitgl_fvec3_dot(s, eye);
+	o.mat[13] = -whitgl_fvec3_dot(u, eye);
+	o.mat[14] = whitgl_fvec3_dot(f, eye);
+	o.mat[15] = 1.0;
 
-    return o;
+	return o;
 }
 
 whitgl_fmat whitgl_fmat_rot_x(whitgl_float f)
@@ -637,10 +763,10 @@ whitgl_fvec3 whitgl_fvec3_apply_fmat(whitgl_fvec3 v, whitgl_fmat m)
 whitgl_quat whitgl_quat_multiply(whitgl_quat q1, whitgl_quat q2)
 {
 	whitgl_quat out;
-    out.x =  q1.x * q2.w + q1.y * q2.z - q1.z * q2.y + q1.w * q2.x;
-    out.y = -q1.x * q2.z + q1.y * q2.w + q1.z * q2.x + q1.w * q2.y;
-    out.z =  q1.x * q2.y - q1.y * q2.x + q1.z * q2.w + q1.w * q2.z;
-    out.w = -q1.x * q2.x - q1.y * q2.y - q1.z * q2.z + q1.w * q2.w;
+	out.x =  q1.x * q2.w + q1.y * q2.z - q1.z * q2.y + q1.w * q2.x;
+	out.y = -q1.x * q2.z + q1.y * q2.w + q1.z * q2.x + q1.w * q2.y;
+	out.z =  q1.x * q2.y - q1.y * q2.x + q1.z * q2.w + q1.w * q2.z;
+	out.w = -q1.x * q2.x - q1.y * q2.y - q1.z * q2.z + q1.w * q2.w;
 	return out;
 }
 whitgl_quat whitgl_quat_rotate(whitgl_float angle, whitgl_fvec3 axis)
