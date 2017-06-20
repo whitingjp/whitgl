@@ -8,6 +8,7 @@
 #include <png.h>
 
 #include <whitgl/logging.h>
+#include <whitgl/profile.h>
 #include <whitgl/sys.h>
 
 void _whitgl_sys_flush_tex_iaabb();
@@ -139,6 +140,7 @@ static const whitgl_frame_capture whitgl_frame_capture_zero = {false, {'\0'}};
 GLuint vbo;
 whitgl_shader_data shaders[WHITGL_SHADER_MAX];
 whitgl_frame_capture capture;
+whitgl_bool started_drawing = false;
 
 void _whitgl_check_gl_error(const char* stmt, const char *file, int line)
 {
@@ -517,6 +519,8 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	glDepthFunc(GL_LESS);
 	glDisable(GL_DEPTH_TEST);
 
+	whitgl_profile_init();
+
 	WHITGL_LOG("Sys initiated");
 
 	return true;
@@ -546,6 +550,7 @@ bool whitgl_sys_should_close()
 
 void whitgl_sys_close()
 {
+	whitgl_profile_shutdown();
 	glfwTerminate();
 }
 
@@ -571,7 +576,11 @@ void whitgl_sys_draw_init(whitgl_int framebuffer_id)
 	if(_setup.clear_buffer)
 		GL_CHECK( glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) );
 
-
+	if(!started_drawing)
+	{
+		whitgl_profile_start_drawing();
+		started_drawing = true;
+	}
 }
 
 void _whitgl_populate_vertices(float* vertices, whitgl_iaabb s, whitgl_iaabb d, whitgl_ivec image_size)
@@ -721,9 +730,12 @@ void whitgl_sys_draw_finish()
 		capture.do_next = false;
 	}
 
+	whitgl_profile_end_frame();
+	started_drawing = false;
 	glfwSwapBuffers(_window);
 	glfwPollEvents();
 	GL_CHECK( glDisable(GL_BLEND) );
+	whitgl_profile_start_frame();
 }
 
 void whitgl_sys_draw_buffer_pane(whitgl_int id, whitgl_fvec3 v[4], whitgl_shader_slot shader, whitgl_fmat m_model, whitgl_fmat m_view, whitgl_fmat m_perspective)
@@ -1392,7 +1404,7 @@ whitgl_ivec whitgl_sys_get_image_size(whitgl_int id)
 	return images[index].size;
 }
 
-double whitgl_sys_get_time()
+whitgl_float whitgl_sys_get_time()
 {
 	return glfwGetTime();
 }
