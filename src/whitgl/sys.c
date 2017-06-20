@@ -733,6 +733,7 @@ void whitgl_sys_draw_finish()
 	whitgl_profile_end_frame();
 	started_drawing = false;
 	glfwSwapBuffers(_window);
+
 	glfwPollEvents();
 	GL_CHECK( glDisable(GL_BLEND) );
 	whitgl_profile_start_frame();
