@@ -293,7 +293,7 @@ void whitgl_set_shader_matrix(whitgl_shader_slot type, whitgl_int uniform, whitg
 	shaders[type].uniforms[uniform].matrix = fmat;
 };
 
-void whitgl_resize_framebuffer(whitgl_int i, whitgl_ivec size)
+void whitgl_resize_framebuffer(whitgl_int i, whitgl_ivec size, whitgl_bool one_color)
 {
 	if(i >= _setup.num_framebuffers)
 		WHITGL_LOG("Invalid framebuffer number");
@@ -310,16 +310,22 @@ void whitgl_resize_framebuffer(whitgl_int i, whitgl_ivec size)
 	GL_CHECK( glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[i].buffer) );
 	GL_CHECK( glGenTextures(1, &framebuffers[i].texture) );
 	GL_CHECK( glBindTexture(GL_TEXTURE_2D, framebuffers[i].texture) );
-	GL_CHECK( glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0) );
+	if(one_color)
+		GL_CHECK( glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, size.x, size.y, 0, GL_RED, GL_UNSIGNED_BYTE, 0) );
+	else
+		GL_CHECK( glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0) );
 	GL_CHECK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE) );
 	GL_CHECK( glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE) );
 	GL_CHECK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST) );
 	GL_CHECK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST) );
 	// The depth buffer
-	GL_CHECK( glGenRenderbuffers(1, &framebuffers[i].depth) );
-	GL_CHECK( glBindRenderbuffer(GL_RENDERBUFFER, framebuffers[i].depth) );
-	GL_CHECK( glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, size.x, size.y) );
-	GL_CHECK( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, framebuffers[i].depth) );
+	if(!one_color)
+	{
+		GL_CHECK( glGenRenderbuffers(1, &framebuffers[i].depth) );
+		GL_CHECK( glBindRenderbuffer(GL_RENDERBUFFER, framebuffers[i].depth) );
+		GL_CHECK( glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, size.x, size.y) );
+		GL_CHECK( glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, framebuffers[i].depth) );
+	}
 	GL_CHECK( glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, framebuffers[i].texture, 0) );
 	GLenum drawBuffers[1] = {GL_COLOR_ATTACHMENT0};
 	GL_CHECK( glDrawBuffers(1, drawBuffers) ); // "1" is the size of drawBuffers
