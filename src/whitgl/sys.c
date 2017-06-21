@@ -16,6 +16,7 @@ void _whitgl_sys_flush_tex_iaabb();
 whitgl_bool _shouldClose;
 whitgl_ivec _window_size;
 whitgl_ivec _buffer_size;
+whitgl_ivec _setup_size;
 GLFWwindow* _window;
 whitgl_bool _windowFocused;
 
@@ -413,6 +414,7 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 			setup->pixel_size++;
 		setup->size = whitgl_ivec_divide(screen_size, whitgl_ivec_val(setup->pixel_size));
 	}
+	_setup_size = setup->size;
 	if(!_window)
 	{
 		WHITGL_PANIC("Failed to open GLFW window");
@@ -808,7 +810,7 @@ void whitgl_sys_draw_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 	GL_CHECK( glUseProgram( shaderProgram ) );
 	whitgl_set_shader_color(WHITGL_SHADER_FLAT, 0, col);
 	_whitgl_load_uniforms(WHITGL_SHADER_FLAT);
-	_whitgl_sys_orthographic(shaderProgram, 0, _buffer_size.x, 0, _buffer_size.y);
+	_whitgl_sys_orthographic(shaderProgram, 0, _setup_size.x, 0, _setup_size.y);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
@@ -844,7 +846,7 @@ void whitgl_sys_draw_line(whitgl_iaabb l, whitgl_sys_color col)
 	GL_CHECK( glUseProgram( shaderProgram ) );
 	whitgl_set_shader_color(WHITGL_SHADER_FLAT, 0, col);
 	_whitgl_load_uniforms(WHITGL_SHADER_FLAT);
-	_whitgl_sys_orthographic(shaderProgram, 0, _buffer_size.x, 0, _buffer_size.y);
+	_whitgl_sys_orthographic(shaderProgram, 0, _setup_size.x, 0, _setup_size.y);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
@@ -883,7 +885,7 @@ void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
 	GL_CHECK( glUseProgram( shaderProgram ) );
 	whitgl_set_shader_color(WHITGL_SHADER_FLAT, 0, col);
 	_whitgl_load_uniforms(WHITGL_SHADER_FLAT);
-	_whitgl_sys_orthographic(shaderProgram, 0, _buffer_size.x, 0, _buffer_size.y);
+	_whitgl_sys_orthographic(shaderProgram, 0, _setup_size.x, 0, _setup_size.y);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
@@ -966,7 +968,7 @@ void _whitgl_sys_flush_tex_iaabb()
 	GL_CHECK( glUseProgram( shaderProgram ) );
 	GL_CHECK( glUniform1i( glGetUniformLocation( shaderProgram, "tex" ), 0 ) );
 	_whitgl_load_uniforms(WHITGL_SHADER_TEXTURE);
-	_whitgl_sys_orthographic(shaderProgram, 0, _buffer_size.x, 0, _buffer_size.y);
+	_whitgl_sys_orthographic(shaderProgram, 0, _setup_size.x, 0, _setup_size.y);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
