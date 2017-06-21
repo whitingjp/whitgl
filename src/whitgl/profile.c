@@ -6,7 +6,8 @@
 #include <GL/glew.h>
 
 whitgl_float _frame_start;
-whitgl_float _frame_cpu;
+whitgl_float _frame_update;
+whitgl_float _frame_total;
 whitgl_float _frame_gpu;
 whitgl_int _frames;
 #define NUM_QUERIES (1)
@@ -30,6 +31,8 @@ void whitgl_profile_start_frame()
 }
 void whitgl_profile_start_drawing()
 {
+	_frame_update += whitgl_sys_get_time()-_frame_start;
+
 	glBeginQuery(GL_TIME_ELAPSED, _front ? _front_queries[0] : _back_queries[0]);
 }
 void whitgl_profile_end_frame()
@@ -48,17 +51,18 @@ void whitgl_profile_end_frame()
 	}
 	_front = !_front;
 	_first = false;
-	whitgl_float _frame_end = whitgl_sys_get_time();
-	_frame_cpu += _frame_end-_frame_start;
+	_frame_total += whitgl_sys_get_time()-_frame_start;
 	_frames++;
 	if(_frames >= FRAMES_TO_COUNT)
 	{
 		_frames -= FRAMES_TO_COUNT;
 		whitgl_float average_gpu = _frame_gpu/FRAMES_TO_COUNT;
-		whitgl_float average_cpu = _frame_cpu/FRAMES_TO_COUNT;
+		whitgl_float average_total = _frame_total/FRAMES_TO_COUNT;
+		whitgl_float average_update = _frame_update/FRAMES_TO_COUNT;
 		whitgl_float target = 1.0/60.0;
-		WHITGL_LOG("cpu %.2f%% gpu %.2f%%", (average_cpu/target)*100, (average_gpu/target)*100);
-		_frame_cpu = 0;
+		WHITGL_LOG("update %.2f%% gpu %.2f%% total %.2f%%", (average_update/target)*100, (average_gpu/target)*100, (average_total/target)*100);
+		_frame_update = 0;
+		_frame_total = 0;
 		_frame_gpu = 0;
 	}
 }
