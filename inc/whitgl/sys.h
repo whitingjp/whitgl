@@ -129,7 +129,7 @@ void whitgl_sys_draw_sprite(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec
 void whitgl_sys_draw_sprite_sized(whitgl_sprite sprite, whitgl_ivec frame, whitgl_ivec pos, whitgl_ivec dest_size);
 void whitgl_sys_draw_text(whitgl_sprite sprite, const char* string, whitgl_ivec pos);
 void whitgl_sys_draw_buffer_pane(whitgl_int id, whitgl_fvec3 verts[4], whitgl_shader_slot shader, whitgl_fmat m_model, whitgl_fmat m_view, whitgl_fmat m_perspective);
-void whitgl_resize_framebuffer(whitgl_int i, whitgl_ivec size);
+void whitgl_resize_framebuffer(whitgl_int i, whitgl_ivec size, whitgl_bool one_color);
 
 void whitgl_sys_draw_model(whitgl_int id, whitgl_shader_slot shader, whitgl_fmat m_model, whitgl_fmat m_view, whitgl_fmat m_perspective);
 void whitgl_sys_update_model_from_data(int id, whitgl_int num_vertices, const char* data);
