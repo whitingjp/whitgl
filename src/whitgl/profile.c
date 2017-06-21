@@ -24,6 +24,7 @@ GLuint _front_queries[MAX_EVENTS];
 GLuint _back_queries[MAX_EVENTS];
 whitgl_bool _front;
 whitgl_bool _first;
+whitgl_bool _should_report;
 
 #define FRAMES_TO_COUNT (60)
 
@@ -33,6 +34,7 @@ void whitgl_profile_init()
 	glGenQueries(MAX_EVENTS, _back_queries);
 	_first = true;
 	_front = true;
+	_should_report = false;
 }
 void whitgl_profile_start_frame()
 {
@@ -87,15 +89,21 @@ void whitgl_profile_end_frame()
 		{
 			whitgl_float event_avg = gpu_events[i].total/FRAMES_TO_COUNT;
 			average_gpu += event_avg;
-			WHITGL_LOG("%.1f%% %s", (event_avg/target)*100, gpu_events[i].name);
+			if(_should_report)
+				WHITGL_LOG("%.1f%% %s", (event_avg/target)*100, gpu_events[i].name);
 			gpu_events[i] = whitgl_profile_event_zero;
 		}
 		whitgl_float average_total = _frame_total/FRAMES_TO_COUNT;
 		whitgl_float average_update = _frame_update/FRAMES_TO_COUNT;
-		WHITGL_LOG("update %.2f%% gpu %.2f%% total %.2f%%", (average_update/target)*100, (average_gpu/target)*100, (average_total/target)*100);
+		if(_should_report)
+			WHITGL_LOG("update %.2f%% gpu %.2f%% total %.2f%%", (average_update/target)*100, (average_gpu/target)*100, (average_total/target)*100);
 		_frame_update = 0;
 		_frame_total = 0;
 	}
+}
+void whitgl_profile_should_report(whitgl_bool report)
+{
+	_should_report = report;
 }
 void whitgl_profile_shutdown()
 {
