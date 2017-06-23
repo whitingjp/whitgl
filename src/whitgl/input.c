@@ -135,6 +135,7 @@ void whitgl_input_update()
 	_heldInputs[WHITGL_INPUT_8] = _press('8');
 	_heldInputs[WHITGL_INPUT_9] = _press('9');
 	_heldInputs[WHITGL_INPUT_DEBUG] = _press(';');
+	_heldInputs[WHITGL_INPUT_RESET] = _press('\'');
 	_heldInputs[WHITGL_INPUT_MOUSE_LEFT] = _mousepress(GLFW_MOUSE_BUTTON_LEFT);
 	_heldInputs[WHITGL_INPUT_MOUSE_RIGHT] = _mousepress(GLFW_MOUSE_BUTTON_RIGHT);
 	_heldInputs[WHITGL_INPUT_MOUSE_MIDDLE] = _mousepress(GLFW_MOUSE_BUTTON_MIDDLE);
