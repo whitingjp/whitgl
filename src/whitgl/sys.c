@@ -1450,3 +1450,12 @@ void whitgl_sys_enable_depth(whitgl_bool enable)
 	else
 		glDisable(GL_DEPTH_TEST);
 }
+void whitgl_set_clipboard(const char* string)
+{
+	glfwSetClipboardString(_window, string);
+}
+const char* whitgl_get_clipboard()
+{
+	return glfwGetClipboardString(_window);
+}
+
