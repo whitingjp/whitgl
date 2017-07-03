@@ -13,16 +13,23 @@ typedef enum
 	CURSOR_DISABLE,
 } whitgl_sys_cursor_mode;
 
+typedef enum
+{
+	RESOLUTION_AT_LEAST,
+	RESOLUTION_AT_MOST,
+	RESOLUTION_EXACT,
+	RESOLUTION_USE_WINDOW,
+} whitgl_sys_resolution_mode;
+
 typedef struct
 {
 	const char* name;
 	whitgl_ivec size;
 	int pixel_size;
+	whitgl_sys_resolution_mode resolution_mode;
 	whitgl_bool fullscreen;
 	whitgl_sys_cursor_mode cursor;
 	whitgl_bool vsync;
-	whitgl_bool exact_size;
-	whitgl_bool over_render;
 	whitgl_bool start_focused;
 	whitgl_bool clear_buffer;
 	whitgl_int num_framebuffers;
@@ -32,11 +39,10 @@ static const whitgl_sys_setup whitgl_sys_setup_zero =
 	"default window name",
 	{120, 80},
 	4,
+	RESOLUTION_AT_LEAST,
 	false,
 	CURSOR_SHOW,
 	true,
-	false,
-	false,
 	true,
 	true,
 	1,

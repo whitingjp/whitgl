@@ -395,11 +395,13 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	glfwGetFramebufferSize(_window, &w, &h);
 	whitgl_ivec screen_size = {w, h};
 
-	bool searching = true;
-	if(!setup->exact_size)
+	if(setup->resolution_mode == RESOLUTION_USE_WINDOW)
+		setup->size = screen_size;
+	if(setup->resolution_mode == RESOLUTION_AT_LEAST || setup->resolution_mode == RESOLUTION_AT_MOST)
 	{
 		setup->pixel_size = screen_size.x/setup->size.x;
 		whitgl_ivec new_size = setup->size;
+		bool searching = true;
 		while(searching)
 		{
 			new_size.x = screen_size.x/setup->pixel_size;
@@ -410,7 +412,7 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 			if(setup->pixel_size == 1) searching = false;
 			if(searching) setup->pixel_size--;
 		}
-		if(setup->over_render)
+		if(setup->resolution_mode == RESOLUTION_AT_MOST)
 			setup->pixel_size++;
 		setup->size = whitgl_ivec_divide(screen_size, whitgl_ivec_val(setup->pixel_size));
 	}
@@ -696,7 +698,7 @@ void whitgl_sys_draw_finish()
 	whitgl_iaabb dest = whitgl_iaabb_zero;
 	src.b.x = _buffer_size.x;
 	src.a.y = _buffer_size.y;
-	if(_setup.exact_size)
+	if(_setup.resolution_mode == RESOLUTION_EXACT || _setup.resolution_mode == RESOLUTION_USE_WINDOW)
 	{
 		dest.b = _window_size;
 	}
