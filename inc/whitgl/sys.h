@@ -91,7 +91,7 @@ typedef enum
 	WHITGL_UNIFORM_IMAGE,
 	WHITGL_UNIFORM_MATRIX,
 } whitgl_uniform_type;
-#define WHITGL_MAX_SHADER_UNIFORMS (16)
+#define WHITGL_MAX_SHADER_UNIFORMS (32)
 typedef struct
 {
 	whitgl_uniform_type type;
