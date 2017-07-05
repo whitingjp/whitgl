@@ -195,7 +195,7 @@ whitgl_float whitgl_angle_diff(whitgl_float a, whitgl_float b);
 whitgl_ivec whitgl_camera(whitgl_ivec pos, whitgl_ivec world_size, whitgl_ivec screen_size);
 
 static const whitgl_float whitgl_tau = 6.28318530718;
-static const whitgl_float whitgl_pi = whitgl_tau/2.0;
+static const whitgl_float whitgl_pi = 3.14159265359;
 static const whitgl_float whitgl_float_max = DBL_MAX;
 static const whitgl_int whitgl_int_max = INT64_MAX;
 
