@@ -1,6 +1,7 @@
 #ifndef WHITGL_MATH_H_
 #define WHITGL_MATH_H_
 
+#include <float.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -195,5 +196,7 @@ whitgl_ivec whitgl_camera(whitgl_ivec pos, whitgl_ivec world_size, whitgl_ivec s
 
 static const whitgl_float whitgl_tau = 6.28318530718;
 static const whitgl_float whitgl_pi = whitgl_tau/2.0;
+static const whitgl_float whitgl_float_max = DBL_MAX;
+static const whitgl_int whitgl_int_max = INT64_MAX;
 
 #endif // WHITGL_MATH_H_
