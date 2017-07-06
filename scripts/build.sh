@@ -12,8 +12,8 @@ else
 fi
 set -e
 pushd whitgl
-python build.py
+python build.py "$@"
 $whitgl_ninja -f build/build.ninja
 popd
-python build.py
+python build.py "$@"
 $ninja -f build/build.ninja
