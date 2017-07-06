@@ -239,10 +239,10 @@ whitgl_fvec whitgl_fvec_normalize(whitgl_fvec a)
 	whitgl_float mag = sqrt(whitgl_fvec_sqmagnitude(a));
 	if(mag == 0)
 		return a;
-	whitgl_fvec scale;
-	scale.x = mag;
-	scale.y = mag;
-	return whitgl_fvec_divide(a, scale);
+	whitgl_float mag_1 = 1/mag;
+	a.x = a.x*mag_1;
+	a.y = a.y*mag_1;
+	return a;
 }
 whitgl_float whitgl_fvec_dot(whitgl_fvec a, whitgl_fvec b)
 {
