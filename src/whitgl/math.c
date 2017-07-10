@@ -136,6 +136,11 @@ whitgl_float whitgl_fnearest(whitgl_float a, whitgl_float b)
 {
 	return floor(a/b+0.5)*b;
 }
+whitgl_float whitgl_fsmoothstep(float a, whitgl_float min, whitgl_float max)
+{
+	a = whitgl_fclamp((a - min)/(max - min), 0.0, 1.0);
+	return a*a*(3-2*a);
+}
 
 whitgl_ivec whitgl_ivec_val(whitgl_int a)
 {

@@ -88,6 +88,7 @@ whitgl_float whitgl_finterpolate(whitgl_float a, whitgl_float b, whitgl_float ra
 whitgl_float whitgl_fabs(whitgl_float a);
 whitgl_float whitgl_fmod(whitgl_float a, whitgl_float b);
 whitgl_float whitgl_fnearest(whitgl_float a, whitgl_float b);
+whitgl_float whitgl_fsmoothstep(float a, whitgl_float min, whitgl_float max);
 
 whitgl_ivec whitgl_ivec_val(whitgl_int);
 whitgl_ivec whitgl_ivec_add(whitgl_ivec a, whitgl_ivec b);
