@@ -277,13 +277,6 @@ whitgl_fvec whitgl_fvec_bound(whitgl_fvec a, whitgl_faabb bounds)
 		a.y = bounds.b.y;
 	return a;
 }
-whitgl_fvec whitgl_fvec_from_angle(whitgl_float a)
-{
-	whitgl_fvec out;
-	out.x = sin(a);
-	out.y = cos(a);
-	return out;
-}
 whitgl_fvec whitgl_fvec_interpolate(whitgl_fvec a, whitgl_fvec b, whitgl_float ratio)
 {
 	whitgl_fvec out = whitgl_fvec_zero;
