@@ -38,7 +38,7 @@ typedef struct
 	whitgl_int max_vertices;
 } whitgl_model;
 static const whitgl_model whitgl_model_zero = {-1, 0, -1, -1};
-#define WHITGL_MODEL_MAX (8)
+#define WHITGL_MODEL_MAX (16)
 whitgl_model models[WHITGL_MODEL_MAX];
 whitgl_int num_models;
 
