@@ -65,6 +65,7 @@ in vec3 vertexNormal;\
 out vec2 Texturepos;\
 out vec3 fragmentColor;\
 out vec3 fragmentNormal;\
+out vec3 fragmentPosition;\
 uniform mat4 m_model;\
 uniform mat4 m_view;\
 uniform mat4 m_perspective;\
@@ -74,6 +75,7 @@ void main()\
 	Texturepos = texturepos;\
 	fragmentColor = vertexColor;\
 	fragmentNormal = vertexNormal;\
+	fragmentPosition = position;\
 }\
 ";
 
