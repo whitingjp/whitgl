@@ -1292,7 +1292,7 @@ void whitgl_sys_update_image_from_data(int id, whitgl_ivec size, unsigned char* 
 	}
 	if(index == -1)
 	{
-		WHITGL_PANIC("ERR Cannot find image %d", id);
+		whitgl_sys_add_image_from_data(id, size, data);
 		return;
 	}
 	if(images[index].size.x != size.x || images[index].size.y != size.y)
