@@ -66,6 +66,7 @@ out vec2 Texturepos;\
 out vec3 fragmentColor;\
 out vec3 fragmentNormal;\
 out vec3 fragmentPosition;\
+out mat4 normalMatrix;\
 uniform mat4 m_model;\
 uniform mat4 m_view;\
 uniform mat4 m_perspective;\
@@ -76,6 +77,7 @@ void main()\
 	fragmentColor = vertexColor;\
 	fragmentNormal = vertexNormal;\
 	fragmentPosition = vec3( m_model * vec4( position, 1.0));\
+	normalMatrix = transpose(inverse(m_model));\
 }\
 ";
 
