@@ -130,6 +130,8 @@ whitgl_fvec3 whitgl_fvec3_normalize(whitgl_fvec3 a);
 whitgl_fvec3 whitgl_fvec3_cross(whitgl_fvec3 a, whitgl_fvec3 b);
 whitgl_float whitgl_fvec3_dot(whitgl_fvec3 a, whitgl_fvec3 b);
 whitgl_fvec3 whitgl_fvec3_interpolate(whitgl_fvec3 a, whitgl_fvec3 b, whitgl_float ratio);
+whitgl_bool whitgl_fvec3_eq(whitgl_fvec3 a, whitgl_fvec3 b);
+
 
 whitgl_iaabb whitgl_iaabb_add(whitgl_iaabb a, whitgl_ivec b);
 whitgl_iaabb whitgl_iaabb_sub(whitgl_iaabb a, whitgl_ivec b);

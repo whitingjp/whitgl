@@ -352,6 +352,10 @@ whitgl_fvec3 whitgl_fvec3_interpolate(whitgl_fvec3 a, whitgl_fvec3 b, whitgl_flo
 	out.z = a.z*(1-ratio) + b.z*ratio;
 	return out;
 }
+whitgl_bool whitgl_fvec3_eq(whitgl_fvec3 a, whitgl_fvec3 b)
+{
+	return a.x == b.x && a.y == b.y && a.z == b.z;
+}
 
 whitgl_iaabb whitgl_iaabb_add(whitgl_iaabb a, whitgl_ivec b)
 {
