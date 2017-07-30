@@ -121,6 +121,7 @@ whitgl_bool whitgl_fvec_eq(whitgl_fvec a, whitgl_fvec b);
 whitgl_fvec3 whitgl_fvec3_val(whitgl_float a);
 whitgl_fvec3 whitgl_fvec3_add(whitgl_fvec3 a, whitgl_fvec3 b);
 whitgl_fvec3 whitgl_fvec3_sub(whitgl_fvec3 a, whitgl_fvec3 b);
+whitgl_fvec3 whitgl_fvec3_inverse(whitgl_fvec3 a);
 whitgl_fvec3 whitgl_fvec3_scale(whitgl_fvec3 a, whitgl_fvec3 b);
 whitgl_fvec3 whitgl_fvec3_scale_val(whitgl_fvec3 a, whitgl_float val);
 whitgl_float whitgl_fvec3_sqmagnitude(whitgl_fvec3 a);
