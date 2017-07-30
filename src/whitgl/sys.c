@@ -75,7 +75,7 @@ void main()\
 	Texturepos = texturepos;\
 	fragmentColor = vertexColor;\
 	fragmentNormal = vertexNormal;\
-	fragmentPosition = position;\
+	fragmentPosition = vec3( m_model * vec4( position, 1.0));\
 }\
 ";
 
