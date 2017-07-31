@@ -4,6 +4,7 @@
 #include <float.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <limits.h>
 
 typedef bool whitgl_bool;
 typedef int64_t whitgl_int;
@@ -200,6 +201,6 @@ whitgl_ivec whitgl_camera(whitgl_ivec pos, whitgl_ivec world_size, whitgl_ivec s
 static const whitgl_float whitgl_tau = 6.28318530718;
 static const whitgl_float whitgl_pi = 3.14159265359;
 static const whitgl_float whitgl_float_max = DBL_MAX;
-static const whitgl_int whitgl_int_max = INT64_MAX;
+static const whitgl_int whitgl_int_max = 9223372036854775807LL; // INT64_MAX
 
 #endif // WHITGL_MATH_H_
