@@ -304,6 +304,11 @@ whitgl_fvec3 whitgl_fvec3_sub(whitgl_fvec3 a, whitgl_fvec3 b)
 	whitgl_fvec3 out = {a.x - b.x, a.y - b.y, a.z - b.z};
 	return out;
 }
+whitgl_fvec3 whitgl_fvec3_inverse(whitgl_fvec3 a)
+{
+	whitgl_fvec3 out = {-a.x,-a.y,-a.z};
+	return out;
+}
 whitgl_fvec3 whitgl_fvec3_scale(whitgl_fvec3 a, whitgl_fvec3 b)
 {
 	whitgl_fvec3 out = {a.x * b.x, a.y * b.y, a.z * b.z};
@@ -346,6 +351,10 @@ whitgl_fvec3 whitgl_fvec3_interpolate(whitgl_fvec3 a, whitgl_fvec3 b, whitgl_flo
 	out.y = a.y*(1-ratio) + b.y*ratio;
 	out.z = a.z*(1-ratio) + b.z*ratio;
 	return out;
+}
+whitgl_bool whitgl_fvec3_eq(whitgl_fvec3 a, whitgl_fvec3 b)
+{
+	return a.x == b.x && a.y == b.y && a.z == b.z;
 }
 
 whitgl_iaabb whitgl_iaabb_add(whitgl_iaabb a, whitgl_ivec b)

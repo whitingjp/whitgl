@@ -38,7 +38,7 @@ typedef struct
 	whitgl_int max_vertices;
 } whitgl_model;
 static const whitgl_model whitgl_model_zero = {-1, 0, -1, -1};
-#define WHITGL_MODEL_MAX (16)
+#define WHITGL_MODEL_MAX (32)
 whitgl_model models[WHITGL_MODEL_MAX];
 whitgl_int num_models;
 
@@ -65,6 +65,8 @@ in vec3 vertexNormal;\
 out vec2 Texturepos;\
 out vec3 fragmentColor;\
 out vec3 fragmentNormal;\
+out vec3 fragmentPosition;\
+out mat4 normalMatrix;\
 uniform mat4 m_model;\
 uniform mat4 m_view;\
 uniform mat4 m_perspective;\
@@ -74,6 +76,8 @@ void main()\
 	Texturepos = texturepos;\
 	fragmentColor = vertexColor;\
 	fragmentNormal = vertexNormal;\
+	fragmentPosition = vec3( m_model * vec4( position, 1.0));\
+	normalMatrix = transpose(inverse(m_model));\
 }\
 ";
 
@@ -1292,7 +1296,7 @@ void whitgl_sys_update_image_from_data(int id, whitgl_ivec size, unsigned char* 
 	}
 	if(index == -1)
 	{
-		WHITGL_PANIC("ERR Cannot find image %d", id);
+		whitgl_sys_add_image_from_data(id, size, data);
 		return;
 	}
 	if(images[index].size.x != size.x || images[index].size.y != size.y)

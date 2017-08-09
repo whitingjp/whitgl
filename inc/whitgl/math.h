@@ -4,6 +4,7 @@
 #include <float.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <limits.h>
 
 typedef bool whitgl_bool;
 typedef int64_t whitgl_int;
@@ -121,6 +122,7 @@ whitgl_bool whitgl_fvec_eq(whitgl_fvec a, whitgl_fvec b);
 whitgl_fvec3 whitgl_fvec3_val(whitgl_float a);
 whitgl_fvec3 whitgl_fvec3_add(whitgl_fvec3 a, whitgl_fvec3 b);
 whitgl_fvec3 whitgl_fvec3_sub(whitgl_fvec3 a, whitgl_fvec3 b);
+whitgl_fvec3 whitgl_fvec3_inverse(whitgl_fvec3 a);
 whitgl_fvec3 whitgl_fvec3_scale(whitgl_fvec3 a, whitgl_fvec3 b);
 whitgl_fvec3 whitgl_fvec3_scale_val(whitgl_fvec3 a, whitgl_float val);
 whitgl_float whitgl_fvec3_sqmagnitude(whitgl_fvec3 a);
@@ -129,6 +131,8 @@ whitgl_fvec3 whitgl_fvec3_normalize(whitgl_fvec3 a);
 whitgl_fvec3 whitgl_fvec3_cross(whitgl_fvec3 a, whitgl_fvec3 b);
 whitgl_float whitgl_fvec3_dot(whitgl_fvec3 a, whitgl_fvec3 b);
 whitgl_fvec3 whitgl_fvec3_interpolate(whitgl_fvec3 a, whitgl_fvec3 b, whitgl_float ratio);
+whitgl_bool whitgl_fvec3_eq(whitgl_fvec3 a, whitgl_fvec3 b);
+
 
 whitgl_iaabb whitgl_iaabb_add(whitgl_iaabb a, whitgl_ivec b);
 whitgl_iaabb whitgl_iaabb_sub(whitgl_iaabb a, whitgl_ivec b);
@@ -197,6 +201,6 @@ whitgl_ivec whitgl_camera(whitgl_ivec pos, whitgl_ivec world_size, whitgl_ivec s
 static const whitgl_float whitgl_tau = 6.28318530718;
 static const whitgl_float whitgl_pi = 3.14159265359;
 static const whitgl_float whitgl_float_max = DBL_MAX;
-static const whitgl_int whitgl_int_max = INT64_MAX;
+static const whitgl_int whitgl_int_max = 9223372036854775807LL; // INT64_MAX
 
 #endif // WHITGL_MATH_H_
