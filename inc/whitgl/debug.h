@@ -7,6 +7,7 @@ typedef enum
 {
 	WHITGL_DEBUG_INT,
 	WHITGL_DEBUG_FLOAT,
+	WHITGL_DEBUG_BOOL,
 	WHITGL_DEBUG_BUTTON,
 } whitgl_debug_menu_type;
 
@@ -37,6 +38,7 @@ whitgl_debug_menu whitgl_debug_menu_update(whitgl_debug_menu debug);
 
 whitgl_debug_menu whitgl_debug_menu_add_int(whitgl_debug_menu debug, const char* name, const whitgl_int* val);
 whitgl_debug_menu whitgl_debug_menu_add_float(whitgl_debug_menu debug, const char* name, const whitgl_float* val);
+whitgl_debug_menu whitgl_debug_menu_add_bool(whitgl_debug_menu debug, const char* name, whitgl_bool* val);
 whitgl_debug_menu whitgl_debug_menu_add_button(whitgl_debug_menu debug, const char* name, whitgl_bool* trigger);
 void whitgl_debug_menu_draw(whitgl_debug_menu debug);
 

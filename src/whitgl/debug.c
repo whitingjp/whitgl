@@ -73,6 +73,17 @@ whitgl_debug_menu whitgl_debug_menu_add_float(whitgl_debug_menu debug, const cha
 	debug.num_entries++;
 	return debug;
 }
+whitgl_debug_menu whitgl_debug_menu_add_bool(whitgl_debug_menu debug, const char* name, whitgl_bool* val)
+{
+	if(debug.num_entries >= WHITGL_DEBUG_MAX_ENTRIES)
+		WHITGL_PANIC("run out of debug entries");
+	whitgl_int index = debug.num_entries;
+	debug.entries[index].type = WHITGL_DEBUG_BOOL;
+	debug.entries[index].name = name;
+	debug.entries[index].bool_val = val;
+	debug.num_entries++;
+	return debug;
+}
 whitgl_debug_menu whitgl_debug_menu_add_button(whitgl_debug_menu debug, const char* name, whitgl_bool* trigger)
 {
 	if(debug.num_entries >= WHITGL_DEBUG_MAX_ENTRIES)
@@ -106,6 +117,11 @@ void whitgl_debug_menu_draw(whitgl_debug_menu debug)
 			case WHITGL_DEBUG_FLOAT:
 			{
 				snprintf(buffer, sizeof(buffer), "%8s %5.1f", debug.entries[i].name, *debug.entries[i].float_val);
+				break;
+			}
+			case WHITGL_DEBUG_BOOL:
+			{
+				snprintf(buffer, sizeof(buffer), "%8s %s", debug.entries[i].name, *debug.entries[i].bool_val ? "true" : "false");
 				break;
 			}
 			case WHITGL_DEBUG_BUTTON:
