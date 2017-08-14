@@ -1,3 +1,4 @@
+#include <signal.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -172,6 +173,7 @@ void _whitgl_check_gl_error(const char* stmt, const char *file, int line)
 	} while (0)
 
 
+void _whitgl_sys_handle_signal(int signal);
 void _whitgl_sys_close_callback(GLFWwindow*);
 void _whitgl_sys_glfw_error_callback(int code, const char* error);
 void _whitgl_sys_window_focus_callback(GLFWwindow *window, int focused);
@@ -533,6 +535,8 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	glDepthFunc(GL_LESS);
 	glDisable(GL_DEPTH_TEST);
 
+	signal(SIGTERM, _whitgl_sys_handle_signal);
+
 	whitgl_profile_init();
 
 	WHITGL_LOG("Sys initiated");
@@ -540,6 +544,11 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	return true;
 }
 
+void _whitgl_sys_handle_signal(int signal)
+{
+	WHITGL_LOG("recieved signal %d", signal);
+	_shouldClose = true;
+}
 void _whitgl_sys_close_callback(GLFWwindow* window)
 {
 	(void)window;
