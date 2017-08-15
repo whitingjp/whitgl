@@ -45,7 +45,7 @@ def rules(n):
       command='gcc $in $libs $ldflags -o $out && install_name_tool -change /usr/local/lib/libirrklang.dylib @executable_path/libirrklang.dylib $out && install_name_tool -change /usr/local/lib/libGLEW.2.0.0.dylib @executable_path/libGLEW.2.0.0.dylib $out',
       description='LINK $out')
     n.rule('icon',
-      command='$scripts_dir/osx/create_icns.sh $in $build_dir/icon $out',
+      command='$scriptsdir/osx/create_icns.sh $in $builddir/icon $out',
       description='ICON $out')
   else:
     n.rule('link',
@@ -55,7 +55,7 @@ def rules(n):
     command='cp $in $out',
     description='COPY $in $out')
   n.rule('model',
-    command='python $scripts_dir/process_model.py $in $out',
+    command='python $scriptsdir/process_model.py $in $out',
     description='MODEL $in $out')
   n.newline()
 
@@ -132,8 +132,8 @@ def do_game(name, extra_cflags, data_types):
     os.makedirs('build')
   buildfile = open(joinp('build', 'build.ninja'), 'w')
   n = ninja_syntax.Writer(buildfile)
-  n.variable('build_dir', builddir)
-  n.variable('scripts_dir', joinp('whitgl','scripts'))
+  n.variable('builddir', builddir)
+  n.variable('scriptsdir', joinp('whitgl','scripts'))
   n.newline()
   cflags, ldflags = flags(inputdir)
   cflags = cflags + ' -Iwhitgl/inc -Isrc ' + extra_cflags
@@ -176,8 +176,8 @@ def main():
     os.makedirs('build')
   buildfile = open(joinp('build', 'build.ninja'), 'w')
   n = ninja_syntax.Writer(buildfile)
-  n.variable('build_dir', builddir)
-  n.variable('scripts_dir', 'scripts')
+  n.variable('builddir', builddir)
+  n.variable('scriptsdir', 'scripts')
   n.newline()
   cflags, ldflags = flags('input')
   n.variable('cflags', cflags)
