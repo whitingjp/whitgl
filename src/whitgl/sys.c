@@ -403,25 +403,43 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 
 	if(setup->resolution_mode == RESOLUTION_USE_WINDOW)
 		setup->size = screen_size;
-	if(setup->resolution_mode == RESOLUTION_AT_LEAST || setup->resolution_mode == RESOLUTION_AT_MOST)
+
+	// RESOLUTION_AT_LEAST is essentially, find the lowest allowable pixel size that fits setup->size within the screen
+	if(setup->resolution_mode == RESOLUTION_AT_LEAST)
 	{
 		setup->pixel_size = screen_size.x/setup->size.x;
-		whitgl_ivec new_size = setup->size;
+		whitgl_ivec new_size;
 		bool searching = true;
 		while(searching)
 		{
-			new_size.x = screen_size.x/setup->pixel_size;
-			new_size.y = screen_size.y/setup->pixel_size;
+			new_size = whitgl_ivec_divide(screen_size, whitgl_ivec_val(setup->pixel_size));
 			searching = false;
 			if(new_size.x < setup->size.x) searching = true;
 			if(new_size.y < setup->size.y) searching = true;
 			if(setup->pixel_size == 1) searching = false;
-			if(searching) setup->pixel_size--;
+			if(searching)
+				setup->pixel_size--;
 		}
-		if(setup->resolution_mode == RESOLUTION_AT_MOST)
-			setup->pixel_size++;
-		setup->size = whitgl_ivec_divide(screen_size, whitgl_ivec_val(setup->pixel_size));
+		setup->size = new_size;
 	}
+	// RESOLUTION_AT_MOST is essentially, find the highest allowable pixel size that doesn't let the screen exceed setup->size
+	if(setup->resolution_mode == RESOLUTION_AT_MOST)
+	{
+		setup->pixel_size = 1;
+		whitgl_ivec new_size = setup->size;
+		bool searching = true;
+		while(searching)
+		{
+			new_size = whitgl_ivec_divide(screen_size, whitgl_ivec_val(setup->pixel_size));
+			searching = false;
+			if(new_size.x > setup->size.x) searching = true;
+			if(new_size.y > setup->size.y) searching = true;
+			if(searching)
+				setup->pixel_size++;
+		}
+		setup->size = new_size;
+	}
+	WHITGL_LOG("Pixel scale %d render area %d %d", setup->pixel_size, setup->size.x, setup->size.y);
 	_setup_size = setup->size;
 	if(!_window)
 	{
