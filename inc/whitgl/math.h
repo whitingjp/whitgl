@@ -140,6 +140,7 @@ whitgl_iaabb whitgl_iaabb_scale(whitgl_iaabb a, whitgl_ivec s);
 whitgl_iaabb whitgl_iaabb_divide(whitgl_iaabb a, whitgl_ivec s);
 whitgl_iaabb whitgl_iaabb_intersection(whitgl_iaabb a, whitgl_iaabb b);
 whitgl_bool whitgl_iaabb_intersects(whitgl_iaabb a, whitgl_iaabb b);
+whitgl_iaabb whitgl_iaabb_incorporate(whitgl_iaabb a, whitgl_iaabb b);
 whitgl_int whitgl_iaabb_area(whitgl_iaabb a);
 
 whitgl_faabb whitgl_faabb_add(whitgl_faabb a, whitgl_fvec b);
@@ -148,6 +149,7 @@ whitgl_faabb whitgl_faabb_scale(whitgl_faabb a, whitgl_fvec s);
 whitgl_faabb whitgl_faabb_divide(whitgl_faabb a, whitgl_fvec s);
 whitgl_faabb whitgl_faabb_intersection(whitgl_faabb a, whitgl_faabb b);
 whitgl_bool whitgl_faabb_intersects(whitgl_faabb a, whitgl_faabb b);
+whitgl_faabb whitgl_faabb_incorporate(whitgl_faabb a, whitgl_faabb b);
 whitgl_float whitgl_faabb_area(whitgl_faabb a);
 
 whitgl_fmat whitgl_fmat_multiply(whitgl_fmat a, whitgl_fmat b);
