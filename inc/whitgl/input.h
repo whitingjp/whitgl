@@ -46,6 +46,13 @@ typedef enum
 	WHITGL_INPUT_MAX,
 } whitgl_input;
 
+typedef enum
+{
+	WHITGL_JOYSTICK_NONE,
+	WHITGL_JOYSTICK_XBOX,
+	WHITGL_JOYSTICK_PLAYSTATION,
+} whitgl_input_joystick_style;
+
 void whitgl_input_init();
 void whitgl_input_shutdown();
 void whitgl_input_update();
@@ -55,5 +62,6 @@ whitgl_ivec whitgl_input_mouse_pos(int pixel_size);
 whitgl_fvec whitgl_input_joystick();
 whitgl_fvec whitgl_input_joystick2();
 whitgl_fvec whitgl_input_joystick3();
+whitgl_input_joystick_style whitgl_input_get_joystick_style();
 
 #endif // WHITGL_INPUT_H_

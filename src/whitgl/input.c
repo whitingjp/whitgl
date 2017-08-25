@@ -191,8 +191,24 @@ void whitgl_input_update()
 			_heldInputs[WHITGL_INPUT_B] |= buttons[13];
 			_heldInputs[WHITGL_INPUT_X] |= buttons[15];
 			_heldInputs[WHITGL_INPUT_Y] |= buttons[12];
-			_heldInputs[WHITGL_INPUT_START] |= buttons[7]; // ??
-			_heldInputs[WHITGL_INPUT_ESC] |= buttons[7]; // ??
+			_heldInputs[WHITGL_INPUT_START] |= buttons[3];
+			_heldInputs[WHITGL_INPUT_ESC] |= buttons[3];
+			if(buttons[4]) _joystick.y = -1;
+			if(buttons[5]) _joystick.x = 1;
+			if(buttons[6]) _joystick.y = 1;
+			if(buttons[7]) _joystick.x = -1;
+		} else if(strncmp(joyname, "Wireless Controller", 19)==0)
+		{
+			_heldInputs[WHITGL_INPUT_A] |= buttons[1];
+			_heldInputs[WHITGL_INPUT_B] |= buttons[2];
+			_heldInputs[WHITGL_INPUT_X] |= buttons[0];
+			_heldInputs[WHITGL_INPUT_Y] |= buttons[3];
+			_heldInputs[WHITGL_INPUT_START] |= buttons[9];
+			_heldInputs[WHITGL_INPUT_ESC] |= buttons[9];
+			if(buttons[14]) _joystick.y = -1;
+			if(buttons[15]) _joystick.x = 1;
+			if(buttons[16]) _joystick.y = 1;
+			if(buttons[17]) _joystick.x = -1;
 		} else if(strncmp(joyname, "Xbox 360 Wired Controller", 25)==0)
 		{
 			_heldInputs[WHITGL_INPUT_A] |= buttons[11];
@@ -201,6 +217,10 @@ void whitgl_input_update()
 			_heldInputs[WHITGL_INPUT_Y] |= buttons[14];
 			_heldInputs[WHITGL_INPUT_START] |= buttons[4];
 			_heldInputs[WHITGL_INPUT_ESC] |= buttons[4];
+			if(buttons[0]) _joystick.y = -1;
+			if(buttons[1]) _joystick.y = 1;
+			if(buttons[2]) _joystick.x = -1;
+			if(buttons[3]) _joystick.x = 1;
 		} else if(strncmp(joyname, "Microsoft PC-joystick driver", 28)==0)
 		{
 			_heldInputs[WHITGL_INPUT_A] |= buttons[0];
@@ -245,4 +265,15 @@ void whitgl_input_update()
 	glfwGetCursorPos(_window, &x, &y);
 	_mouse_pos.x = (whitgl_int)x;
 	_mouse_pos.y = (whitgl_int)y;
+}
+whitgl_input_joystick_style whitgl_input_get_joystick_style()
+{
+	if(!glfwJoystickPresent(GLFW_JOYSTICK_1))
+		return WHITGL_JOYSTICK_NONE;
+	const char* joyname = glfwGetJoystickName(GLFW_JOYSTICK_1);
+	if(strncmp(joyname, "PLAYSTATION(R)3 Controller", 26)==0)
+		return WHITGL_JOYSTICK_PLAYSTATION;
+	if(strncmp(joyname, "Wireless Controller", 19)==0)
+		return WHITGL_JOYSTICK_PLAYSTATION;
+	return WHITGL_JOYSTICK_XBOX;
 }
