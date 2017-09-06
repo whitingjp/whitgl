@@ -26,6 +26,7 @@ whitgl_sound sounds[WHITGL_SOUND_MAX];
 whitgl_loop loops[WHITGL_SOUND_MAX];
 int num_sounds;
 int num_loops;
+whitgl_float global_sound_volume;
 
 void whitgl_sound_init()
 {
@@ -34,6 +35,7 @@ void whitgl_sound_init()
 		WHITGL_PANIC("Could not startup irrklang engine\n");
 	num_sounds = 0;
 	num_loops = 0;
+	global_sound_volume = 1;
 }
 void whitgl_sound_shutdown()
 {
@@ -48,6 +50,11 @@ void whitgl_sound_volume(float volume)
 {
 	irrklang_engine->setSoundVolume(volume);
 }
+void whitgl_sound_sfx_volume(float volume)
+{
+	global_sound_volume = volume;
+}
+
 void whitgl_sound_add(int id, const char* filename)
 {
 	if(num_sounds >= WHITGL_SOUND_MAX)
@@ -77,7 +84,7 @@ void whitgl_sound_play(int id, float volume, float pitch)
 {
 	whitgl_int index = _whitgl_get_sound_index(id);
 	irrklang::ISound* sound = irrklang_engine->play2D(sounds[index].source, false, true);
-	sound->setVolume(volume);
+	sound->setVolume(volume*global_sound_volume);
 	sound->setPlaybackSpeed(pitch);
 	sound->setIsPaused(false);
 	sound->drop();
