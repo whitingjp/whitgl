@@ -1483,6 +1483,10 @@ void whitgl_sys_enable_depth(whitgl_bool enable)
 	else
 		glDisable(GL_DEPTH_TEST);
 }
+void whitgl_sys_cull_side(whitgl_bool cull_front)
+{
+	glCullFace(cull_front ? GL_FRONT : GL_BACK);
+}
 void whitgl_set_clipboard(const char* string)
 {
 	glfwSetClipboardString(_window, string);

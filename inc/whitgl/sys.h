@@ -155,6 +155,7 @@ whitgl_sys_color whitgl_sys_color_multiply(whitgl_sys_color a, whitgl_sys_color 
 whitgl_bool whitgl_sys_window_focused();
 
 void whitgl_sys_enable_depth(whitgl_bool enable);
+void whitgl_sys_cull_side(whitgl_bool cull_front);
 
 void whitgl_set_clipboard(const char* string);
 const char* whitgl_get_clipboard();
