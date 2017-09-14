@@ -667,9 +667,7 @@ whitgl_fmat whitgl_fmat_perspective(whitgl_float fovY, whitgl_float aspect, whit
 {
 	whitgl_float r = fovY / 2;
 	whitgl_float deltaZ = zFar - zNear;
-	whitgl_float s = whitgl_fsin(r);
-	whitgl_float cotangent = 0;
-	cotangent = whitgl_fcos(r) / s;
+	whitgl_float cotangent = 1.0 / whitgl_ftan(r);
 
 	whitgl_fmat o = whitgl_fmat_identity;
 	o.mat[0] = cotangent / aspect;
