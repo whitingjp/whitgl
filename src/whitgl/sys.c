@@ -126,6 +126,7 @@ typedef union
 	whitgl_fvec3 fvec3;
 	whitgl_sys_color color;
 	whitgl_int image;
+	whitgl_int framebuffer;
 	whitgl_fmat matrix;
 } whitgl_uniform_data;
 
@@ -291,6 +292,13 @@ void whitgl_set_shader_image(whitgl_shader_slot type, whitgl_int uniform, whitgl
 	if(shaders[type].uniforms[uniform].image != index)
 		_whitgl_sys_flush_tex_iaabb();
 	shaders[type].uniforms[uniform].image = index;
+}
+void whitgl_set_shader_framebuffer(whitgl_shader_slot type, whitgl_int uniform, whitgl_int index)
+{
+	_whitgl_check_uniform_validity(type, uniform, WHITGL_UNIFORM_FRAMEBUFFER);
+	if(shaders[type].uniforms[uniform].framebuffer != index)
+		_whitgl_sys_flush_tex_iaabb();
+	shaders[type].uniforms[uniform].framebuffer = index;
 }
 void whitgl_set_shader_matrix(whitgl_shader_slot type, whitgl_int uniform, whitgl_fmat fmat)
 {
@@ -689,6 +697,14 @@ void _whitgl_load_uniforms(whitgl_shader_slot slot)
 				whitgl_int image = shaders[slot].uniforms[i].image;
 				glActiveTexture(GL_TEXTURE0 + 1 + i);
 				glBindTexture(GL_TEXTURE_2D, images[image].gluint);
+				break;
+			}
+			case WHITGL_UNIFORM_FRAMEBUFFER:
+			{
+				glUniform1i(location, i+1); // i+1 here is imperfect, it'd be better to know how many images we are actually using
+				whitgl_int framebuffer = shaders[slot].uniforms[i].framebuffer;
+				glActiveTexture(GL_TEXTURE0 + 1 + i);
+				GL_CHECK( glBindTexture( GL_TEXTURE_2D, framebuffers[framebuffer].texture ) );
 				break;
 			}
 			case WHITGL_UNIFORM_MATRIX:

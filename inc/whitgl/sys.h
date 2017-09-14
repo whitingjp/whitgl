@@ -89,6 +89,7 @@ typedef enum
 	WHITGL_UNIFORM_FVEC3,
 	WHITGL_UNIFORM_COLOR,
 	WHITGL_UNIFORM_IMAGE,
+	WHITGL_UNIFORM_FRAMEBUFFER,
 	WHITGL_UNIFORM_MATRIX,
 } whitgl_uniform_type;
 #define WHITGL_MAX_SHADER_UNIFORMS (32)
@@ -116,8 +117,9 @@ bool whitgl_change_shader(whitgl_shader_slot type, whitgl_shader shader);
 void whitgl_set_shader_float(whitgl_shader_slot type, whitgl_int uniform, float value);
 void whitgl_set_shader_fvec(whitgl_shader_slot type, whitgl_int uniform, whitgl_fvec value);
 void whitgl_set_shader_fvec3(whitgl_shader_slot type, whitgl_int uniform, whitgl_fvec3 value);
-void whitgl_set_shader_color(whitgl_shader_slot type, whitgl_int color, whitgl_sys_color value);
-void whitgl_set_shader_image(whitgl_shader_slot type, whitgl_int image, whitgl_int index);
+void whitgl_set_shader_color(whitgl_shader_slot type, whitgl_int uniform, whitgl_sys_color value);
+void whitgl_set_shader_image(whitgl_shader_slot type, whitgl_int uniform, whitgl_int index);
+void whitgl_set_shader_framebuffer(whitgl_shader_slot type, whitgl_int uniform, whitgl_int index);
 void whitgl_set_shader_matrix(whitgl_shader_slot type, whitgl_int matrix, whitgl_fmat fmat);
 
 void whitgl_sys_draw_init(whitgl_int framebuffer_id);
