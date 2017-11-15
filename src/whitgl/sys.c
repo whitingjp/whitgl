@@ -986,17 +986,25 @@ void whitgl_sys_draw_model(whitgl_int id, whitgl_shader_slot shader, whitgl_fmat
 	GL_CHECK( glEnableVertexAttribArray( posAttrib ) );
 
 	GLint vertexColor = glGetAttribLocation( shaderProgram, "vertexColor" );
-	GL_CHECK( glVertexAttribPointer( vertexColor, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), BUFFER_OFFSET(sizeof(float)*3) ) );
-	GL_CHECK( glEnableVertexAttribArray( vertexColor ) );
+	if(vertexColor > -1)
+	{
+		GL_CHECK( glVertexAttribPointer( vertexColor, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), BUFFER_OFFSET(sizeof(float)*3) ) );
+		GL_CHECK( glEnableVertexAttribArray( vertexColor ) );
+	}
 
 	GLint vertexNormal = glGetAttribLocation( shaderProgram, "vertexNormal" );
-	GL_CHECK( glVertexAttribPointer( vertexNormal, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), BUFFER_OFFSET(sizeof(float)*6) ) );
-	GL_CHECK( glEnableVertexAttribArray( vertexNormal ) );
+	if(vertexNormal > -1)
+	{
+		GL_CHECK( glVertexAttribPointer( vertexNormal, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), BUFFER_OFFSET(sizeof(float)*6) ) );
+		GL_CHECK( glEnableVertexAttribArray( vertexNormal ) );
+	}
 
 	GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, models[index].num_vertices ) );
 
-	GL_CHECK( glDisableVertexAttribArray(vertexColor) );
-	GL_CHECK( glDisableVertexAttribArray(vertexNormal) );
+	if(vertexColor > -1)
+		GL_CHECK( glDisableVertexAttribArray(vertexColor) );
+	if(vertexNormal > -1)
+		GL_CHECK( glDisableVertexAttribArray(vertexNormal) );
 }
 
 whitgl_int buffer_curindex = -1;
