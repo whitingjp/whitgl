@@ -31,6 +31,7 @@ typedef struct
 	whitgl_sys_cursor_mode cursor;
 	whitgl_bool vsync;
 	whitgl_bool start_focused;
+	whitgl_bool start_hidden;
 	whitgl_bool clear_buffer;
 	whitgl_int num_framebuffers;
 } whitgl_sys_setup;
@@ -44,6 +45,7 @@ static const whitgl_sys_setup whitgl_sys_setup_zero =
 	CURSOR_SHOW,
 	true,
 	true,
+	false,
 	true,
 	1,
 };

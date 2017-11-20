@@ -376,6 +376,9 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 		glfwWindowHint(GLFW_FOCUSED, GL_FALSE);
 	// glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
 
+	if(setup->start_hidden)
+		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+
 	const GLFWvidmode * mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
 	// attempt to ensure that no mode changing takes place
