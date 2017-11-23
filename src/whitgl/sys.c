@@ -359,6 +359,10 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	WHITGL_LOG("Initialize GLFW");
 
 	glfwSetErrorCallback(&_whitgl_sys_glfw_error_callback);
+
+	if(setup->start_hidden)
+		glfwInitHint(GLFW_COCOA_MENUBAR, false);
+
 	WHITGL_LOG("glfwInit");
 	result = glfwInit();
 	if(!result)
