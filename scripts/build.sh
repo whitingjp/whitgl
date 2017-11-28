@@ -3,7 +3,7 @@ unamestr=`uname`
 if [[ "$unamestr" == 'Darwin' ]]; then
 	whitgl_ninja='input/ninja/ninja'
 	ninja='whitgl/input/ninja/ninja'
-elif [[ "$unamestr" == 'MINGW32_NT-6.2' ]]; then
+elif [[ "$unamestr" == MINGW32_NT* ]]; then
 	whitgl_ninja='input/ninja.exe'
 	ninja='whitgl/input/ninja.exe'
 else
