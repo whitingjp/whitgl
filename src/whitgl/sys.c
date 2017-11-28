@@ -360,8 +360,10 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 
 	glfwSetErrorCallback(&_whitgl_sys_glfw_error_callback);
 
+#if defined(__APPLE__)
 	if(setup->start_hidden)
 		glfwInitHint(GLFW_COCOA_MENUBAR, false);
+#endif
 
 	WHITGL_LOG("glfwInit");
 	result = glfwInit();
