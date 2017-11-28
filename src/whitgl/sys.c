@@ -140,9 +140,10 @@ typedef struct
 typedef struct
 {
 	bool do_next;
+	bool pre_postprocess;
 	char file[512];
 } whitgl_frame_capture;
-static const whitgl_frame_capture whitgl_frame_capture_zero = {false, {'\0'}};
+static const whitgl_frame_capture whitgl_frame_capture_zero = {false, false, {'\0'}};
 
 GLuint vbo;
 whitgl_shader_data shaders[WHITGL_SHADER_MAX];
@@ -358,6 +359,10 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	WHITGL_LOG("Initialize GLFW");
 
 	glfwSetErrorCallback(&_whitgl_sys_glfw_error_callback);
+
+	if(setup->start_hidden)
+		glfwInitHint(GLFW_COCOA_MENUBAR, false);
+
 	WHITGL_LOG("glfwInit");
 	result = glfwInit();
 	if(!result)
@@ -375,6 +380,9 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	if(!_windowFocused)
 		glfwWindowHint(GLFW_FOCUSED, GL_FALSE);
 	// glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
+
+	if(setup->start_hidden)
+		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
 	const GLFWvidmode * mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
@@ -733,6 +741,16 @@ void _whitgl_load_uniforms(whitgl_shader_slot slot)
 void whitgl_sys_draw_finish()
 {
 	_whitgl_sys_flush_tex_iaabb();
+
+	if(capture.do_next && capture.pre_postprocess)
+	{
+		unsigned char* buffer = malloc(_buffer_size.x*_buffer_size.y*4);
+		glReadPixels(0, 0, _buffer_size.x, _buffer_size.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+		whitgl_sys_save_png(capture.file, _buffer_size.x, _buffer_size.y, buffer);
+		free(buffer);
+		capture.do_next = false;
+	}
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	GL_CHECK( glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) );
@@ -778,7 +796,7 @@ void whitgl_sys_draw_finish()
 
 	GL_CHECK( glDrawArrays( GL_TRIANGLES, 0, 6 ) );
 
-	if(capture.do_next)
+	if(capture.do_next && !capture.pre_postprocess)
 	{
 		unsigned char* buffer = malloc(_window_size.x*_window_size.y*4);
 		glReadPixels(0, 0, _window_size.x, _window_size.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
@@ -1326,10 +1344,11 @@ void whitgl_sys_add_image_from_data(int id, whitgl_ivec size, unsigned char* dat
 	images[num_images].id = id;
 	num_images++;
 }
-void whitgl_sys_capture_frame(const char *name)
+void whitgl_sys_capture_frame(const char *name, bool pre_postprocess)
 {
 	capture = whitgl_frame_capture_zero;
 	capture.do_next = true;
+	capture.pre_postprocess = pre_postprocess;
 	strncpy(capture.file, name, sizeof(capture.file));
 }
 

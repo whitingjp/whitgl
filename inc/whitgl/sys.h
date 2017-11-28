@@ -31,6 +31,7 @@ typedef struct
 	whitgl_sys_cursor_mode cursor;
 	whitgl_bool vsync;
 	whitgl_bool start_focused;
+	whitgl_bool start_hidden;
 	whitgl_bool clear_buffer;
 	whitgl_int num_framebuffers;
 } whitgl_sys_setup;
@@ -44,6 +45,7 @@ static const whitgl_sys_setup whitgl_sys_setup_zero =
 	CURSOR_SHOW,
 	true,
 	true,
+	false,
 	true,
 	1,
 };
@@ -129,7 +131,7 @@ void whitgl_sys_add_image_from_data(int id, whitgl_ivec size, unsigned char* dat
 void whitgl_sys_update_image_from_data(int id, whitgl_ivec size, unsigned char* data);
 bool whitgl_sys_load_png(const char *name, whitgl_int *width, whitgl_int *height, unsigned char **data);
 bool whitgl_sys_save_png(const char *name, whitgl_int width, whitgl_int height, unsigned char *data);
-void whitgl_sys_capture_frame(const char *name);
+void whitgl_sys_capture_frame(const char *name, bool pre_postprocess);
 void whitgl_sys_add_image(int id, const char* filename);
 void whitgl_sys_image_from_data(int id, whitgl_ivec size, const unsigned char* data);
 void whitgl_sys_draw_iaabb(whitgl_iaabb rectangle, whitgl_sys_color col);
