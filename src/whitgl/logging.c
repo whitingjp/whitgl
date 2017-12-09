@@ -20,5 +20,6 @@ void whitgl_panic(const char *file, const int line, const char *str, ...)
 	va_start(args, str);
 	vsnprintf(_buffer, LOG_BUFFER_MAX, str, args);
 	printf("PANIC %24s:%03d  %s\n", file, line, _buffer);
+	fflush(stdout);
 	__builtin_trap();
 }
