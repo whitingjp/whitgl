@@ -164,4 +164,6 @@ void whitgl_sys_cull_side(whitgl_bool cull_front);
 void whitgl_set_clipboard(const char* string);
 const char* whitgl_get_clipboard();
 
+bool whitgl_get_drag_and_drop(char filename[PATH_MAX]);
+
 #endif // WHITGL_SYS_H_

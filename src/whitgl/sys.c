@@ -179,6 +179,7 @@ void _whitgl_sys_handle_signal(int signal);
 void _whitgl_sys_close_callback(GLFWwindow*);
 void _whitgl_sys_glfw_error_callback(int code, const char* error);
 void _whitgl_sys_window_focus_callback(GLFWwindow *window, int focused);
+void _whitgl_sys_drop_callback(GLFWwindow* window, int count, const char** paths);
 
 whitgl_sys_setup _setup;
 
@@ -540,6 +541,9 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 
 	WHITGL_LOG("Setting close callback");
 	glfwSetWindowCloseCallback(_window, _whitgl_sys_close_callback);
+
+	WHITGL_LOG("Setting drag-and-drop callback");
+	glfwSetDropCallback(_window, _whitgl_sys_drop_callback);
 
 	// Set mouse cursor mode
 	WHITGL_LOG("Disable mouse cursor");
@@ -1541,3 +1545,26 @@ const char* whitgl_get_clipboard()
 	return glfwGetClipboardString(_window);
 }
 
+bool _has_drag_and_drop = false;
+char _drag_and_drop_path[PATH_MAX];
+void _whitgl_sys_drop_callback(GLFWwindow* window, int count, const char** paths)
+{
+	WHITGL_LOG("_whitgl_sys_drop_callback %d", count);
+	(void)window;
+	if(count < 1)
+		return;
+	if(count > 1)
+		WHITGL_LOG("Discarding all but first drop for the moment");
+	WHITGL_LOG("Recieved drag-and-drop file: %s", paths[0]);
+	_has_drag_and_drop = true;
+	strncpy(_drag_and_drop_path, paths[0], PATH_MAX);
+}
+
+bool whitgl_get_drag_and_drop(char filename[PATH_MAX])
+{
+	if(!_has_drag_and_drop)
+		return false;
+	strncpy(filename, _drag_and_drop_path, PATH_MAX);
+	_has_drag_and_drop = false;
+	return true;
+}
