@@ -1568,3 +1568,16 @@ bool whitgl_get_drag_and_drop(char filename[PATH_MAX])
 	_has_drag_and_drop = false;
 	return true;
 }
+
+void whitgl_change_icon(const char* filename)
+{
+	GLFWimage icon;
+	whitgl_int width, height;
+	if(whitgl_sys_load_png(filename, &width, &height, &icon.pixels))
+	{
+		icon.width = width;
+		icon.height = height;
+		glfwSetWindowIcon(_window, 1, &icon );
+		free(icon.pixels);
+	}
+}

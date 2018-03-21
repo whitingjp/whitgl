@@ -166,4 +166,6 @@ const char* whitgl_get_clipboard();
 
 bool whitgl_get_drag_and_drop(char filename[PATH_MAX]);
 
+void whitgl_change_icon(const char* filename);
+
 #endif // WHITGL_SYS_H_
