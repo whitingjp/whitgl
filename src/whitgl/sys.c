@@ -139,11 +139,13 @@ typedef struct
 
 typedef struct
 {
+	bool to_file;
 	bool do_next;
 	bool pre_postprocess;
 	char file[512];
+	whitgl_sys_color* data;
 } whitgl_frame_capture;
-static const whitgl_frame_capture whitgl_frame_capture_zero = {false, false, {'\0'}};
+static const whitgl_frame_capture whitgl_frame_capture_zero = {true, false, false, {'\0'}, NULL};
 
 GLuint vbo;
 whitgl_shader_data shaders[WHITGL_SHADER_MAX];
@@ -752,7 +754,10 @@ void whitgl_sys_draw_finish()
 	{
 		unsigned char* buffer = malloc(_buffer_size.x*_buffer_size.y*4);
 		glReadPixels(0, 0, _buffer_size.x, _buffer_size.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-		whitgl_sys_save_png(capture.file, _buffer_size.x, _buffer_size.y, buffer);
+		if(capture.to_file)
+			whitgl_sys_save_png(capture.file, _buffer_size.x, _buffer_size.y, buffer);
+		else
+			memcpy(capture.data, buffer, _buffer_size.x*_buffer_size.y*4);
 		free(buffer);
 		capture.do_next = false;
 	}
@@ -806,7 +811,10 @@ void whitgl_sys_draw_finish()
 	{
 		unsigned char* buffer = malloc(_window_size.x*_window_size.y*4);
 		glReadPixels(0, 0, _window_size.x, _window_size.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-		whitgl_sys_save_png(capture.file, _window_size.x, _window_size.y, buffer);
+		if(capture.to_file)
+			whitgl_sys_save_png(capture.file, _buffer_size.x, _buffer_size.y, buffer);
+		else
+			memcpy(capture.data, buffer, _buffer_size.x*_buffer_size.y*4);
 		free(buffer);
 		capture.do_next = false;
 	}
@@ -1353,9 +1361,18 @@ void whitgl_sys_add_image_from_data(int id, whitgl_ivec size, unsigned char* dat
 void whitgl_sys_capture_frame(const char *name, bool pre_postprocess)
 {
 	capture = whitgl_frame_capture_zero;
+	capture.to_file = true;
 	capture.do_next = true;
 	capture.pre_postprocess = pre_postprocess;
 	strncpy(capture.file, name, sizeof(capture.file));
+}
+void whitgl_sys_capture_frame_to_data(whitgl_sys_color* data, bool pre_postprocess)
+{
+	capture = whitgl_frame_capture_zero;
+	capture.to_file = false;
+	capture.do_next = true;
+	capture.pre_postprocess = pre_postprocess;
+	capture.data = data;
 }
 
 void whitgl_sys_update_image_from_data(int id, whitgl_ivec size, unsigned char* data)
