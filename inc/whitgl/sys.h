@@ -169,4 +169,6 @@ bool whitgl_get_drag_and_drop(char filename[PATH_MAX]);
 
 void whitgl_change_icon(const char* filename);
 
+void whitgl_grab_focus();
+
 #endif // WHITGL_SYS_H_

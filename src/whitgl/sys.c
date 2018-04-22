@@ -1606,3 +1606,9 @@ void whitgl_change_icon(const char* filename)
 		free(icon.pixels);
 	}
 }
+
+
+void whitgl_grab_focus()
+{
+	glfwFocusWindow(_window);
+}
