@@ -33,6 +33,7 @@ void whitgl_input_init()
 	_joystick = whitgl_fvec_zero;
 	// Detect key presses between calls to GetKey
 	// glfwSetInputMode (_window, GLFW_STICKY_KEYS, GL_TRUE);
+	glfwSetInputMode(_window, GLFW_STICKY_MOUSE_BUTTONS, 1);
 	glfwSetScrollCallback(_window, _whitgl_scroll_callback);
 }
 

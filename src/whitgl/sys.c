@@ -138,11 +138,14 @@ typedef struct
 
 typedef struct
 {
+	bool to_file;
 	bool do_next;
 	bool pre_postprocess;
 	char file[512];
+	whitgl_sys_color* data;
+	whitgl_int frame_buffer;
 } whitgl_frame_capture;
-static const whitgl_frame_capture whitgl_frame_capture_zero = {false, false, {'\0'}};
+static const whitgl_frame_capture whitgl_frame_capture_zero = {true, false, false, {'\0'}, NULL, 0};
 
 GLuint vbo;
 whitgl_shader_data shaders[WHITGL_SHADER_MAX];
@@ -761,11 +764,20 @@ void whitgl_sys_draw_finish()
 {
 	_whitgl_sys_flush_tex_iaabb();
 
-	if(capture.do_next && capture.pre_postprocess)
+	if(capture.do_next && (capture.pre_postprocess || capture.frame_buffer != 0))
 	{
-		unsigned char* buffer = malloc(_buffer_size.x*_buffer_size.y*4);
-		glReadPixels(0, 0, _buffer_size.x, _buffer_size.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-		whitgl_sys_save_png(capture.file, _buffer_size.x, _buffer_size.y, buffer);
+		whitgl_ivec capture_size = _buffer_size;
+		if(capture.frame_buffer != 0)
+		{
+			GL_CHECK( glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[capture.frame_buffer].buffer) );
+			capture_size = framebuffers[capture.frame_buffer].size;
+		}
+		unsigned char* buffer = malloc(capture_size.x*capture_size.y*4);
+		glReadPixels(0, 0, capture_size.x, capture_size.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+		if(capture.to_file)
+			whitgl_sys_save_png(capture.file, capture_size.x, capture_size.y, buffer);
+		else
+			memcpy(capture.data, buffer, capture_size.x*capture_size.y*4);
 		free(buffer);
 		capture.do_next = false;
 	}
@@ -820,7 +832,10 @@ void whitgl_sys_draw_finish()
 	{
 		unsigned char* buffer = malloc(_window_size.x*_window_size.y*4);
 		glReadPixels(0, 0, _window_size.x, _window_size.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-		whitgl_sys_save_png(capture.file, _window_size.x, _window_size.y, buffer);
+		if(capture.to_file)
+			whitgl_sys_save_png(capture.file, _buffer_size.x, _buffer_size.y, buffer);
+		else
+			memcpy(capture.data, buffer, _buffer_size.x*_buffer_size.y*4);
 		free(buffer);
 		capture.do_next = false;
 	}
@@ -1367,9 +1382,19 @@ void whitgl_sys_add_image_from_data(int id, whitgl_ivec size, unsigned char* dat
 void whitgl_sys_capture_frame(const char *name, bool pre_postprocess)
 {
 	capture = whitgl_frame_capture_zero;
+	capture.to_file = true;
 	capture.do_next = true;
 	capture.pre_postprocess = pre_postprocess;
 	strncpy(capture.file, name, sizeof(capture.file));
+}
+void whitgl_sys_capture_frame_to_data(whitgl_sys_color* data, bool pre_postprocess, int frame_buffer)
+{
+	capture = whitgl_frame_capture_zero;
+	capture.to_file = false;
+	capture.do_next = true;
+	capture.pre_postprocess = pre_postprocess;
+	capture.data = data;
+	capture.frame_buffer = frame_buffer;
 }
 
 void whitgl_sys_update_image_from_data(int id, whitgl_ivec size, unsigned char* data)
@@ -1594,4 +1619,10 @@ void whitgl_change_icon(const char* filename)
 		glfwSetWindowIcon(_window, 1, &icon );
 		free(icon.pixels);
 	}
+}
+
+
+void whitgl_grab_focus()
+{
+	glfwFocusWindow(_window);
 }
