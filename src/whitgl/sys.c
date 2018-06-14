@@ -17,7 +17,6 @@ void _whitgl_sys_flush_tex_iaabb();
 whitgl_bool _shouldClose;
 whitgl_ivec _window_size;
 whitgl_ivec _buffer_size;
-whitgl_ivec _setup_size;
 GLFWwindow* _window;
 whitgl_bool _windowFocused;
 
@@ -180,8 +179,10 @@ void _whitgl_sys_close_callback(GLFWwindow*);
 void _whitgl_sys_glfw_error_callback(int code, const char* error);
 void _whitgl_sys_window_focus_callback(GLFWwindow *window, int focused);
 void _whitgl_sys_drop_callback(GLFWwindow* window, int count, const char** paths);
+void _whitgl_sys_window_size_callback(GLFWwindow* window, int width, int height);
 
 whitgl_sys_setup _setup;
+whitgl_sys_setup* _setup_pointer;
 
 void whitgl_sys_set_clear_color(whitgl_sys_color col)
 {
@@ -413,6 +414,7 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 
 	 glfwSetWindowFocusCallback (_window, _whitgl_sys_window_focus_callback);
 
+	glfwSetWindowSizeCallback(_window, _whitgl_sys_window_size_callback);
 
 	// Retrieve actual size of window in pixels, don't make an assumption
 	// (because of retina screens etc.
@@ -459,7 +461,6 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 		setup->size = new_size;
 	}
 	WHITGL_LOG("Pixel scale %d render area %d %d", setup->pixel_size, setup->size.x, setup->size.y);
-	_setup_size = setup->size;
 	if(!_window)
 	{
 		WHITGL_PANIC("Failed to open GLFW window");
@@ -566,6 +567,7 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	num_models = 0;
 
 	_setup = *setup;
+	_setup_pointer = setup;
 
 	capture = whitgl_frame_capture_zero;
 
@@ -604,6 +606,17 @@ void _whitgl_sys_window_focus_callback(GLFWwindow *window, int focused)
 {
 	(void)window;
 	_windowFocused = focused;
+}
+
+void _whitgl_sys_window_size_callback(GLFWwindow* window, int width, int height)
+{
+	(void)window;
+	if(_setup.resolution_mode != RESOLUTION_USE_WINDOW)
+		return;
+	whitgl_ivec new_size = {width, height};
+	_setup.size = new_size;
+	_setup_pointer->size = new_size;
+	whitgl_resize_framebuffer(0, new_size, false);
 }
 
 bool whitgl_sys_should_close()
@@ -769,6 +782,7 @@ void whitgl_sys_draw_finish()
 	whitgl_iaabb dest = whitgl_iaabb_zero;
 	src.b.x = _buffer_size.x;
 	src.a.y = _buffer_size.y;
+
 	if(_setup.resolution_mode == RESOLUTION_EXACT || _setup.resolution_mode == RESOLUTION_USE_WINDOW)
 	{
 		dest.b = _window_size;
@@ -883,7 +897,7 @@ void whitgl_sys_draw_iaabb(whitgl_iaabb rect, whitgl_sys_color col)
 	GL_CHECK( glUseProgram( shaderProgram ) );
 	whitgl_set_shader_color(WHITGL_SHADER_FLAT, 0, col);
 	_whitgl_load_uniforms(WHITGL_SHADER_FLAT);
-	_whitgl_sys_orthographic(shaderProgram, 0, _setup_size.x, 0, _setup_size.y);
+	_whitgl_sys_orthographic(shaderProgram, 0, _setup.size.x, 0, _setup.size.y);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
@@ -919,7 +933,7 @@ void whitgl_sys_draw_line(whitgl_iaabb l, whitgl_sys_color col)
 	GL_CHECK( glUseProgram( shaderProgram ) );
 	whitgl_set_shader_color(WHITGL_SHADER_FLAT, 0, col);
 	_whitgl_load_uniforms(WHITGL_SHADER_FLAT);
-	_whitgl_sys_orthographic(shaderProgram, 0, _setup_size.x, 0, _setup_size.y);
+	_whitgl_sys_orthographic(shaderProgram, 0, _setup.size.x, 0, _setup.size.y);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
@@ -958,7 +972,7 @@ void whitgl_sys_draw_fcircle(whitgl_fcircle c, whitgl_sys_color col, int tris)
 	GL_CHECK( glUseProgram( shaderProgram ) );
 	whitgl_set_shader_color(WHITGL_SHADER_FLAT, 0, col);
 	_whitgl_load_uniforms(WHITGL_SHADER_FLAT);
-	_whitgl_sys_orthographic(shaderProgram, 0, _setup_size.x, 0, _setup_size.y);
+	_whitgl_sys_orthographic(shaderProgram, 0, _setup.size.x, 0, _setup.size.y);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
@@ -1049,7 +1063,7 @@ void _whitgl_sys_flush_tex_iaabb()
 	GL_CHECK( glUseProgram( shaderProgram ) );
 	GL_CHECK( glUniform1i( glGetUniformLocation( shaderProgram, "tex" ), 0 ) );
 	_whitgl_load_uniforms(WHITGL_SHADER_TEXTURE);
-	_whitgl_sys_orthographic(shaderProgram, 0, _setup_size.x, 0, _setup_size.y);
+	_whitgl_sys_orthographic(shaderProgram, 0, _setup.size.x, 0, _setup.size.y);
 
 	#define BUFFER_OFFSET(i) ((void*)(i))
 	GLint posAttrib = glGetAttribLocation( shaderProgram, "position" );
