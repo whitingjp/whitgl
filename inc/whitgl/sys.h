@@ -34,6 +34,7 @@ typedef struct
 	whitgl_bool start_hidden;
 	whitgl_bool clear_buffer;
 	whitgl_int num_framebuffers;
+	whitgl_bool resizable;
 } whitgl_sys_setup;
 static const whitgl_sys_setup whitgl_sys_setup_zero =
 {
@@ -48,6 +49,7 @@ static const whitgl_sys_setup whitgl_sys_setup_zero =
 	false,
 	true,
 	1,
+	false,
 };
 
 typedef struct

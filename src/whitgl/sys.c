@@ -186,6 +186,7 @@ void _whitgl_sys_window_size_callback(GLFWwindow* window, int width, int height)
 
 whitgl_sys_setup _setup;
 whitgl_sys_setup* _setup_pointer;
+whitgl_ivec _initial_setup_size;
 
 void whitgl_sys_set_clear_color(whitgl_sys_color col)
 {
@@ -356,6 +357,48 @@ void whitgl_resize_framebuffer(whitgl_int i, whitgl_ivec size, whitgl_bool one_c
 	framebuffers[i].size = size;
 }
 
+void _whitgl_calculate_setup_size(whitgl_sys_setup* setup, whitgl_ivec screen_size)
+{
+	if(setup->resolution_mode == RESOLUTION_USE_WINDOW)
+		setup->size = screen_size;
+
+	// RESOLUTION_AT_LEAST is essentially, find the lowest allowable pixel size that fits setup->size within the screen
+	if(setup->resolution_mode == RESOLUTION_AT_LEAST)
+	{
+		setup->pixel_size = screen_size.x/_initial_setup_size.x;
+		whitgl_ivec new_size;
+		bool searching = true;
+		while(searching)
+		{
+			new_size = whitgl_ivec_divide(screen_size, whitgl_ivec_val(setup->pixel_size));
+			searching = false;
+			if(new_size.x < _initial_setup_size.x) searching = true;
+			if(new_size.y < _initial_setup_size.y) searching = true;
+			if(setup->pixel_size == 1) searching = false;
+			if(searching)
+				setup->pixel_size--;
+		}
+		setup->size = new_size;
+	}
+	// RESOLUTION_AT_MOST is essentially, find the highest allowable pixel size that doesn't let the screen exceed setup->size
+	if(setup->resolution_mode == RESOLUTION_AT_MOST)
+	{
+		setup->pixel_size = 1;
+		whitgl_ivec new_size = _initial_setup_size;
+		bool searching = true;
+		while(searching)
+		{
+			new_size = whitgl_ivec_divide(screen_size, whitgl_ivec_val(setup->pixel_size));
+			searching = false;
+			if(new_size.x > _initial_setup_size.x) searching = true;
+			if(new_size.y > _initial_setup_size.y) searching = true;
+			if(searching)
+				setup->pixel_size++;
+		}
+		setup->size = new_size;
+	}
+}
+
 bool whitgl_sys_init(whitgl_sys_setup* setup)
 {
 	bool result;
@@ -386,7 +429,8 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	_windowFocused = setup->start_focused;
 	if(!_windowFocused)
 		glfwWindowHint(GLFW_FOCUSED, GL_FALSE);
-	// glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
+	if(!setup->resizable)
+		glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
 
 	if(setup->start_hidden)
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
@@ -425,44 +469,9 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	glfwGetFramebufferSize(_window, &w, &h);
 	whitgl_ivec screen_size = {w, h};
 
-	if(setup->resolution_mode == RESOLUTION_USE_WINDOW)
-		setup->size = screen_size;
+	_initial_setup_size = setup->size;
+	_whitgl_calculate_setup_size(setup, screen_size);
 
-	// RESOLUTION_AT_LEAST is essentially, find the lowest allowable pixel size that fits setup->size within the screen
-	if(setup->resolution_mode == RESOLUTION_AT_LEAST)
-	{
-		setup->pixel_size = screen_size.x/setup->size.x;
-		whitgl_ivec new_size;
-		bool searching = true;
-		while(searching)
-		{
-			new_size = whitgl_ivec_divide(screen_size, whitgl_ivec_val(setup->pixel_size));
-			searching = false;
-			if(new_size.x < setup->size.x) searching = true;
-			if(new_size.y < setup->size.y) searching = true;
-			if(setup->pixel_size == 1) searching = false;
-			if(searching)
-				setup->pixel_size--;
-		}
-		setup->size = new_size;
-	}
-	// RESOLUTION_AT_MOST is essentially, find the highest allowable pixel size that doesn't let the screen exceed setup->size
-	if(setup->resolution_mode == RESOLUTION_AT_MOST)
-	{
-		setup->pixel_size = 1;
-		whitgl_ivec new_size = setup->size;
-		bool searching = true;
-		while(searching)
-		{
-			new_size = whitgl_ivec_divide(screen_size, whitgl_ivec_val(setup->pixel_size));
-			searching = false;
-			if(new_size.x > setup->size.x) searching = true;
-			if(new_size.y > setup->size.y) searching = true;
-			if(searching)
-				setup->pixel_size++;
-		}
-		setup->size = new_size;
-	}
 	WHITGL_LOG("Pixel scale %d render area %d %d", setup->pixel_size, setup->size.x, setup->size.y);
 	if(!_window)
 	{
@@ -614,12 +623,12 @@ void _whitgl_sys_window_focus_callback(GLFWwindow *window, int focused)
 void _whitgl_sys_window_size_callback(GLFWwindow* window, int width, int height)
 {
 	(void)window;
-	if(_setup.resolution_mode != RESOLUTION_USE_WINDOW)
-		return;
 	whitgl_ivec new_size = {width, height};
-	_setup.size = new_size;
-	_setup_pointer->size = new_size;
-	whitgl_resize_framebuffer(0, new_size, false);
+
+	_whitgl_calculate_setup_size(&_setup, new_size);
+	_setup_pointer->size = _setup.size;
+	_setup_pointer->pixel_size = _setup.pixel_size;
+	whitgl_resize_framebuffer(0, _setup.size, false);
 }
 
 bool whitgl_sys_should_close()

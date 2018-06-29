@@ -34,6 +34,7 @@ int main()
 	setup.size.y = 32;
 	setup.pixel_size = 16;
 	setup.name = "main";
+	setup.resizable = true;
 
 	if(!whitgl_sys_init(&setup))
 		return 1;
@@ -63,9 +64,10 @@ int main()
 
 	whitgl_sys_add_image(0, "data/sprites.png");
 	whitgl_random_seed seed = whitgl_random_seed_init(0);
-	unsigned char data_texture[setup.size.x*setup.size.y*4];
+	whitgl_ivec texture_size = {32,32};
+	unsigned char data_texture[texture_size.x*texture_size.y*4];
 	whitgl_int i;
-	for(i=0; i<setup.size.x*setup.size.y*4; i+=4)
+	for(i=0; i<texture_size.x*texture_size.y*4; i+=4)
 	{
 		whitgl_int pixel = i/4;
 		data_texture[i] = (pixel%32)*8;
@@ -73,7 +75,7 @@ int main()
 		data_texture[i+2] = whitgl_random_int(&seed, 32)+128;
 		data_texture[i+3] = 255;
 	}
-	whitgl_sys_add_image_from_data(1, setup.size, data_texture);
+	whitgl_sys_add_image_from_data(1, texture_size, data_texture);
 
 	whitgl_load_model(0, "data/torus.wmd");
 	whitgl_load_model(1, "data/cube.wmd");
@@ -110,10 +112,10 @@ int main()
 				running = false;
 		}
 
-		for(i=0; i<setup.size.x*setup.size.y*4; i+=4)
+		for(i=0; i<texture_size.x*texture_size.y*4; i+=4)
 			data_texture[i+2] = whitgl_random_int(&seed, 32)+128;
 
-		whitgl_sys_update_image_from_data(1, setup.size, data_texture);
+		whitgl_sys_update_image_from_data(1, texture_size, data_texture);
 
 		whitgl_sys_draw_init(0);
 
