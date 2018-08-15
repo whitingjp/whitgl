@@ -47,6 +47,9 @@ int main()
 		}
 		whitgl_sys_draw_init(0);
 		whitgl_sys_draw_finish();
+
+		if(!whitgl_sys_window_focused())
+			whitgl_timer_sleep(1.0/30.0);
 	}
 
 	WHITGL_LOG("Shutting down input");

@@ -148,6 +148,9 @@ int main()
 		whitgl_set_shader_float(WHITGL_SHADER_POST, 0, uniform);
 		whitgl_set_shader_image(WHITGL_SHADER_POST, 1, 1);
 		whitgl_sys_draw_finish();
+
+		if(!whitgl_sys_window_focused())
+			whitgl_timer_sleep(1.0/30.0);
 	}
 
 	whitgl_input_shutdown();

@@ -23,13 +23,13 @@ def flags(input_dir):
     cflags += ' -g'
   ldflags = ''
   if plat == 'Windows':
-    cflags += ' -I_INPUT_/glfw/include -I_INPUT_/libpng -I_INPUT_/zlib -I_INPUT_/glew/include  -I_INPUT_/irrklang/include -I_INPUT_/TinyMT'
+    cflags += ' -D WHITGL_WINDOWS -I_INPUT_/glfw/include -I_INPUT_/libpng -I_INPUT_/zlib -I_INPUT_/glew/include  -I_INPUT_/irrklang/include -I_INPUT_/TinyMT'
     ldflags += ' -Wl,--stack,4194304 -L_INPUT_/glfw/lib-mingw -L_INPUT_/glew/lib/Release/Win32 -L_INPUT_/libpng -L_INPUT_/zlib -L_INPUT_/irrklang/bin/win32-gcc _INPUT_/glfw/lib-mingw/libglfw3dll.a -lglew32s -lglu32 -lopengl32  -lirrKlang -lpng -lz -mwindows _INPUT_/TinyMT/tinymt/tinymt64.o -lstdc++'
   elif plat == 'Darwin':
-    cflags += ' -fstack-protector-all -mmacosx-version-min=10.6 -isystem _INPUT_/irrklang/include -I_INPUT_/glfw/include -I_INPUT_/glew/include -I_INPUT_/libpng -I_INPUT_/TinyMT'
+    cflags += ' -D WHITGL_OSX -fstack-protector-all -mmacosx-version-min=10.6 -isystem _INPUT_/irrklang/include -I_INPUT_/glfw/include -I_INPUT_/glew/include -I_INPUT_/libpng -I_INPUT_/TinyMT'
     ldflags += ' -mmacosx-version-min=10.6 -L_INPUT_/irrklang/bin/macosx-gcc -L_INPUT_/glfw/build/src -L_INPUT_/libpng -L_INPUT_/zlib -L_INPUT_/glew/lib -framework OpenGL -framework Cocoa -framework IOKit -framework ForceFeedback -framework Carbon -framework CoreAudio -framework CoreVideo -framework AudioUnit -lpng -lirrklang -lglfw3 -lGLEW -lz _INPUT_/TinyMT/tinymt/tinymt64.o'
   else:
-    cflags += ' -fstack-protector-all -isystem _INPUT_/irrklang/include -I_INPUT_/glfw/include -I_INPUT_/TinyMT'
+    cflags += ' -D WHITGL_LINUX -fstack-protector-all -isystem _INPUT_/irrklang/include -I_INPUT_/glfw/include -I_INPUT_/TinyMT'
     ldflags += ' -Wl,-rpath=.,--enable-new-dtags -L_INPUT_/irrklang/bin/linux-gcc-64  -L_INPUT_/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lm -lIrrKlang -lX11 -lXxf86vm -lpthread -lXrandr -lXinerama -lXcursor -lXi -lpng -ldl _INPUT_/TinyMT/tinymt/tinymt64.o -lz'
   cflags = cflags.replace('_INPUT_', input_dir)
   ldflags = ldflags.replace('_INPUT_', input_dir)

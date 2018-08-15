@@ -54,3 +54,22 @@ whitgl_int whitgl_timer_fps()
 {
 	return _whitgl_timer_fps;
 }
+
+#ifdef WHITGL_WINDOWS
+#include <windows.h>
+#else
+#include <time.h>   // for nanosleep
+#endif
+
+void whitgl_timer_sleep(whitgl_float seconds) // cross-platform sleep function
+{
+#ifdef WIN32
+    Sleep(seconds*1000);
+#else
+    struct timespec ts;
+    whitgl_int just_second = seconds;
+    ts.tv_sec = just_second;
+    ts.tv_nsec = (seconds-just_second) * 1000000000;
+    nanosleep(&ts, NULL);
+#endif
+}
