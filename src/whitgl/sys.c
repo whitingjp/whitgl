@@ -787,7 +787,7 @@ void whitgl_sys_draw_finish()
 		unsigned char* buffer = malloc(capture_size.x*capture_size.y*4);
 		whitgl_int i;
 		for(i=0; i<capture_size.y; i++)
-			memcpy(buffer+i*capture_size.x, flipped_buffer+(capture_size.y-1-i)*capture_size.x, capture_size.x);
+			memcpy(buffer+i*capture_size.x*4, flipped_buffer+(capture_size.y-1-i)*capture_size.x*4, capture_size.x*4);
 
 		if(capture.to_file)
 			whitgl_sys_save_png(capture.file, capture_size.x, capture_size.y, buffer);
