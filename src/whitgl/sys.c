@@ -781,13 +781,21 @@ void whitgl_sys_draw_finish()
 			GL_CHECK( glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[capture.frame_buffer].buffer) );
 			capture_size = framebuffers[capture.frame_buffer].size;
 		}
+		unsigned char* flipped_buffer = malloc(capture_size.x*capture_size.y*4);
+		glReadPixels(0, 0, capture_size.x, capture_size.y, GL_RGBA, GL_UNSIGNED_BYTE, flipped_buffer);
+
 		unsigned char* buffer = malloc(capture_size.x*capture_size.y*4);
-		glReadPixels(0, 0, capture_size.x, capture_size.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+		whitgl_int i;
+		for(i=0; i<capture_size.y; i++)
+			memcpy(buffer+i*capture_size.x, flipped_buffer+(capture_size.y-1-i)*capture_size.x, capture_size.x);
+
 		if(capture.to_file)
 			whitgl_sys_save_png(capture.file, capture_size.x, capture_size.y, buffer);
 		else
 			memcpy(capture.data, buffer, capture_size.x*capture_size.y*4);
 		free(buffer);
+		free(flipped_buffer);
+
 		capture.do_next = false;
 	}
 
@@ -839,13 +847,23 @@ void whitgl_sys_draw_finish()
 
 	if(capture.do_next && !capture.pre_postprocess)
 	{
-		unsigned char* buffer = malloc(_window_size.x*_window_size.y*4);
-		glReadPixels(0, 0, _window_size.x, _window_size.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+		whitgl_ivec capture_size = _window_size;
+
+		unsigned char* flipped_buffer = malloc(capture_size.x*capture_size.y*4);
+		glReadPixels(0, 0, capture_size.x, capture_size.y, GL_RGBA, GL_UNSIGNED_BYTE, flipped_buffer);
+
+		unsigned char* buffer = malloc(capture_size.x*capture_size.y*4);
+		whitgl_int i;
+		for(i=0; i<capture_size.y; i++)
+			memcpy(buffer+i*capture_size.x, flipped_buffer+(capture_size.y-1-i)*capture_size.x, capture_size.x);
+
 		if(capture.to_file)
-			whitgl_sys_save_png(capture.file, _buffer_size.x, _buffer_size.y, buffer);
+			whitgl_sys_save_png(capture.file, capture_size.x, capture_size.y, buffer);
 		else
-			memcpy(capture.data, buffer, _buffer_size.x*_buffer_size.y*4);
+			memcpy(capture.data, buffer, capture_size.x*capture_size.y*4);
 		free(buffer);
+		free(flipped_buffer);
+
 		capture.do_next = false;
 	}
 
@@ -1352,7 +1370,7 @@ bool whitgl_sys_save_png(const char *name, whitgl_int width, whitgl_int height, 
 	{
 		whitgl_int size = sizeof (uint8_t) * png_width * 4;
 		// png_byte *row = png_malloc (png, sizeof (uint8_t) * png_width * 4);
-		row_pointers[height-1-y] = &data[size*y];
+		row_pointers[y] = &data[size*y];
 	}
 
 	png_write_image(png, row_pointers);
