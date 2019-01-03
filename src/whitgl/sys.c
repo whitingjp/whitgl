@@ -1615,27 +1615,34 @@ const char* whitgl_get_clipboard()
 	return glfwGetClipboardString(_window);
 }
 
-bool _has_drag_and_drop = false;
-char _drag_and_drop_path[PATH_MAX];
+#define MAX_DRAG_PATHS (16)
+char _drag_and_drop_paths[PATH_MAX*MAX_DRAG_PATHS];
+whitgl_int _num_drops = 0;
+
 void _whitgl_sys_drop_callback(GLFWwindow* window, int count, const char** paths)
 {
 	WHITGL_LOG("_whitgl_sys_drop_callback %d", count);
 	(void)window;
 	if(count < 1)
 		return;
-	if(count > 1)
-		WHITGL_LOG("Discarding all but first drop for the moment");
-	WHITGL_LOG("Recieved drag-and-drop file: %s", paths[0]);
-	_has_drag_and_drop = true;
-	strncpy(_drag_and_drop_path, paths[0], PATH_MAX);
+
+	_num_drops = 0;
+
+	whitgl_int i;
+	for(i=0; i<count && _num_drops < MAX_DRAG_PATHS; i++)
+	{
+		WHITGL_LOG("Recieved drag-and-drop file: %s", paths[i]);
+		strncpy(&_drag_and_drop_paths[i*PATH_MAX], paths[i], PATH_MAX);
+		_num_drops++;
+	}
 }
 
 bool whitgl_get_drag_and_drop(char filename[PATH_MAX])
 {
-	if(!_has_drag_and_drop)
+	if(_num_drops <= 0)
 		return false;
-	strncpy(filename, _drag_and_drop_path, PATH_MAX);
-	_has_drag_and_drop = false;
+	_num_drops--;
+	strncpy(filename, &_drag_and_drop_paths[_num_drops*PATH_MAX], PATH_MAX);
 	return true;
 }
 
