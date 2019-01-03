@@ -651,6 +651,10 @@ void whitgl_sys_draw_init(whitgl_int framebuffer_id)
 {
 	if(framebuffer_id >= num_framebuffers)
 		WHITGL_PANIC("invalid framebuffer, have you assigned enough");
+	if(started_drawing)
+	{
+		_whitgl_sys_flush_tex_iaabb();
+	}
 	int w, h;
 	glfwGetFramebufferSize(_window, &w, &h);
 	_window_size.x = w;
