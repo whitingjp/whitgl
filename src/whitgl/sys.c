@@ -737,9 +737,24 @@ void _whitgl_load_uniforms(whitgl_shader_slot slot)
 			case WHITGL_UNIFORM_IMAGE:
 			{
 				glUniform1i(location, i+1); // i+1 here is imperfect, it'd be better to know how many images we are actually using
-				whitgl_int image = shaders[slot].uniforms[i].image;
+				whitgl_int id = shaders[slot].uniforms[i].image;
+				int index = -1;
+				int j;
+				for(j=0; j<num_images; j++)
+				{
+					if(images[j].id == id)
+					{
+						index = j;
+						break;
+					}
+				}
+				if(index == -1)
+				{
+					WHITGL_PANIC("ERR Cannot find image %d", id);
+					return;
+				}
 				glActiveTexture(GL_TEXTURE0 + 1 + i);
-				glBindTexture(GL_TEXTURE_2D, images[image].gluint);
+				glBindTexture(GL_TEXTURE_2D, images[index].gluint);
 				break;
 			}
 			case WHITGL_UNIFORM_FRAMEBUFFER:
