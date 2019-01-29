@@ -1232,77 +1232,39 @@ bool whitgl_sys_load_png(const char *name, whitgl_int *width, whitgl_int *height
 	png_image image;
 	memset(&image, 0, (sizeof image));
 	image.version = PNG_IMAGE_VERSION;
-	if (png_image_begin_read_from_file(&image, name) != 0)
+	if (png_image_begin_read_from_file(&image, name) == 0)
+		return false;
+
+	image.format = PNG_FORMAT_RGBA;
+	*data = (unsigned char*) malloc(PNG_IMAGE_SIZE(image));
+
+	if(*data == NULL)
+		return false;
+
+	if (png_image_finish_read(&image, NULL, *data, 0, NULL) == 0)
 	{
-		image.format = PNG_FORMAT_RGBA;
-		*data = (unsigned char*) malloc(PNG_IMAGE_SIZE(image));
-
-		if(*data == NULL)
-			return false;
-
-		if (png_image_finish_read(&image, NULL, *data, 0, NULL) == 0)
-		{
-			if (*data == NULL)
-				png_image_free(&image);
-			else
-				free(*data);
-			return false;
-		}
-		*width = image.width;
-		*height = image.height;
-		return true;
+		if (*data == NULL)
+			png_image_free(&image);
+		else
+			free(*data);
+		return false;
 	}
-	return false;
+	*width = image.width;
+	*height = image.height;
+	return true;
 }
 bool whitgl_sys_save_png(const char *name, whitgl_int width, whitgl_int height, unsigned char *data)
 {
-	FILE *fp = fopen(name, "wb");
-	if(!fp) return false;
+	png_image save;
 
-	png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-	if (!png) return false;
+	memset(&save, 0, sizeof save);
+	save.version = PNG_IMAGE_VERSION;
+	save.width = width;
+	save.height = height;
+	save.format = PNG_FORMAT_RGBA;
 
-	png_infop info = png_create_info_struct(png);
-	if (!info) return false;
-
-	if (setjmp(png_jmpbuf(png))) return false;
-
-	png_init_io(png, fp);
-
-	png_uint_32 png_width = width;
-	png_uint_32 png_height = height;
-
-	// Output is 8bit depth, RGBA format.
-	png_set_IHDR(
-		png,
-		info,
-		png_width, png_height,
-		8,
-		PNG_COLOR_TYPE_RGBA,
-		PNG_INTERLACE_NONE,
-		PNG_COMPRESSION_TYPE_DEFAULT,
-		PNG_FILTER_TYPE_DEFAULT
-	);
-	png_write_info(png, info);
-
-	// To remove the alpha channel for PNG_COLOR_TYPE_RGB format,
-	// Use png_set_filler().
-	//png_set_filler(png, 0, PNG_FILLER_AFTER);
-
-	png_byte ** row_pointers = png_malloc (png, png_height * sizeof (png_byte *));
-	whitgl_int y;
-	for (y = 0; y < height; ++y)
-	{
-		whitgl_int size = sizeof (uint8_t) * png_width * 4;
-		// png_byte *row = png_malloc (png, sizeof (uint8_t) * png_width * 4);
-		row_pointers[y] = &data[size*y];
-	}
-
-	png_write_image(png, row_pointers);
-	png_write_end(png, NULL);
-
-	fclose(fp);
-
+	if (png_image_write_to_file(&save, name, 0, data, 0, NULL) == 0)
+		return false;
 	return true;
 }
 
