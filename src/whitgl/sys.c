@@ -1386,6 +1386,7 @@ whitgl_bool whitgl_load_model(whitgl_int id, const char* filename)
 	whitgl_int num_vertices = ((readSize/sizeof(GLfloat))/3)/3;
 
 	whitgl_sys_update_model_from_data(id, num_vertices, (char*)data);
+	free(data);
 	return true;
 }
 
