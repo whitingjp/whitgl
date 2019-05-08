@@ -1,6 +1,6 @@
 #/usr/bin/bash
 set -e
-sudo apt-get install ninja-build libglfw-dev libglew-dev libpng12-dev xorg-dev libglu1-mesa-dev wget libpng12-dev cmake
+sudo apt-get install ninja-build libglfw3-dev libglew-dev xorg-dev libglu1-mesa-dev wget libpng-dev cmake
 rm -rf input
 mkdir input
 pushd input

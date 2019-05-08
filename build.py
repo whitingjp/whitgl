@@ -30,7 +30,7 @@ def flags(input_dir):
     ldflags += ' -mmacosx-version-min=10.6 -L_INPUT_/irrklang/bin/macosx-gcc -L_INPUT_/glfw/build/src -L_INPUT_/libpng -L_INPUT_/zlib -L_INPUT_/glew/lib -framework OpenGL -framework Cocoa -framework IOKit -framework ForceFeedback -framework Carbon -framework CoreAudio -framework CoreVideo -framework AudioUnit -lpng -lirrklang -lglfw3 -lGLEW -lz _INPUT_/TinyMT/tinymt/tinymt64.o'
   else:
     cflags += ' -D WHITGL_LINUX -fstack-protector-all -isystem _INPUT_/irrklang/include -I_INPUT_/glfw/include -I_INPUT_/TinyMT'
-    ldflags += ' -Wl,-rpath=.,--enable-new-dtags -L_INPUT_/irrklang/bin/linux-gcc-64  -L_INPUT_/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lm -lIrrKlang -lX11 -lXxf86vm -lpthread -lXrandr -lXinerama -lXcursor -lXi -lpng -ldl _INPUT_/TinyMT/tinymt/tinymt64.o -lz'
+    ldflags += ' -Wl,-rpath=.,--enable-new-dtags -L_INPUT_/irrklang/bin/linux-gcc-64  -L_INPUT_/glfw/build/src -lglfw3 -lGLU -lGL -lGLEW -lm -lIrrKlang -lX11 -lXxf86vm -lpthread -lXrandr -lXinerama -lXcursor -lXi -lpng -ldl _INPUT_/TinyMT/tinymt/tinymt64.o -lz -lstdc++'
   cflags = cflags.replace('_INPUT_', input_dir)
   ldflags = ldflags.replace('_INPUT_', input_dir)
   return (cflags, ldflags)
