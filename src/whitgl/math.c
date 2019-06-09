@@ -963,6 +963,12 @@ whitgl_int whitgl_angle_to_facing(whitgl_float angle)
 	return 3;
 }
 
+static const whitgl_ivec facing8_conv[8] = {{0,-1},{1,-1},{1,0},{1,1},{0,1},{-1,1},{-1,0},{-1,-1}};
+whitgl_ivec whitgl_facing8_to_ivec(whitgl_int dir8)
+{
+	dir8 = whitgl_iclamp(dir8, 0, 8);
+	return facing8_conv[dir8];
+}
 whitgl_fvec whitgl_facing8_to_fvec(whitgl_int dir8)
 {
 	return whitgl_angle_to_fvec(whitgl_fwrap(((dir8-2)*whitgl_pi*2)/8,-whitgl_pi,whitgl_pi));
