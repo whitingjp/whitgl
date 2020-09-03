@@ -6,7 +6,7 @@ sys.path.insert(0, 'input')
 import ninja_syntax
 
 plat = platform.system()
-if plat == 'MINGW32_NT-10.0':
+if plat.startswith('MINGW32_NT'):
   plat = 'Windows'
 bit64 = platform.architecture()[0] == '64bit'
 joinp = os.path.join
