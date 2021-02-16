@@ -426,7 +426,7 @@ bool whitgl_sys_init(whitgl_sys_setup* setup)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	_windowFocused = setup->start_focused;
+	_windowFocused = setup->start_focused || setup->fullscreen;
 	if(!_windowFocused)
 		glfwWindowHint(GLFW_FOCUSED, GL_FALSE);
 	if(!setup->resizable)
