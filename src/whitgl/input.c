@@ -12,6 +12,7 @@ whitgl_fvec _joystick2;
 whitgl_fvec _joystick3;
 whitgl_float _scroll;
 whitgl_ivec _mouse_pos;
+whitgl_input_joystick_style _current_joystick_style;
 
 extern GLFWwindow* _window;
 
@@ -20,6 +21,29 @@ void _whitgl_scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	(void)window;
 	(void)xoffset;
 	_scroll += yoffset;
+}
+
+whitgl_input_joystick_style _whitgl_guess_joystick_style()
+{
+	if(!glfwJoystickIsGamepad(GLFW_JOYSTICK_1))
+		return WHITGL_JOYSTICK_NONE;
+
+	const char* joyname = glfwGetGamepadName(GLFW_JOYSTICK_1);
+
+	const char* playstation_strings[6] = {
+		"PS5",
+		"PS4",
+		"PS3",
+		"PS2",
+		"PS1",
+		"Playstation",
+	};
+
+	whitgl_int i;
+	for(i=0; i<6; i++)
+		if(strstr(joyname, playstation_strings[i]))
+			return WHITGL_JOYSTICK_PLAYSTATION;
+	return WHITGL_JOYSTICK_XBOX;
 }
 
 void whitgl_input_init()
@@ -35,6 +59,7 @@ void whitgl_input_init()
 	// glfwSetInputMode (_window, GLFW_STICKY_KEYS, GL_TRUE);
 	glfwSetInputMode(_window, GLFW_STICKY_MOUSE_BUTTONS, 1);
 	glfwSetScrollCallback(_window, _whitgl_scroll_callback);
+	_current_joystick_style = _whitgl_guess_joystick_style();
 }
 
 void whitgl_input_shutdown()
@@ -106,7 +131,10 @@ void whitgl_input_update()
 	int i;
 	bool _oldInputs[WHITGL_INPUT_MAX];
 	for(i=0; i<WHITGL_INPUT_MAX; i++)
+	{
 		_oldInputs[i] = _heldInputs[i];
+		_heldInputs[i] = false;
+	}
 
 	_heldInputs[WHITGL_INPUT_KEYBOARD_UP] = _press(GLFW_KEY_UP) || _press('K') || _press('W') || _press(GLFW_KEY_KP_8);
 	_heldInputs[WHITGL_INPUT_KEYBOARD_RIGHT] = _press(GLFW_KEY_RIGHT) || _press('L') || _press('D') || _press(GLFW_KEY_KP_6);
@@ -144,6 +172,16 @@ void whitgl_input_update()
 	_heldInputs[WHITGL_INPUT_MOUSE_SCROLL_DOWN] = _scroll > 0;
 	_scroll = 0;
 
+	whitgl_int post_keyboard_count = 0;
+	for(i=0; i<WHITGL_INPUT_MAX; i++)
+	{
+		if(i==WHITGL_INPUT_ESC)
+			continue;
+		if(!_heldInputs[i])
+			continue;
+		post_keyboard_count++;
+	}
+
 	GLFWgamepadstate state;
 	if(glfwJoystickIsGamepad(GLFW_JOYSTICK_1) && glfwGetGamepadState(GLFW_JOYSTICK_1, &state))
 	{
@@ -180,6 +218,24 @@ void whitgl_input_update()
 	if(_joystick.y > button_dead) _heldInputs[WHITGL_INPUT_DOWN] = true;
 	if(_joystick.x < -button_dead) _heldInputs[WHITGL_INPUT_LEFT] = true;
 
+	whitgl_int post_joystick_count = 0;
+	for(i=0; i<WHITGL_INPUT_MAX; i++)
+	{
+		if(i==WHITGL_INPUT_ESC)
+			continue;
+		if(!_heldInputs[i])
+			continue;
+		post_joystick_count++;
+	}
+
+	if(post_joystick_count > post_keyboard_count)
+	{
+		_current_joystick_style = _whitgl_guess_joystick_style();
+	} else if(post_keyboard_count > 0)
+	{
+		_current_joystick_style = WHITGL_JOYSTICK_NONE;
+	}
+
 	_heldInputs[WHITGL_INPUT_ANY] = false;
 	for(i=0; i<WHITGL_INPUT_ANY; i++)
 		if(_heldInputs[i])
@@ -195,12 +251,5 @@ void whitgl_input_update()
 }
 whitgl_input_joystick_style whitgl_input_get_joystick_style()
 {
-	if(!glfwJoystickPresent(GLFW_JOYSTICK_1))
-		return WHITGL_JOYSTICK_NONE;
-	const char* joyname = glfwGetJoystickName(GLFW_JOYSTICK_1);
-	if(strncmp(joyname, "PLAYSTATION(R)3 Controller", 26)==0)
-		return WHITGL_JOYSTICK_PLAYSTATION;
-	if(strncmp(joyname, "Wireless Controller", 19)==0)
-		return WHITGL_JOYSTICK_PLAYSTATION;
-	return WHITGL_JOYSTICK_XBOX;
+	return _current_joystick_style;
 }
