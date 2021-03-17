@@ -10,9 +10,9 @@ $DOWNLOAD https://raw.githubusercontent.com/martine/ninja/master/misc/ninja_synt
 $DOWNLOAD http://www.ambiera.at/downloads/irrKlang-32bit-1.5.0.zip irrKlang-32bit-1.5.0.zip
 $UNZIP irrKlang-32bit-1.5.0.zip
 mv irrKlang-1.5.0 irrklang
-$DOWNLOAD https://github.com/glfw/glfw/releases/download/3.2.1/glfw-3.2.1.bin.WIN32.zip glfw-3.2.1.bin.WIN32.zip
-$UNZIP glfw-3.2.1.bin.WIN32.zip
-mv glfw-3.2.1.bin.WIN32 glfw
+$DOWNLOAD https://github.com/glfw/glfw/releases/download/3.3.3/glfw-3.3.3.bin.WIN32.zip glfw-3.3.3.bin.WIN32.zip
+$UNZIP glfw-3.3.3.bin.WIN32.zip
+mv glfw-3.3.3.bin.WIN32 glfw
 $DOWNLOAD https://github.com/nigels-com/glew/releases/download/glew-2.0.0/glew-2.0.0-win32.zip glew-2.0.0-win32.zip
 $UNZIP glew-2.0.0-win32.zip
 mv glew-2.0.0 glew
