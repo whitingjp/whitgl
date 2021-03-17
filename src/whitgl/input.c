@@ -143,100 +143,24 @@ void whitgl_input_update()
 	_heldInputs[WHITGL_INPUT_MOUSE_SCROLL_UP] = _scroll < 0;
 	_heldInputs[WHITGL_INPUT_MOUSE_SCROLL_DOWN] = _scroll > 0;
 	_scroll = 0;
-	if(glfwJoystickPresent(GLFW_JOYSTICK_1))
+
+	GLFWgamepadstate state;
+	if(glfwJoystickIsGamepad(GLFW_JOYSTICK_1) && glfwGetGamepadState(GLFW_JOYSTICK_1, &state))
 	{
-		const char* joyname = glfwGetJoystickName(GLFW_JOYSTICK_1);
-		int count;
-		const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
-		if(count >= 2)
-		{
-			_joystick.x = _deadzone(axes[0]);
-			_joystick.y = _deadzone(axes[1]);
-		}
-		if(count >= 4)
-		{
-			if(count >= 5 && strncmp(joyname, "Microsoft PC-joystick driver", 28)==0)
-			{
-				_joystick2.x = _deadzone(axes[4]);
-				_joystick2.y = _deadzone(axes[3]);
-			} else
-			{
-				_joystick2.x = _deadzone(axes[2]);
-				_joystick2.y = _deadzone(axes[3]);
-			}
-		}
-		if(count >= 5)
-		{
-			if(strncmp(joyname, "Microsoft PC-joystick driver", 28)==0)
-			{
-				if(axes[2] > 0)
-					_joystick3.x = axes[2];
-				else
-					_joystick3.y = -axes[2];
-			} else if(count >= 6)
-			{
-				_joystick3.x = (1+axes[4])/2.0;
-				_joystick3.y = (1+axes[5])/2.0;
-			}
-		}
-		const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1,&count);
-		// whitgl_int i;
-		// for(i=0; i<count; i++)
-		// {
-		// 	if(buttons[i])
-		// 		WHITGL_LOG("button held %d", i);
-		// }
-		if(strncmp(joyname, "PLAYSTATION(R)3 Controller", 26)==0)
-		{
-			_heldInputs[WHITGL_INPUT_A] |= buttons[14];
-			_heldInputs[WHITGL_INPUT_B] |= buttons[13];
-			_heldInputs[WHITGL_INPUT_X] |= buttons[15];
-			_heldInputs[WHITGL_INPUT_Y] |= buttons[12];
-			_heldInputs[WHITGL_INPUT_START] |= buttons[3];
-			_heldInputs[WHITGL_INPUT_ESC] |= buttons[3];
-			if(buttons[4]) _joystick.y = -1;
-			if(buttons[5]) _joystick.x = 1;
-			if(buttons[6]) _joystick.y = 1;
-			if(buttons[7]) _joystick.x = -1;
-		} else if(strncmp(joyname, "Wireless Controller", 19)==0)
-		{
-			_heldInputs[WHITGL_INPUT_A] |= buttons[1];
-			_heldInputs[WHITGL_INPUT_B] |= buttons[2];
-			_heldInputs[WHITGL_INPUT_X] |= buttons[0];
-			_heldInputs[WHITGL_INPUT_Y] |= buttons[3];
-			_heldInputs[WHITGL_INPUT_START] |= buttons[9];
-			_heldInputs[WHITGL_INPUT_ESC] |= buttons[9];
-			if(buttons[14]) _joystick.y = -1;
-			if(buttons[15]) _joystick.x = 1;
-			if(buttons[16]) _joystick.y = 1;
-			if(buttons[17]) _joystick.x = -1;
-		} else if(strncmp(joyname, "Xbox 360 Wired Controller", 25)==0)
-		{
-			_heldInputs[WHITGL_INPUT_A] |= buttons[11];
-			_heldInputs[WHITGL_INPUT_B] |= buttons[12];
-			_heldInputs[WHITGL_INPUT_X] |= buttons[13];
-			_heldInputs[WHITGL_INPUT_Y] |= buttons[14];
-			_heldInputs[WHITGL_INPUT_START] |= buttons[4];
-			_heldInputs[WHITGL_INPUT_ESC] |= buttons[4];
-			if(buttons[0]) _joystick.y = -1;
-			if(buttons[1]) _joystick.y = 1;
-			if(buttons[2]) _joystick.x = -1;
-			if(buttons[3]) _joystick.x = 1;
-		} else if(strncmp(joyname, "Microsoft PC-joystick driver", 28)==0)
-		{
-			_heldInputs[WHITGL_INPUT_A] |= buttons[0];
-			_heldInputs[WHITGL_INPUT_B] |= buttons[1];
-			_heldInputs[WHITGL_INPUT_X] |= buttons[2];
-			_heldInputs[WHITGL_INPUT_Y] |= buttons[3];
-			_heldInputs[WHITGL_INPUT_START] |= buttons[7];
-			_heldInputs[WHITGL_INPUT_ESC] |= buttons[7];
-		} else if(count >= 4)
-		{
-			_heldInputs[WHITGL_INPUT_A] |= buttons[0];
-			_heldInputs[WHITGL_INPUT_B] |= buttons[1];
-			_heldInputs[WHITGL_INPUT_X] |= buttons[2];
-			_heldInputs[WHITGL_INPUT_Y] |= buttons[3];
-		}
+		_joystick.x = _deadzone(state.axes[GLFW_GAMEPAD_AXIS_LEFT_X]);
+		_joystick.y = _deadzone(state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y]);
+		_joystick2.x = _deadzone(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X]);
+		_joystick2.y = _deadzone(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
+		_heldInputs[WHITGL_INPUT_A] |= state.buttons[GLFW_GAMEPAD_BUTTON_A];
+		_heldInputs[WHITGL_INPUT_B] |= state.buttons[GLFW_GAMEPAD_BUTTON_B];
+		_heldInputs[WHITGL_INPUT_X] |= state.buttons[GLFW_GAMEPAD_BUTTON_X];
+		_heldInputs[WHITGL_INPUT_Y] |= state.buttons[GLFW_GAMEPAD_BUTTON_Y];
+		_heldInputs[WHITGL_INPUT_START] |= state.buttons[GLFW_GAMEPAD_BUTTON_START];
+		_heldInputs[WHITGL_INPUT_SELECT] |= state.buttons[GLFW_GAMEPAD_BUTTON_BACK];
+		if(state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_UP]) _joystick.y = -1;
+		if(state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_RIGHT]) _joystick.x = 1;
+		if(state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_DOWN]) _joystick.y = 1;
+		if(state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_LEFT]) _joystick.x = -1;
 	} else
 	{
 		_joystick.x = 0;
@@ -244,6 +168,8 @@ void whitgl_input_update()
 		_joystick2.x = 0;
 		_joystick2.y = 0;
 	}
+
+
 	if(_heldInputs[WHITGL_INPUT_UP] && !_heldInputs[WHITGL_INPUT_DOWN]) _joystick.y = -1;
 	if(_heldInputs[WHITGL_INPUT_RIGHT] && !_heldInputs[WHITGL_INPUT_LEFT]) _joystick.x = 1;
 	if(_heldInputs[WHITGL_INPUT_DOWN] && !_heldInputs[WHITGL_INPUT_UP]) _joystick.y = 1;
