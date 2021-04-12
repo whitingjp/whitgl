@@ -366,6 +366,8 @@ void _whitgl_calculate_setup_size(whitgl_sys_setup* setup, whitgl_ivec screen_si
 	if(setup->resolution_mode == RESOLUTION_AT_LEAST)
 	{
 		setup->pixel_size = screen_size.x/_initial_setup_size.x;
+		if(setup->pixel_size < 1)
+			setup->pixel_size = 1;
 		whitgl_ivec new_size;
 		bool searching = true;
 		while(searching)
@@ -623,8 +625,14 @@ void _whitgl_sys_window_focus_callback(GLFWwindow *window, int focused)
 void _whitgl_sys_window_size_callback(GLFWwindow* window, int width, int height)
 {
 	(void)window;
-	whitgl_ivec new_size = {width, height};
+	if(width == 0 || height == 0)
+	{
+		// probably de-focusing or something similar, wait until we have a
+		// viable size before changing anything
+		return;
+	}
 
+	whitgl_ivec new_size = {width, height};
 	_whitgl_calculate_setup_size(&_setup, new_size);
 	_setup_pointer->size = _setup.size;
 	_setup_pointer->pixel_size = _setup.pixel_size;
